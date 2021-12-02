@@ -1,3 +1,3 @@
-# Little World
+# TinyWorld
 
 Travel the globe from your photos
