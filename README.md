@@ -5,7 +5,7 @@ Travel the globe from your photos. You'll see how small the World is.
 ## Features
 
 - 100% offline desktop app: no internet connection needed
-- Available as portable app or container image 
+- Available as portable app or container image
 - Catalog your photos: extract metadata, generate thumbnails
 - Display thumbnails and info on virtual globe using extracted geolocation data
 - Search & filter capabilities to easily navigate your photos (by dates, countries, ...)
@@ -21,13 +21,28 @@ Travel the globe from your photos. You'll see how small the World is.
 - OpenSearch: <https://github.com/opensearch-project/OpenSearch>
 - Metadata Extractor: <https://github.com/drewnoakes/metadata-extractor>
 
+## WWJ Utilities
+
+Nasa WorlWind comes with lot of examples and utilities. Exhaustive list can be found at <https://worldwind.arc.nasa.gov/java/examples/#anchor>.
+
+Below is a list of the most useful ones for TinyWorld usage:
+
+- Display globe/flat map and layers: `./wwj-utils.sh`
+- Globe only: `./wwj-utils.sh gov.nasa.worldwindx.examples.SimplestPossibleExample`
+- Annotations:
+  - `./wwj-utils.sh gov.nasa.worldwindx.examples.Annotations`
+  - `./wwj-utils.sh gov.nasa.worldwindx.examples.AnnotationControls`
+- Manage local cache: `./wwj-utils.sh gov.nasa.worldwindx.examples.util.cachecleaner.DataCacheViewer`
+- Bulk download layers: `./wwj-utils.sh gov.nasa.worldwindx.examples.BulkDownload`
+- Online/Offline mode *(note: this mode is available in TinyWorld UI)*: `./wwj-utils.sh gov.nasa.worldwindx.examples.NetworkOfflineMode`
+
 ## Workarounds
 
 ### JOGL
 
 Looks like there are some issues using JOGL library with Java 8+: see [here](https://forum.jogamp.org/InaccessibleObjectException-td4040284.html). A workaround is provided at <https://jogamp.org/bugzilla/show_bug.cgi?id=1317#c21>.
 
-Edit `run-demo.bash` and insert `--add-exports` args:
+Edit [globe/deps/wwj/wwj-utils.sh](globe/deps/wwj/wwj-utils.sh) and insert `--add-exports` args:
 
 ```sh
 java --add-exports java.base/java.lang=ALL-UNNAMED --add-exports java.desktop/sun.awt=ALL-UNNAMED --add-exports java.desktop/sun.java2d=ALL-UNNAMED -Xmx2048m ...
