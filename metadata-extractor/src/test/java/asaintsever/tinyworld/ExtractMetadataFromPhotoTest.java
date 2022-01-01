@@ -47,7 +47,9 @@ import com.drew.metadata.jpeg.JpegDirectory;
 import com.drew.metadata.png.PngDirectory;
 import com.drew.metadata.xmp.XmpDirectory;
 
-public class ExtractMetadataFromJPEGTest {
+import net.coobird.thumbnailator.Thumbnails;
+
+public class ExtractMetadataFromPhotoTest {
 	
 	@Test
 	void getAllPhotoMetadata() {
@@ -162,8 +164,6 @@ public class ExtractMetadataFromJPEGTest {
 	void getPhotoThumbnails() {
 		// Using MAX_VALUE to indicate that all levels should be visited.
 		int nb_photo = exploreFS("src/test/resources/photos", Integer.MAX_VALUE, new PhotoProcess() {
-		// Using 1 to indicate that only first level should be visited.
-		//int nb_photo = exploreFS("src/test/resources/photos/level1/level1.0", 3, new PhotoProcess() {
 
 			@Override
 			public void task(String path, FileType fileType, Metadata metadata) {
@@ -176,38 +176,46 @@ public class ExtractMetadataFromJPEGTest {
 					filename = fsDesc.getDescription(FileSystemDirectory.TAG_FILE_NAME);
 				}
 				
+				byte[] data = null;
 				ExifThumbnailDirectory exfThumbDir = metadata.getFirstDirectoryOfType(ExifThumbnailDirectory.class);
-				if (exfThumbDir != null) {
-					byte[] data = (byte[]) exfThumbDir.getObject(TAG_THUMBNAIL_DATA);
+				if (exfThumbDir != null) data = (byte[]) exfThumbDir.getObject(TAG_THUMBNAIL_DATA);
 					
-					if(data != null && data.length > 0) {
-						File outputFile = null;
-						
-						switch(fileType) {
-						case Jpeg:
-							outputFile = new File("target/test-classes/" + filename + "_thumbnail.jpg");
-							break;
-						case Png:
-							outputFile = new File("target/test-classes/" + filename + "_thumbnail.png");
-							break;
-						default:
-							break;
+				if(data != null && data.length > 0) {
+					File outputFile = null;
+					
+					switch(fileType) {
+					case Jpeg:
+						outputFile = new File("target/test-classes/" + filename + "_thumbnail.jpg");
+						break;
+					case Png:
+						outputFile = new File("target/test-classes/" + filename + "_thumbnail.png");
+						break;
+					default:
+						break;
+					}
+					
+					if(outputFile != null) {
+						try {
+							Files.write(outputFile.toPath(), data);
+						} catch (IOException e) {
+							e.printStackTrace();
 						}
 						
-						if(outputFile != null) {
-							try {
-								Files.write(outputFile.toPath(), data);
-							} catch (IOException e) {
-								e.printStackTrace();
-							}
-							
-							System.out.println("... Done");
-						}
-					} else {
-						System.out.println("!! No thumbnail");
+						System.out.println("... Done");
 					}
 				} else {
-					System.out.println("!! No thumbnail");
+					System.out.println("!! No thumbnail found in metadata -> generating thumbnail from photo");
+					
+					try {
+						// Create thumbnail from photo, resized to a maximum dimension of 160 x 160, maintaining the aspect ratio of the original image
+						Thumbnails.of(path)
+						    .size(160, 160)
+						    .toFile("target/test-classes/" + filename + "_thumbnail.jpg");
+						
+						System.out.println("... Done");
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
 				}
 			}
 		});
