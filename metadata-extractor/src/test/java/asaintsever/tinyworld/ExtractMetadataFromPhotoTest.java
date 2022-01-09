@@ -8,12 +8,16 @@ import java.io.FileInputStream;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URI;
 import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -46,6 +50,9 @@ import com.drew.metadata.iptc.IptcDirectory;
 import com.drew.metadata.jpeg.JpegDirectory;
 import com.drew.metadata.png.PngDirectory;
 import com.drew.metadata.xmp.XmpDirectory;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
 import net.coobird.thumbnailator.Thumbnails;
 
@@ -57,7 +64,7 @@ public class ExtractMetadataFromPhotoTest {
 		int nb_photo = exploreFS("src/test/resources/photos", Integer.MAX_VALUE, new PhotoProcess() {
 			
 			@Override
-			public void task(String path, FileType fileType, Metadata metadata) {
+			public void task(URI uri, FileType fileType, Metadata metadata) {
 				for (Directory directory : metadata.getDirectories()) {
 					System.out.println("\n> " + directory);
 					
@@ -83,16 +90,32 @@ public class ExtractMetadataFromPhotoTest {
 	
 	@Test
 	void getTinyWorldPhotoMetadata() {
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+		
 		// Using 1 to indicate that only first level should be visited.
 		int nb_photo = exploreFS("src/test/resources/photos", 1, new PhotoProcess() {
 			
 			@Override
-			public void task(String path, FileType fileType, Metadata metadata) {
+			public void task(URI uri, FileType fileType, Metadata metadata) {
+				PhotoMetadata photoMet = new PhotoMetadata();
+				
 				ExifSubIFDDirectory exfSubDir = metadata.getFirstDirectoryOfType(ExifSubIFDDirectory.class);
 				if (exfSubDir != null) {
 					ExifSubIFDDescriptor exfSubDesc = new ExifSubIFDDescriptor(exfSubDir);
-					System.out.println("Taken Date: " + exfSubDesc.getDescription(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL));
-					if(exfSubDesc.getDescription(ExifSubIFDDirectory.TAG_TIME_ZONE_OFFSET_TIFF_EP) != null) System.out.println("Time Zone Offset: " + exfSubDesc.getDescription(ExifSubIFDDirectory.TAG_TIME_ZONE_OFFSET_TIFF_EP));
+					
+					System.out.println("taken Date: " + exfSubDesc.getDescription(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL));
+					
+					try {
+						SimpleDateFormat df = new SimpleDateFormat(PhotoMetadata.EXIF_DATE_PATTERN);
+						df.setTimeZone(TimeZone.getTimeZone("UTC"));
+						df.setLenient(false);
+						photoMet.takenDate = df.parse(exfSubDesc.getDescription(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL));
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+					
+					photoMet.timeZoneOffset = exfSubDesc.getDescription(ExifSubIFDDirectory.TAG_TIME_ZONE_OFFSET_TIFF_EP);
 					
 					// Get width and height from TAG_EXIF_IMAGE_WIDTH and TAG_EXIF_IMAGE_HEIGHT
 					// If no values in EXIF: get from TAG_IMAGE_WIDTH and TAG_IMAGE_HEIGHT (in JpegDirectory or PngDirectory depending on file type)
@@ -115,44 +138,56 @@ public class ExtractMetadataFromPhotoTest {
 						}
 					}
 					
-					System.out.println("Width x Height: " + imgWidth + "x" + imgHeight);
+					photoMet.pixelRes = imgWidth + "x" + imgHeight;
 				}
 				
 				IptcDirectory iptcDir = metadata.getFirstDirectoryOfType(IptcDirectory.class);
 				if (iptcDir != null) {
 					IptcDescriptor iptcDesc = new IptcDescriptor(iptcDir);
-					if(iptcDesc.getCountryOrPrimaryLocationDescription() != null) System.out.println("Country: " + iptcDesc.getCountryOrPrimaryLocationDescription());
-					if(iptcDesc.getProvinceOrStateDescription() != null) System.out.println("State/Province: " + iptcDesc.getProvinceOrStateDescription());
-					if(iptcDesc.getCityDescription() != null) System.out.println("City: " + iptcDesc.getCityDescription());
-					if(iptcDesc.getDescription(IptcDirectory.TAG_SUB_LOCATION) != null) System.out.println("Sublocation: " + iptcDesc.getDescription(IptcDirectory.TAG_SUB_LOCATION));
-					if(iptcDesc.getCaptionDescription() != null) System.out.println("Caption: " + iptcDesc.getCaptionDescription());
-					if(iptcDesc.getObjectNameDescription() != null) System.out.println("Title: " + iptcDesc.getObjectNameDescription());
-					if(iptcDesc.getHeadlineDescription() != null) System.out.println("Headline: " + iptcDesc.getHeadlineDescription());
+					photoMet.countryCode = iptcDesc.getDescription(IptcDirectory.TAG_COUNTRY_OR_PRIMARY_LOCATION_CODE);
+					photoMet.country = iptcDesc.getCountryOrPrimaryLocationDescription();
+					photoMet.stateOrProvince = iptcDesc.getProvinceOrStateDescription();
+					photoMet.city = iptcDesc.getCityDescription();
+					photoMet.sublocation = iptcDesc.getDescription(IptcDirectory.TAG_SUB_LOCATION);
+					photoMet.caption = iptcDesc.getCaptionDescription();
+					photoMet.title = iptcDesc.getObjectNameDescription();
+					photoMet.headline = iptcDesc.getHeadlineDescription();
 				}
 				
 				GpsDirectory gpsDir = metadata.getFirstDirectoryOfType(GpsDirectory.class);
 				if (gpsDir != null) {
 					GpsDescriptor gpsDesc = new GpsDescriptor(gpsDir);
-					if(gpsDesc.getGpsLatitudeDescription() != null) System.out.println("Lat: " + gpsDesc.getDescription(GpsDirectory.TAG_LATITUDE_REF) + " " + gpsDesc.getGpsLatitudeDescription());
-					if(gpsDesc.getGpsLongitudeDescription() != null) System.out.println("Lon: " + gpsDesc.getDescription(GpsDirectory.TAG_LONGITUDE_REF) + " " + gpsDesc.getGpsLongitudeDescription());
-					if(gpsDesc.getDescription(GpsDirectory.TAG_MAP_DATUM) != null) System.out.println("Datum: " + gpsDesc.getDescription(GpsDirectory.TAG_MAP_DATUM));
+					photoMet.gpsLat = gpsDesc.getDescription(GpsDirectory.TAG_LATITUDE_REF) != null ? (gpsDesc.getDescription(GpsDirectory.TAG_LATITUDE_REF) + " " + gpsDesc.getGpsLatitudeDescription()) : null;
+					photoMet.gpsLong = gpsDesc.getDescription(GpsDirectory.TAG_LONGITUDE_REF) != null ? (gpsDesc.getDescription(GpsDirectory.TAG_LONGITUDE_REF) + " " + gpsDesc.getGpsLongitudeDescription()) : null;
+					photoMet.gpsDatum = gpsDesc.getDescription(GpsDirectory.TAG_MAP_DATUM);
 				}
 				
 				FileSystemDirectory fsDir = metadata.getFirstDirectoryOfType(FileSystemDirectory.class);
 				if (fsDir != null) {					
 					Long photoSize = fsDir.getLongObject(FileSystemDirectory.TAG_FILE_SIZE);
-					System.out.println(fsDir.getTagName(FileSystemDirectory.TAG_FILE_SIZE) + ": " + (photoSize != null ? String.format("%.3f Mb", photoSize/(1024.0*1024.0)) : "Unknown"));
+					photoMet.sizeMb = photoSize != null ? photoSize/(1024.0f*1024.0f) : null;
 					
 					FileSystemDescriptor fsDesc = new FileSystemDescriptor(fsDir);
-					System.out.println(fsDir.getTagName(FileSystemDirectory.TAG_FILE_NAME) + ": " + fsDesc.getDescription(FileSystemDirectory.TAG_FILE_NAME));
+					photoMet.fileName = fsDesc.getDescription(FileSystemDirectory.TAG_FILE_NAME);
 				}
 				
-				System.out.println("Path: " + path);
+				try {
+					System.out.println("uri: " + uri);
+					photoMet.path = uri.toURL();
+				} catch (MalformedURLException e) {
+					e.printStackTrace();
+				}
 				
 				ExifIFD0Directory exfDir = metadata.getFirstDirectoryOfType(ExifIFD0Directory.class);
 				if (exfDir != null) {
 					ExifIFD0Descriptor exfDesc = new ExifIFD0Descriptor(exfDir);
-					System.out.println("Camera Model (Manufacturer): " + exfDesc.getDescription(ExifIFD0Directory.TAG_MODEL) + " (" + exfDesc.getDescription(ExifIFD0Directory.TAG_MAKE) + ")");
+					photoMet.camModelMake = exfDesc.getDescription(ExifIFD0Directory.TAG_MODEL) + " (" + exfDesc.getDescription(ExifIFD0Directory.TAG_MAKE) + ")";
+				}
+				
+				try {
+					System.out.println(mapper.writeValueAsString(photoMet));
+				} catch (JsonProcessingException e) {
+					e.printStackTrace();
 				}
 			}
 		});
@@ -166,8 +201,8 @@ public class ExtractMetadataFromPhotoTest {
 		int nb_photo = exploreFS("src/test/resources/photos", Integer.MAX_VALUE, new PhotoProcess() {
 
 			@Override
-			public void task(String path, FileType fileType, Metadata metadata) {
-				System.out.println("Extracting thumbnail from " + path + " ...");
+			public void task(URI uri, FileType fileType, Metadata metadata) {
+				System.out.println("Extracting thumbnail from " + uri + " ...");
 				
 				String filename = "";
 				FileSystemDirectory fsDir = metadata.getFirstDirectoryOfType(FileSystemDirectory.class);
@@ -208,7 +243,7 @@ public class ExtractMetadataFromPhotoTest {
 					
 					try {
 						// Create thumbnail from photo, resized to a maximum dimension of 160 x 160, maintaining the aspect ratio of the original image
-						Thumbnails.of(path)
+						Thumbnails.of(uri.toURL())
 						    .size(160, 160)
 						    .toFile("target/test-classes/" + filename + "_thumbnail.jpg");
 						
@@ -224,16 +259,16 @@ public class ExtractMetadataFromPhotoTest {
 	}
 	
 	interface PhotoProcess {
-		void task(String path, FileType fileType, Metadata metadata);
+		void task(URI uri, FileType fileType, Metadata metadata);
 	}
 	
 	static int exploreFS(String rootDir, int depth, PhotoProcess photoProcess) {
 		int nb_processed_photo = 0;
 		
 		try {
-			Set<String> photos = listFilesUsingFileWalk(rootDir, depth);
+			Set<URI> photos = listFilesUsingFileWalk(rootDir, depth);
 			
-			for (String photo : photos) {
+			for (URI photo : photos) {
 				File photoFile = new File(photo);
 				try(InputStream photoStream = new FileInputStream(photoFile)) {
 					try(FilterInputStream photoFltStream = new BufferedInputStream(photoStream)) {
@@ -259,11 +294,11 @@ public class ExtractMetadataFromPhotoTest {
 		return nb_processed_photo;
 	}
 	
-	static Set<String> listFilesUsingFileWalk(String dir, int depth) throws IOException {
+	static Set<URI> listFilesUsingFileWalk(String dir, int depth) throws IOException {
 	    try (Stream<Path> stream = Files.walk(Paths.get(dir), depth, FileVisitOption.FOLLOW_LINKS)) {
 	        return stream
 	          .filter(file -> !Files.isDirectory(file))
-	          .map(Path::toString)
+	          .map(Path::toUri)
 	          .collect(Collectors.toSet());
 	    }
 	}

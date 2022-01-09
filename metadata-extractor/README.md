@@ -4,6 +4,7 @@
 
 - **Taken Date (TZ)** *Exif:SubIFD:DateTimeOriginal (Exif:SubIFD:TimeZoneOffset)*
 - **Width x Height** *Exif:SubIFD:ExifImageWidth x Exif:SubIFD:ExifImageHeight*
+- **Country Code** *Iptc:IPTC:Country-PrimaryLocationCode*
 - **Country** *Iptc:IPTC:Country-PrimaryLocationName*
 - **State/Province** *Iptc:IPTC:Province-State*
 - **City** *Iptc:IPTC:City*
@@ -17,7 +18,7 @@
   - **Datum** *Exif:GPS:GPSMapDatum*
 - **File Size**
 - **File Name**
-- **Absolute Path**
+- **Absolute Path** *filesystem or URL*
 - **Camera Model (Manufacturer)** *Exif:IFD0:Model (Exif:IFD0:Make)*
 - **Thumbnail** *Exif:IFD1:ThumbnailImage*
 

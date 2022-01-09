@@ -17,7 +17,7 @@
 
 ## Deps & Credits
 
-TinyWorld is built upon lots of great open source projects. Main ones are listed below. Kudos to their authors & communities.
+TinyWorld is built upon lots of great open source projects. Main ones are listed below.
 
 - NASA WorldWind Java: <https://github.com/NASAWorldWind/WorldWindJava>
 - OpenSearch: <https://github.com/opensearch-project/OpenSearch>
