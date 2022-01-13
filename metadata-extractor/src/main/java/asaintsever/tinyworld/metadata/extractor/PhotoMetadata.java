@@ -1,4 +1,4 @@
-package asaintsever.tinyworld;
+package asaintsever.tinyworld.metadata.extractor;
 
 import java.net.URL;
 import java.util.Date;
