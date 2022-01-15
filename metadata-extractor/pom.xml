@@ -9,8 +9,10 @@
     <maven.compiler.target>17</maven.compiler.target>
 
     <junit.version>5.8.2</junit.version>
+    <slf4j.version>1.7.33</slf4j.version>
+    <log4j.version>2.17.1</log4j.version>
     <metextractor.version>2.16.0</metextractor.version>
-    <thumbnailator.version>0.4.15</thumbnailator.version>
+    <thumbnailator.version>0.4.16</thumbnailator.version>
     <jackson.version>2.13.1</jackson.version>
   </properties>
 
@@ -34,6 +36,16 @@
   </dependencyManagement>
 
   <dependencies>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>${slf4j.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-slf4j-impl</artifactId>
+      <version>${log4j.version}</version>
+    </dependency>
     <dependency>
       <groupId>com.drewnoakes</groupId>
       <artifactId>metadata-extractor</artifactId>

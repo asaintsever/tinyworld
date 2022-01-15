@@ -10,6 +10,11 @@
 - Offline mode (use local cache for globe data)
 - Available as portable app or container image
 
+## Supported Photo Formats
+
+- JPEG/JPG
+- PNG
+
 ## Requirements
 
 - Java 11+ for portable app

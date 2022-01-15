@@ -24,4 +24,9 @@
 
 ## Format and Schema
 
-JSON
+- Format: JSON
+- Schema
+  
+  ```json
+  {"path":"<photo url>","fileName":"<photo filename>","sizeMb":<photo size in mb>,"takenDate":"<taken date>","timeZoneOffset":"<timezone offset>","thumbnail":"<base64-encoded photo thumbnail>","camModelMake":"<camera model and maker>","pixelRes":"<pixel resolution>","countryCode":"<country code>","country":"<country name>","stateOrProvince":"<state/province>","city":"<city>","sublocation":"<sub-location>","caption":"<caption>","title":"<title>","headline":"<headline>","gpsDatum":"<gps map datum>","gpsLat":"<gps latitude>","gpsLong":"<gps longitude>"}
+  ```
