@@ -27,4 +27,3 @@ TinyWorld is built upon lots of great open source projects. Main ones are listed
 - NASA WorldWind Java: <https://github.com/NASAWorldWind/WorldWindJava>
 - OpenSearch: <https://github.com/opensearch-project/OpenSearch>
 - Metadata Extractor: <https://github.com/drewnoakes/metadata-extractor>
-- Thumbnailator: <https://github.com/coobird/thumbnailator>
