@@ -13,6 +13,13 @@
   </properties>
 
   <dependencies>
+    <!-- jul-to-slf4j bridge since FlatLaf and WWJ make use of JUL (java.util.logging) to log messages -->
+    <!-- Route JUL logs to log4j via SLF4J -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>jul-to-slf4j</artifactId>
+      <version>${slf4j.version}</version>
+    </dependency>
     <dependency>
       <groupId>com.formdev</groupId>
       <artifactId>flatlaf</artifactId>
@@ -24,6 +31,68 @@
       <version>${worldwindjava.version}</version>
     </dependency>
   </dependencies>
+
+  <profiles>
+    <profile>
+      <id>testUI</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <version>3.2.0</version>
+            <executions>
+              <execution>
+                <id>copy-dependencies</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>copy-dependencies</goal>
+                </goals>
+                <configuration>
+                  <outputDirectory>${project.build.directory}</outputDirectory>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <version>3.0.0</version>
+            <executions>
+              <execution>
+                <id>run-tinyworld</id>
+                <goals>
+                  <goal>exec</goal>
+                </goals>
+                <phase>package</phase>
+              </execution>
+            </executions>
+            <configuration>
+              <executable>java</executable>
+              <workingDirectory>${project.build.directory}</workingDirectory>
+              <arguments>
+                <!-- Workaround issues using JOGL library with Java 8+ -->
+                <argument>--add-exports</argument>
+                <argument>java.base/java.lang=ALL-UNNAMED</argument>
+                <argument>--add-exports</argument>
+                <argument>java.desktop/sun.awt=ALL-UNNAMED</argument>
+                <argument>--add-exports</argument>
+                <argument>java.desktop/sun.java2d=ALL-UNNAMED</argument>
+                <!-- Workaround issues using JOGL library with Java 8+ -->
+                <argument>-Xmx2048m</argument>
+                <argument>-cp</argument>
+                <argument>*</argument>
+                <argument>asaintsever.tinyworld.ui.UI</argument>
+              </arguments>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 
   <build>
     <plugins>
@@ -42,11 +111,38 @@
         </configuration>
         <executions>
           <execution>
-            <id>install-jar-lib</id>
+            <id>install-wwwj-jar</id>
             <goals>
               <goal>install-file</goal>
             </goals>
             <phase>validate</phase>
+          </execution>
+        </executions>
+      </plugin>
+      <!-- copy required lib and config for WWJ -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>3.2.0</version>
+        <executions>
+          <execution>
+            <id>copy-wwj-resources</id>
+            <phase>validate</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${project.build.directory}</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>${basedir}/globe/deps/wwj</directory>
+                  <excludes>
+                    <exclude>WorldWindJava.jar</exclude>
+                    <exclude>*.sh</exclude>
+                  </excludes>
+                </resource>
+              </resources>
+            </configuration>
           </execution>
         </executions>
       </plugin>
