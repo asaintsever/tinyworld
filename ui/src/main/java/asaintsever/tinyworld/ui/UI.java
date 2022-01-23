@@ -2,7 +2,10 @@ package asaintsever.tinyworld.ui;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
+import java.awt.image.BufferedImage;
+import java.net.URL;
 
+import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
@@ -26,8 +29,19 @@ public class UI extends ApplicationTemplate {
         
         public AppFrame() {
             super(true, true, false);
-
+                     
+            this.setAppIcon();
             this.getControlPanel().add(makeControlPanel(), BorderLayout.SOUTH);
+        }
+        
+        protected void setAppIcon() {
+            try {
+                URL resource = UI.class.getResource("/icon/tinyworldicon.jpg");
+                BufferedImage image = ImageIO.read(resource);
+                this.setIconImage(image);
+            } catch (Exception e) {
+                e.printStackTrace();    //TODO to replace with log
+            }
         }
 
         protected JPanel makeControlPanel() {
@@ -55,8 +69,8 @@ public class UI extends ApplicationTemplate {
             return panel;
         }
     }
-
-    public static void main(String[] args) {
+    
+    protected static void routeJULtoSLF4J() {
         // Enable JUL to SLF4J bridge
         SLF4JBridgeHandler.removeHandlersForRootLogger();
         SLF4JBridgeHandler.install();
@@ -66,6 +80,10 @@ public class UI extends ApplicationTemplate {
         
         // Set log level for FlatLaf
         java.util.logging.Logger.getLogger(FlatLaf.class.getName()).setLevel(java.util.logging.Level.FINEST);
+    }
+
+    public static void main(String[] args) {
+        routeJULtoSLF4J();
         
         // Apply dark theme
         FlatDarkLaf.setup();
