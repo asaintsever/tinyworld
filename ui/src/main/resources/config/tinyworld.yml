@@ -1,0 +1,8 @@
+# TinyWorld configuration
+ 
+ui:
+  deps:
+    logging:      # logging for dependencies
+      wwj: on     # on/off
+      flatlaf: on # on/off
+ 

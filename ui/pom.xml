@@ -20,6 +20,7 @@
       <artifactId>jul-to-slf4j</artifactId>
       <version>${slf4j.version}</version>
     </dependency>
+
     <dependency>
       <groupId>com.formdev</groupId>
       <artifactId>flatlaf</artifactId>
@@ -30,9 +31,93 @@
       <artifactId>worldwindjava</artifactId>
       <version>${worldwindjava.version}</version>
     </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.dataformat</groupId>
+      <artifactId>jackson-dataformat-yaml</artifactId>
+    </dependency>
   </dependencies>
 
+  <build>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>false</filtering>
+      </resource>
+    </resources>
+    
+    <plugins>
+      <!-- run mvn validate once to copy provided WWJ jar into local M2 repository -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-install-plugin</artifactId>
+        <version>2.5.2</version>
+        <configuration>
+          <groupId>gov.nasa.worldwind</groupId>
+          <artifactId>worldwindjava</artifactId>
+          <version>${worldwindjava.version}</version>
+          <packaging>jar</packaging>
+          <file>${basedir}/globe/deps/wwj/WorldWindJava.jar</file>
+          <generatePom>true</generatePom>
+        </configuration>
+        <executions>
+          <execution>
+            <id>install-wwwj-jar</id>
+            <goals>
+              <goal>install-file</goal>
+            </goals>
+            <phase>validate</phase>
+          </execution>
+        </executions>
+      </plugin>
+      
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>3.2.0</version>
+        <executions>
+          <!-- copy required lib and config for WWJ -->
+          <execution>
+            <id>copy-wwj-resources</id>
+            <phase>validate</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${project.build.directory}</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>${basedir}/globe/deps/wwj</directory>
+                  <excludes>
+                    <exclude>WorldWindJava.jar</exclude>
+                    <exclude>*.sh</exclude>
+                  </excludes>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+          <!-- copy tinyworld config -->
+          <execution>
+            <id>copy-ui-config</id>
+            <phase>validate</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${project.build.directory}/config</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>${basedir}/src/main/resources/config</directory>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
   <profiles>
+    <!-- To test via 'mvn package -P testUI' -->
     <profile>
       <id>testUI</id>
       <activation>
@@ -94,58 +179,4 @@
     </profile>
   </profiles>
 
-  <build>
-    <plugins>
-      <!-- run mvn validate once to copy provided WWJ jar into local M2 repository -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-install-plugin</artifactId>
-        <version>2.5.2</version>
-        <configuration>
-          <groupId>gov.nasa.worldwind</groupId>
-          <artifactId>worldwindjava</artifactId>
-          <version>${worldwindjava.version}</version>
-          <packaging>jar</packaging>
-          <file>${basedir}/globe/deps/wwj/WorldWindJava.jar</file>
-          <generatePom>true</generatePom>
-        </configuration>
-        <executions>
-          <execution>
-            <id>install-wwwj-jar</id>
-            <goals>
-              <goal>install-file</goal>
-            </goals>
-            <phase>validate</phase>
-          </execution>
-        </executions>
-      </plugin>
-      <!-- copy required lib and config for WWJ -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-resources-plugin</artifactId>
-        <version>3.2.0</version>
-        <executions>
-          <execution>
-            <id>copy-wwj-resources</id>
-            <phase>validate</phase>
-            <goals>
-              <goal>copy-resources</goal>
-            </goals>
-            <configuration>
-              <outputDirectory>${project.build.directory}</outputDirectory>
-              <resources>
-                <resource>
-                  <directory>${basedir}/globe/deps/wwj</directory>
-                  <excludes>
-                    <exclude>WorldWindJava.jar</exclude>
-                    <exclude>*.sh</exclude>
-                  </excludes>
-                </resource>
-              </resources>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-  </build>
 </project>
