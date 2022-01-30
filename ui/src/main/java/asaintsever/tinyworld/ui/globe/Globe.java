@@ -3,10 +3,22 @@ package asaintsever.tinyworld.ui.globe;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.image.BufferedImage;
+import java.net.URL;
 
+import javax.imageio.ImageIO;
+import javax.swing.AbstractAction;
+import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.EtchedBorder;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import gov.nasa.worldwind.Configuration;
 import gov.nasa.worldwind.Model;
@@ -24,17 +36,16 @@ import gov.nasa.worldwind.layers.ViewControlsLayer;
 import gov.nasa.worldwind.layers.ViewControlsSelectListener;
 import gov.nasa.worldwind.layers.WorldMapLayer;
 import gov.nasa.worldwind.layers.placename.PlaceNameLayer;
+import gov.nasa.worldwind.terrain.ZeroElevationModel;
 import gov.nasa.worldwind.util.StatisticsPanel;
-import gov.nasa.worldwind.util.StatusBar;
 import gov.nasa.worldwind.util.WWUtil;
 import gov.nasa.worldwindx.examples.ClickAndGoSelectListener;
 import gov.nasa.worldwindx.examples.FlatWorldPanel;
-import gov.nasa.worldwindx.examples.LayerPanel;
 import gov.nasa.worldwindx.examples.util.HighlightController;
 import gov.nasa.worldwindx.examples.util.ToolTipController;
 
 public class Globe {
-/*
+
     public static class AppPanel extends JPanel {
 
         protected WorldWindow wwd;
@@ -88,6 +99,8 @@ public class Globe {
         protected JPanel controlPanel;
         protected LayerPanel layerPanel;
         protected StatisticsPanel statsPanel;
+        protected Logger logger = LoggerFactory.getLogger(AppFrame.class);
+        
 
         public AppFrame() {
             this.initialize(true, true, false);
@@ -114,6 +127,7 @@ public class Globe {
                 this.layerPanel = new LayerPanel(this.getWwd());
                 this.controlPanel.add(this.layerPanel, BorderLayout.CENTER);
                 this.controlPanel.add(new FlatWorldPanel(this.getWwd()), BorderLayout.NORTH);
+                this.controlPanel.add(this.createNetworkStatusPanel(), BorderLayout.SOUTH);
                 this.getContentPane().add(this.controlPanel, BorderLayout.WEST);
             }
 
@@ -154,6 +168,47 @@ public class Globe {
             // Center the application on the screen.
             WWUtil.alignComponent(null, this, AVKey.CENTER);
             this.setResizable(true);
+    
+            this.setAppIcon();
+            
+            // Eliminate elevations by simply setting the globe's elevation model to ZeroElevationModel.
+            // Elevation info have also been removed from status bar (see custom StatusBar class) and on/off checkbox from panel (see custom LayerPanel class)
+            this.getWwd().getModel().getGlobe().setElevationModel(new ZeroElevationModel());
+        }
+        
+        protected void setAppIcon() {
+            try {
+                URL resource = AppFrame.class.getResource("/icon/tinyworldicon.jpg");
+                BufferedImage image = ImageIO.read(resource);
+                this.setIconImage(image);
+            } catch (Exception e) {
+                this.logger.error("Fail to set application icon", e);
+            }
+        }
+        
+        protected JPanel createNetworkStatusPanel() {
+            JPanel panel = new JPanel(new BorderLayout(5, 5));
+            panel.setBorder(new CompoundBorder(new EmptyBorder(0, 10, 15, 10), new EtchedBorder()));
+
+            JCheckBox modeSwitch = new JCheckBox(new AbstractAction(" Online") {
+
+                public void actionPerformed(ActionEvent actionEvent) {
+                    // Get the current status
+                    boolean offline = WorldWind.getNetworkStatus().isOfflineMode();
+
+                    // Change it to its opposite
+                    offline = !offline;
+                    WorldWind.getNetworkStatus().setOfflineMode(offline);
+
+                    // Cause data retrieval to resume if now online
+                    if (!offline)
+                        getWwd().redraw();
+                }
+            });
+            
+            modeSwitch.setSelected(true); // WW starts out online
+            panel.add(modeSwitch, BorderLayout.CENTER);
+            return panel;
         }
 
         protected AppPanel createAppPanel(Dimension canvasSize, boolean includeStatusBar) {
@@ -281,5 +336,5 @@ public class Globe {
             return null;
         }
     }
-*/
+
 }
