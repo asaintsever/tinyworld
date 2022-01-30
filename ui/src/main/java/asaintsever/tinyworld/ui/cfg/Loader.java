@@ -31,7 +31,7 @@ public class Loader {
             File cfgFile = Path.of(TINYWORLD_CONFIG_FILE).toFile();
             cfg = mapper.readValue(cfgFile, Configuration.class);
         } catch (Exception e) {
-            logger.error("Fail to load configuration from external file. Default to internal configuration.", e);
+            logger.error("Fail to load configuration from external file [" + e.getMessage() + "]. Default to internal configuration.");
             internalCfg = true;
         }
         
@@ -42,7 +42,7 @@ public class Loader {
                 URL resource = classLoader.getResource(TINYWORLD_CONFIG_FILE);
                 cfg = mapper.readValue(resource, Configuration.class);
             } catch (Exception e) {
-                logger.error("Fail to load internal configuration", e);
+                logger.error("Fail to load internal configuration: " + e.getMessage());
             }
         }
         

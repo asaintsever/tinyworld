@@ -35,6 +35,16 @@
       <groupId>com.fasterxml.jackson.dataformat</groupId>
       <artifactId>jackson-dataformat-yaml</artifactId>
     </dependency>
+
+    <!-- Required to compile Globe class -->
+    <!-- Ignore maven warnings on this dep -->
+    <dependency>
+      <groupId>com.jogamp</groupId>
+      <artifactId>jogl-all</artifactId>
+      <version>2.4</version>
+      <scope>system</scope>
+      <systemPath>${basedir}/globe/deps/wwj/lib/jogl-all.jar</systemPath>
+    </dependency>
   </dependencies>
 
   <build>
@@ -75,7 +85,7 @@
         <artifactId>maven-resources-plugin</artifactId>
         <version>3.2.0</version>
         <executions>
-          <!-- copy required lib and config for WWJ -->
+          <!-- copy required lib for WWJ -->
           <execution>
             <id>copy-wwj-resources</id>
             <phase>validate</phase>
@@ -86,11 +96,7 @@
               <outputDirectory>${project.build.directory}</outputDirectory>
               <resources>
                 <resource>
-                  <directory>${basedir}/globe/deps/wwj</directory>
-                  <excludes>
-                    <exclude>WorldWindJava.jar</exclude>
-                    <exclude>*.sh</exclude>
-                  </excludes>
+                  <directory>${basedir}/globe/deps/wwj/lib</directory>
                 </resource>
               </resources>
             </configuration>
