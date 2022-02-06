@@ -6,4 +6,40 @@
     <version>0.0.1-SNAPSHOT</version>
   </parent>
   <artifactId>indexor</artifactId>
+
+  <properties>
+    <opensearch.version>1.2.4</opensearch.version>
+  </properties>
+
+  <dependencies>
+    <!-- OpenSearch server -->
+    <dependency>
+      <groupId>org.opensearch</groupId>
+      <artifactId>opensearch</artifactId>
+      <version>${opensearch.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.opensearch.plugin</groupId>
+      <artifactId>transport-netty4-client</artifactId>
+      <version>${opensearch.version}</version>
+    </dependency>
+    <!-- OpenSearch client -->
+    <dependency>
+      <groupId>org.opensearch.client</groupId>
+      <artifactId>opensearch-rest-client</artifactId>
+      <version>${opensearch.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.opensearch.client</groupId>
+      <artifactId>opensearch-java</artifactId>
+      <version>0.1.3</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
 </project>
