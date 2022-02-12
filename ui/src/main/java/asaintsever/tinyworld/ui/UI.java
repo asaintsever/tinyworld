@@ -5,21 +5,24 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import com.formdev.flatlaf.FlatDarkLaf;
-import com.formdev.flatlaf.FlatLaf;
 
 import asaintsever.tinyworld.ui.cfg.Configuration;
 import asaintsever.tinyworld.ui.cfg.Loader;
 import asaintsever.tinyworld.ui.globe.Globe;
-import gov.nasa.worldwind.avlist.AVKey;
 
 public class UI extends Globe {
     
     protected static Logger logger = LoggerFactory.getLogger(UI.class);
     
-    // Must declare JUL loggers as static to make sure they are not garbage collected (by ava.util.logging.LogManager$LoggerContext removeLoggerRef() method). Failure to do so, some logs will not be routed by the SLF4J JUL bridge handler.
+    // Must declare JUL loggers as static to make sure they are not garbage collected (by java.util.logging.LogManager$LoggerContext removeLoggerRef() method).
+    // Failure to do so, some logs will not be routed by the SLF4J JUL bridge handler.
     // Worldwind & FlatLaf are using JUL: we will reroute their logs to SLF4J
-    protected static java.util.logging.Logger wwjJULlogger = java.util.logging.Logger.getLogger(gov.nasa.worldwind.Configuration.getStringValue(AVKey.LOGGER_NAME, gov.nasa.worldwind.Configuration.DEFAULT_LOGGER_NAME));
-    protected static java.util.logging.Logger flatlafJULlogger = java.util.logging.Logger.getLogger(FlatLaf.class.getName());
+    protected static java.util.logging.Logger wwjJULlogger = java.util.logging.Logger.getLogger(
+                                                                    gov.nasa.worldwind.Configuration.getStringValue(
+                                                                            gov.nasa.worldwind.avlist.AVKey.LOGGER_NAME, 
+                                                                            gov.nasa.worldwind.Configuration.DEFAULT_LOGGER_NAME)
+                                                                    );
+    protected static java.util.logging.Logger flatlafJULlogger = java.util.logging.Logger.getLogger(com.formdev.flatlaf.FlatLaf.class.getName());
 
     
     protected static Configuration readConfig() {
