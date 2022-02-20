@@ -169,19 +169,7 @@ public class PhotoObject {
             this.metadata.thumbnail = Base64.getEncoder().encodeToString(data);
             
             if (dumpPath != null) {
-                File outputFile = null;
-                
-                switch(fileType) {
-                case Jpeg:
-                    outputFile = new File(dumpPath + File.separator + filename + "_thumbnail.jpg");
-                    break;
-                case Png:
-                    outputFile = new File(dumpPath + File.separator + filename + "_thumbnail.png");
-                    break;
-                default:
-                    break;
-                }
-                
+                File outputFile = new File(dumpPath + File.separator + filename + "_thumbnail." + fileType.getCommonExtension());
                 Files.write(outputFile.toPath(), data);
             }
         } else {

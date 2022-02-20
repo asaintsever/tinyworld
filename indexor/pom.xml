@@ -12,6 +12,11 @@
   </properties>
 
   <dependencies>
+    <dependency>
+      <groupId>asaintsever.tinyworld</groupId>
+      <artifactId>metadata-extractor</artifactId>
+    </dependency>
+
     <!-- OpenSearch server -->
     <dependency>
       <groupId>org.opensearch</groupId>
