@@ -24,6 +24,11 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
+        <groupId>asaintsever.tinyworld</groupId>
+        <artifactId>metadata-extractor</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
         <groupId>org.junit</groupId>
         <artifactId>junit-bom</artifactId>
         <version>${junit.version}</version>

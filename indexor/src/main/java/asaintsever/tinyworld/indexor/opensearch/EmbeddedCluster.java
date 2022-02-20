@@ -1,4 +1,4 @@
-package asaintsever.tinyworld.indexor;
+package asaintsever.tinyworld.indexor.opensearch;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -12,7 +12,7 @@ import org.opensearch.plugins.Plugin;
 import org.opensearch.transport.Netty4Plugin;
 
 
-public class EmbeddedCluster {
+class EmbeddedCluster {
     
     private class EmbeddedClusterNode extends Node {
         public EmbeddedClusterNode(Settings preparedSettings, Collection<Class<? extends Plugin>> classpathPlugins) {
@@ -21,7 +21,7 @@ public class EmbeddedCluster {
     }
     
     private final String clusterName = "tinyworld";
-    private final String nodeName = "photos";
+    private final String nodeName = "node";
     private final String transportType = "netty4";
     private final String httpType = "netty4";
     private final String networkHost = "_local_";   // will listen on localhost
@@ -31,11 +31,11 @@ public class EmbeddedCluster {
     
     public EmbeddedCluster() {}
 
+    
     public EmbeddedCluster setPathHome(String pathHome) {
         this.pathHome = pathHome;
         return this;
     }
-
 
     public Node create(boolean expose) {
         Builder settingsBuilder = Settings.builder()

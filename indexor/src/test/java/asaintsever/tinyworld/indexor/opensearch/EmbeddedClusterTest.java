@@ -1,4 +1,4 @@
-package asaintsever.tinyworld.indexor;
+package asaintsever.tinyworld.indexor.opensearch;
 
 import java.io.IOException;
 
@@ -8,7 +8,7 @@ import org.opensearch.node.NodeValidationException;
 
 
 public class EmbeddedClusterTest {
-
+    
     @Test
     void startStopSingleNodeCluster() {
         // Node implements Closeable interface: close() method will be called (internally invoke stop() method)
