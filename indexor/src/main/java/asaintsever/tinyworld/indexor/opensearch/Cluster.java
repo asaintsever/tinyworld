@@ -8,15 +8,22 @@ import org.opensearch.common.settings.Settings;
 import org.opensearch.common.settings.Settings.Builder;
 import org.opensearch.node.InternalSettingsPreparer;
 import org.opensearch.node.Node;
+import org.opensearch.node.NodeValidationException;
 import org.opensearch.plugins.Plugin;
 import org.opensearch.transport.Netty4Plugin;
 
 
-class EmbeddedCluster {
+public class Cluster {
     
-    private class EmbeddedClusterNode extends Node {
-        public EmbeddedClusterNode(Settings preparedSettings, Collection<Class<? extends Plugin>> classpathPlugins) {
+    public class ClusterNode extends Node {
+        public ClusterNode(Settings preparedSettings, Collection<Class<? extends Plugin>> classpathPlugins) {
             super(InternalSettingsPreparer.prepareEnvironment(preparedSettings, new HashMap<String, String>(), null, null), classpathPlugins, true);
+        }
+    }
+    
+    public class ClusterNodeException extends Exception {
+        public ClusterNodeException(Exception e) {
+            super(e);
         }
     }
     
@@ -29,15 +36,15 @@ class EmbeddedCluster {
     private String pathHome = "index";              // location for index storage
     
     
-    public EmbeddedCluster() {}
+    public Cluster() {}
 
     
-    public EmbeddedCluster setPathHome(String pathHome) {
+    public Cluster setPathHome(String pathHome) {
         this.pathHome = pathHome;
         return this;
     }
 
-    public Node create(boolean expose) {
+    public ClusterNode create(boolean expose) throws ClusterNodeException {
         Builder settingsBuilder = Settings.builder()
                                         .put("cluster.name", this.clusterName)
                                         .put("node.name", this.nodeName)
@@ -54,6 +61,15 @@ class EmbeddedCluster {
                 .put("http.cors.allow-origin", "*");
         }
         
-        return new EmbeddedClusterNode(settingsBuilder.build(), Arrays.asList(Netty4Plugin.class));
+        ClusterNode node = null;
+        
+        try {
+            // Create and start node all at once
+            node = (ClusterNode) new ClusterNode(settingsBuilder.build(), Arrays.asList(Netty4Plugin.class)).start();
+        } catch (NodeValidationException e) {
+            throw new ClusterNodeException(e);
+        }
+        
+        return node;
     }
 }

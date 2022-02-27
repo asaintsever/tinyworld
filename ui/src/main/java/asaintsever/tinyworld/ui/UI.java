@@ -43,6 +43,12 @@ public class UI extends Globe {
 
     public static void main(String[] args) {
         Configuration cfg = readConfig();
+        
+        if (cfg == null) {
+            logger.error("Cannot read configuration");
+            System.exit(1);
+        }
+        
         if (logger.isDebugEnabled())
             logger.debug("Configuration: " + cfg.toString());
         
