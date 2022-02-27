@@ -1,4 +1,4 @@
-package asaintsever.tinyworld.indexor.metadata;
+package asaintsever.tinyworld.indexor;
 
 import java.io.IOException;
 
@@ -6,5 +6,5 @@ import asaintsever.tinyworld.metadata.extractor.PhotoMetadata;
 
 public interface IPhoto {
 
-    void add(PhotoMetadata photo) throws IOException;
+    String add(PhotoMetadata photo) throws IOException;
 }
