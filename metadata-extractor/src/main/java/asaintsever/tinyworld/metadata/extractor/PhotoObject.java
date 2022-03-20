@@ -36,7 +36,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import net.coobird.thumbnailator.Thumbnails;
 
 public class PhotoObject {
-    protected Logger logger = LoggerFactory.getLogger(PhotoObject.class);
+    protected static Logger logger = LoggerFactory.getLogger(PhotoObject.class);
     private static ObjectMapper mapper;
     private PhotoMetadata metadata;
     

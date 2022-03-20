@@ -1,13 +1,17 @@
 package asaintsever.tinyworld.indexor;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 
+import org.jeasy.random.EasyRandom;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+
+import asaintsever.tinyworld.metadata.extractor.PhotoMetadata;
 
 
 public class IndexorTest {
@@ -50,6 +54,8 @@ public class IndexorTest {
     
     /*@Test
     void addMetadataToIndex() throws IOException {
-        indexor.photos().add(null);
+        
+        assertEquals(indexor.photos().add(null), "");
     }*/
+    
 }
