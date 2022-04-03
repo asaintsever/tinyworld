@@ -15,4 +15,8 @@ indexor:
       expose: false     # true to expose cluster to external machines (with CORS enabled as well). Default to false.
     address: localhost  # address of OpenSearch / Elasticsearch cluster
     port: 9200          # cluster listening port
+  photo:
+    defaultMetadata:  # Default attributes to set if not found in photo metadata
+      gpsLatLong: "25.0,-71.0"  # Bermuda Triangle
+      country: Atlantis
  

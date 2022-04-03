@@ -1,6 +1,8 @@
-package asaintsever.tinyworld.ui.cfg;
+package asaintsever.tinyworld.cfg;
 
 import java.util.Map;
+
+import asaintsever.tinyworld.metadata.extractor.PhotoMetadata;
 
 public class Configuration {
     public UI ui;
@@ -8,7 +10,7 @@ public class Configuration {
     
     @Override
     public String toString() {
-        return "ui[" + this.ui.toString() + "],indexor[" + this.indexor.toString() + "]";
+        return this.ui.toString() + "," + this.indexor.toString();
     }
     
     
@@ -20,18 +22,19 @@ public class Configuration {
             
             @Override
             public String toString() {
-                return "deps=" + this.logging.toString();
+                return "deps[" + this.logging.toString() + "]";
             }
         }
         
         @Override
         public String toString() {
-            return this.deps.toString();
+            return "ui[" + this.deps.toString() + "]";
         }
     }
     
     public class INDEXOR {
         public Cluster cluster;
+        public Photo photo;
         
         public class Cluster {
             public Embedded embedded;
@@ -44,19 +47,28 @@ public class Configuration {
                 
                 @Override
                 public String toString() {
-                    return "enabled=" + this.enabled + ",expose=" + this.expose;
+                    return "embedded[enabled=" + this.enabled + ",expose=" + this.expose + "]";
                 }
             }
             
             @Override
             public String toString() {
-                return "embedded[" + this.embedded.toString() + "],address=" + this.address + ":" + this.port;
+                return "cluster[" + this.embedded.toString() + ",address=" + this.address + ":" + this.port + "]";
+            }
+        }
+        
+        public class Photo {
+            public PhotoMetadata defaultMetadata;
+            
+            @Override
+            public String toString() {
+                return "photo[" + this.defaultMetadata.toString() + "]";
             }
         }
         
         @Override
         public String toString() {
-            return "cluster[" + this.cluster.toString() + "]";
+            return "indexor[" + this.cluster.toString() + "," + this.photo.toString() + "]";
         }
     }
 }

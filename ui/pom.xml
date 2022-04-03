@@ -13,6 +13,11 @@
   </properties>
 
   <dependencies>
+    <dependency>
+      <groupId>asaintsever.tinyworld</groupId>
+      <artifactId>cfg</artifactId>
+    </dependency>
+
     <!-- jul-to-slf4j bridge since FlatLaf and WWJ make use of JUL (java.util.logging) to log messages -->
     <!-- Route JUL logs to log4j via SLF4J -->
     <dependency>
@@ -30,10 +35,6 @@
       <groupId>gov.nasa.worldwind</groupId>
       <artifactId>worldwindjava</artifactId>
       <version>${worldwindjava.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.fasterxml.jackson.dataformat</groupId>
-      <artifactId>jackson-dataformat-yaml</artifactId>
     </dependency>
 
     <!-- Required to compile Globe class -->

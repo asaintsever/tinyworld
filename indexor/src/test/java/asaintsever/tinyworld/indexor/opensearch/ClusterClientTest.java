@@ -1,6 +1,7 @@
 package asaintsever.tinyworld.indexor.opensearch;
 
 import java.io.IOException;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.Date;
@@ -10,6 +11,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.jeasy.random.EasyRandom;
 import org.jeasy.random.EasyRandomParameters;
+import org.jeasy.random.FieldPredicates;
+import org.jeasy.random.api.Randomizer;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -32,16 +35,30 @@ public class ClusterClientTest {
     private static ClusterClient client;
     private static long seed;
     
-    public static class DocObject {
+    static class DocObject {
         public String attr1;
         public String attr2;
+        public Float attr3;
+        public URL attr4;
         
         @JsonSerialize(using = CustomDateSerializer.class)
-        public Date attr3;
+        public Date creationDate;
+        
+        public String latlong;
         
         @Override
         public String toString() {
-            return "[attr1:" + this.attr1 + ", attr2:" + this.attr2 + ", attr3:" + this.attr3.toString() + "]";
+            return "[attr1:" + this.attr1 + ", attr2:" + this.attr2 + ", attr3:" + this.attr3 + ",attr4:" + this.attr4 + ", creationDate:" + this.creationDate.toString() + ", latlong:" + this.latlong + "]";
+        }
+    }
+    
+    class LatLongGenerator implements Randomizer<String> {
+        private Random random = new Random();
+
+        @Override
+        public String getRandomValue() {
+            // return random, but valid, "latitude,longitude" as per geo_point string format
+            return random.nextDouble(-90.0, 90.0) + "," + random.nextDouble(-180.0, 180.0);
         }
     }
         
@@ -112,7 +129,7 @@ public class ClusterClientTest {
         try(Document<DocObject> doc = new Document<>(client)) {
             doc.setIndex("test.index").getMapper().setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
             
-            // No mapping provided: our attr3 date field will be stored using text type
+            // No mapping provided: creationDate and latlong fields will be stored using text type
             String id = doc.add(new EasyRandom(new EasyRandomParameters().seed(seed)).nextObject(DocObject.class));
             assertTrue((id != null) && !id.isEmpty());
             
@@ -132,7 +149,7 @@ public class ClusterClientTest {
     void insertThenSearchDocuments() throws IOException, InterruptedException {
         assertFalse(client.isIndexExists("test.index"));
         
-        // Set explicit mapping so that dates are handled the way we want
+        // Set explicit mapping so that dates and coordinates are handled the way we want
         String mapping = ""
                 + "{\n"
                 + " \"properties\": {\n"
@@ -143,8 +160,17 @@ public class ClusterClientTest {
                 + "     \"type\": \"text\"\n"
                 + "   },\n"
                 + "   \"attr3\": {\n"
+                + "     \"type\": \"float\"\n"
+                + "   },\n"
+                + "   \"attr4\": {\n"
+                + "     \"type\": \"text\"\n"
+                + "   },\n"
+                + "   \"creationDate\": {\n"
                 + "     \"type\": \"date\",\n"
                 + "     \"format\": \"yyyy-MM-dd HH:mm:ss\"\n"
+                + "   },\n"
+                + "   \"latlong\": {\n"
+                + "     \"type\": \"geo_point\"\n"
                 + "   }\n"
                 + " }\n"
                 + "}";
@@ -155,7 +181,10 @@ public class ClusterClientTest {
             // Set date format for your Document mapper to match defined format for DocObject
             doc.setIndex("test.index").getMapper().setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
             
-            EasyRandomParameters parameters = new EasyRandomParameters().seed(seed).dateRange(LocalDate.of(2021, 12, 1), LocalDate.of(2022, 1, 10));
+            EasyRandomParameters parameters = new EasyRandomParameters()
+                                                    .seed(seed)
+                                                    .dateRange(LocalDate.of(2021, 12, 1), LocalDate.of(2022, 1, 10))
+                                                    .randomize(FieldPredicates.named("latlong"), new LatLongGenerator());
             EasyRandom easyRandom = new EasyRandom(parameters);
             
             for(int i=0;i<10;i++) {
@@ -178,16 +207,42 @@ public class ClusterClientTest {
             IndexPage<DocObject> docObjList = doc.search("{\"simple_query_string\": {\"query\": \"*\"}}", DocObject.class);
             System.out.println("Total=" + docObjList.total() + ", Size=" + docObjList.size() + ", Result=" + docObjList.get().toString());
             
-            // Search for documents with attr3 date before 2022
+            // Search for documents with creationDate date before 2022
             String queryDSL = ""
                     + "{\n"
                     + " \"range\": {\n"
-                    + "   \"attr3\": {\n"
+                    + "   \"creationDate\": {\n"
                     + "      \"lt\": \"2022-01-01\",\n"
                     + "      \"format\": \"yyyy-MM-dd\"\n"
                     + "   }\n"
                     + " }\n"
-                    + "}";       
+                    + "}";
+            
+            docObjList = doc.search(queryDSL, 0, 5, DocObject.class);
+            System.out.println("Total=" + docObjList.total() + ", Size=" + docObjList.size() + ", Result=" + docObjList.get().toString());
+            
+            // Search for documents in south hemisphere
+            queryDSL = ""
+                    + "{\n"
+                    + " \"geo_bounding_box\": {\n"
+                    + "   \"latlong\": {\n"
+                    + "      \"top_left\": \"0,-180\",\n"
+                    + "      \"bottom_right\": \"-90,180\"\n"
+                    + "   }\n"
+                    + " }\n"
+                    + "}";
+            
+            docObjList = doc.search(queryDSL, 0, 5, DocObject.class);
+            System.out.println("Total=" + docObjList.total() + ", Size=" + docObjList.size() + ", Result=" + docObjList.get().toString());
+            
+            // Search for documents within given distance
+            queryDSL = ""
+                    + "{\n"
+                    + " \"geo_distance\": {\n"
+                    + "   \"distance\": \"5000km\",\n"
+                    + "   \"latlong\": \"48.85,2.35\""
+                    + " }\n"
+                    + "}";
             
             docObjList = doc.search(queryDSL, 0, 5, DocObject.class);
             System.out.println("Total=" + docObjList.total() + ", Size=" + docObjList.size() + ", Result=" + docObjList.get().toString());

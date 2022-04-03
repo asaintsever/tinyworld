@@ -74,6 +74,20 @@ public class PhotoMetadata {
     public String headline;
     
     public String gpsDatum;
-    public String gpsLat;
-    public String gpsLong;
+    
+    // "lat,lon" format to comply with geo_point string format
+    // (https://www.elastic.co/guide/en/elasticsearch/reference/current/geo-point.html)
+    public String gpsLatLong;
+    
+    @Override
+    public String toString() {
+        return "metadata[" + 
+                "path=" + this.path + ",fileName=" + this.fileName + ",sizeMb=" + this.sizeMb + ",takenDate=" + this.takenDate + 
+                ",timeZoneOffset=" + this.timeZoneOffset + ",thumbnail=" + this.thumbnail + ",camModelMake=" + this.camModelMake + 
+                ",pixelRes=" + this.pixelRes + ",countryCode=" + this.countryCode + ",country=" + this.country + 
+                ",stateOrProvince=" + this.stateOrProvince + ",city=" + this.city + ",sublocation=" + this.sublocation + 
+                ",caption=" + this.caption + ",title=" + this.title + ",headline=" + this.headline + ",gpsDatum=" + this.gpsDatum + 
+                ",gpsLatLong=" + this.gpsLatLong + 
+                "]";
+    }
 }

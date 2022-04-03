@@ -1,4 +1,4 @@
-package asaintsever.tinyworld.ui.cfg;
+package asaintsever.tinyworld.cfg;
 
 import java.io.File;
 import java.net.URL;

@@ -19,6 +19,7 @@
     <module>indexor</module>
     <module>metadata-extractor</module>
     <module>ui</module>
+    <module>cfg</module>
   </modules>
 
   <dependencyManagement>
@@ -26,6 +27,11 @@
       <dependency>
         <groupId>asaintsever.tinyworld</groupId>
         <artifactId>metadata-extractor</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>asaintsever.tinyworld</groupId>
+        <artifactId>cfg</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
