@@ -17,6 +17,10 @@
       <groupId>asaintsever.tinyworld</groupId>
       <artifactId>metadata-extractor</artifactId>
     </dependency>
+    <dependency>
+      <groupId>asaintsever.tinyworld</groupId>
+      <artifactId>cfg</artifactId>
+    </dependency>
 
     <!-- ========================================= -->
     <!-- OpenSearch server -->

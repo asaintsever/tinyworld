@@ -46,7 +46,18 @@ public class PhotoObject {
     }
     
     public PhotoObject() {
-        this.metadata = new PhotoMetadata();
+        this(null);
+    }
+    
+    /**
+     * Constructor to set default metadata values for attributes not found in photo
+     */
+    public PhotoObject(PhotoMetadata defaultMetadata) {
+        if (defaultMetadata != null) {
+            this.metadata = defaultMetadata;
+        } else {
+            this.metadata = new PhotoMetadata();
+        }
     }
     
     
@@ -113,9 +124,9 @@ public class PhotoObject {
     
         GpsDirectory gpsDir = metadata.getFirstDirectoryOfType(GpsDirectory.class);
         if (gpsDir != null) {
+            this.metadata.gpsLatLong = gpsDir.getGeoLocation() != null ? gpsDir.getGeoLocation().getLatitude() + "," + gpsDir.getGeoLocation().getLongitude() : null;
+            
             GpsDescriptor gpsDesc = new GpsDescriptor(gpsDir);
-            this.metadata.gpsLat = gpsDesc.getDescription(GpsDirectory.TAG_LATITUDE_REF) != null ? (gpsDesc.getDescription(GpsDirectory.TAG_LATITUDE_REF) + " " + gpsDesc.getGpsLatitudeDescription()) : null;
-            this.metadata.gpsLong = gpsDesc.getDescription(GpsDirectory.TAG_LONGITUDE_REF) != null ? (gpsDesc.getDescription(GpsDirectory.TAG_LONGITUDE_REF) + " " + gpsDesc.getGpsLongitudeDescription()) : null;
             this.metadata.gpsDatum = gpsDesc.getDescription(GpsDirectory.TAG_MAP_DATUM);
         }
         
@@ -128,7 +139,6 @@ public class PhotoObject {
             this.metadata.fileName = fsDesc.getDescription(FileSystemDirectory.TAG_FILE_NAME);
         }
         
-        logger.debug("uri: " + uri);
         this.metadata.path = uri.toURL();
         
         ExifIFD0Directory exfDir = metadata.getFirstDirectoryOfType(ExifIFD0Directory.class);

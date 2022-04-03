@@ -6,8 +6,8 @@ import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import com.formdev.flatlaf.FlatDarkLaf;
 
-import asaintsever.tinyworld.ui.cfg.Configuration;
-import asaintsever.tinyworld.ui.cfg.Loader;
+import asaintsever.tinyworld.cfg.Configuration;
+import asaintsever.tinyworld.cfg.Loader;
 import asaintsever.tinyworld.ui.globe.Globe;
 
 public class UI extends Globe {

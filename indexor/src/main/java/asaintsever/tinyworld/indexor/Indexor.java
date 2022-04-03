@@ -6,6 +6,7 @@ import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import asaintsever.tinyworld.cfg.Configuration;
 import asaintsever.tinyworld.indexor.opensearch.Cluster;
 import asaintsever.tinyworld.indexor.opensearch.Cluster.ClusterNode;
 import asaintsever.tinyworld.indexor.opensearch.Cluster.ClusterNodeException;
@@ -20,6 +21,7 @@ public class Indexor implements Closeable {
     public final static String DEFAULT_HOST = "localhost";  // Use local cluster by default (TinyWorld's embedded or external one)
     public final static int DEFAULT_PORT = 9200;
     
+    private Configuration.INDEXOR indexorCfg;
     private String host;
     private int port;
     private boolean useEmbeddedCluster;
@@ -33,7 +35,74 @@ public class Indexor implements Closeable {
     // Default for TinyWorld's index name, mapping and storage path. Can be modified using static setters.
     private static String INDEX = "photos";
     private static String CLUSTER_PATH_HOME = "index";
-    private static String MAPPING = null; //TODO
+    private static String MAPPING = ""
+            + "{\n"
+            + " \"properties\": {\n"
+            + "   \"path\": {\n"
+            + "     \"type\": \"text\"\n"
+            + "   },\n"
+            + "   \"fileName\": {\n"
+            + "     \"type\": \"text\"\n"
+            + "   },\n"
+            + "   \"sizeMb\": {\n"
+            + "     \"type\": \"float\"\n"
+            + "   },\n"
+            + "   \"takenDate\": {\n"
+            + "     \"type\": \"date\",\n"
+            + "     \"format\": \"yyyy-MM-dd HH:mm:ss\"\n"
+            + "   },\n"
+            + "   \"timeZoneOffset\": {\n"
+            + "     \"type\": \"text\"\n"
+            + "   },\n"
+            + "   \"thumbnail\": {\n"
+            + "     \"type\": \"text\"\n"
+            + "   },\n"
+            + "   \"camModelMake\": {\n"
+            + "     \"type\": \"text\",\n"
+            + "     \"fields\": {\"keyword\": {\"type\": \"keyword\"}}\n"
+            + "   },\n"
+            + "   \"pixelRes\": {\n"
+            + "     \"type\": \"text\",\n"
+            + "     \"fields\": {\"keyword\": {\"type\": \"keyword\"}}\n"
+            + "   },\n"
+            + "   \"countryCode\": {\n"
+            + "     \"type\": \"text\",\n"
+            + "     \"fields\": {\"keyword\": {\"type\": \"keyword\"}}\n"
+            + "   },\n"
+            + "   \"country\": {\n"
+            + "     \"type\": \"text\",\n"
+            + "     \"fields\": {\"keyword\": {\"type\": \"keyword\"}}\n"
+            + "   },\n"
+            + "   \"stateOrProvince\": {\n"
+            + "     \"type\": \"text\",\n"
+            + "     \"fields\": {\"keyword\": {\"type\": \"keyword\"}}\n"
+            + "   },\n"
+            + "   \"city\": {\n"
+            + "     \"type\": \"text\",\n"
+            + "     \"fields\": {\"keyword\": {\"type\": \"keyword\"}}\n"
+            + "   },\n"
+            + "   \"sublocation\": {\n"
+            + "     \"type\": \"text\",\n"
+            + "     \"fields\": {\"keyword\": {\"type\": \"keyword\"}}\n"
+            + "   },\n"
+            + "   \"caption\": {\n"
+            + "     \"type\": \"text\"\n"
+            + "   },\n"
+            + "   \"title\": {\n"
+            + "     \"type\": \"text\"\n"
+            + "   },\n"
+            + "   \"headline\": {\n"
+            + "     \"type\": \"text\"\n"
+            + "   },\n"
+            + "   \"gpsDatum\": {\n"
+            + "     \"type\": \"text\",\n"
+            + "     \"fields\": {\"keyword\": {\"type\": \"keyword\"}}\n"
+            + "   },\n"
+            + "   \"gpsLatLong\": {\n"
+            + "     \"type\": \"geo_point\"\n"
+            + "   }\n"
+            + " }\n"
+            + "}";
     
     
     public static void setIndex(String index) {
@@ -51,6 +120,11 @@ public class Indexor implements Closeable {
     
     public Indexor() throws Exception {
         this(DEFAULT_HOST, DEFAULT_PORT, true, false);
+    }
+    
+    public Indexor(Configuration.INDEXOR indexorCfg) throws Exception {
+        this(indexorCfg.cluster.address, indexorCfg.cluster.port, indexorCfg.cluster.embedded.enabled, indexorCfg.cluster.embedded.expose);
+        this.indexorCfg = indexorCfg;
     }
     
     public Indexor(String host, int port, boolean useEmbeddedCluster, boolean exposeEmbeddedCluster) throws Exception {
@@ -73,8 +147,12 @@ public class Indexor implements Closeable {
     }
     
     
+    public PhotoMetadata getDefaultMetadata() {
+        return this.indexorCfg != null ? this.indexorCfg.photo.defaultMetadata : null;
+    }
+    
     public void reset() throws IOException {
-        this.photos.getDocument().close();
+        this.photos.close();
         this.clusterClient.close();
         
         this.clusterClient = new ClusterClient(this.host, this.port);
@@ -85,7 +163,7 @@ public class Indexor implements Closeable {
     
     @Override
     public void close() throws IOException {
-        this.photos.getDocument().close();
+        this.photos.close();
         this.clusterClient.close();
         this.clusterClient = null;
         
@@ -109,7 +187,7 @@ public class Indexor implements Closeable {
         public MetadataIndex setClient(ClusterClient clusterClient) {
             this.clusterClient = clusterClient;
             return this;
-        }       
+        }
         
         @Override
         public Boolean create() throws IOException {
@@ -134,17 +212,13 @@ public class Indexor implements Closeable {
         }
     }
     
-    private class Photo implements IPhoto {
+    private class Photo implements IPhoto, Closeable {
         private Document<PhotoMetadata> document;
         
         public Photo setClient(ClusterClient clusterClient) {
             this.document = new Document<>(clusterClient);
             this.document.setIndex(INDEX);
             return this;
-        }        
-        
-        public Document<PhotoMetadata> getDocument() {
-            return this.document;
         }
         
         @Override
@@ -170,6 +244,11 @@ public class Indexor implements Closeable {
         @Override
         public IndexPage<PhotoMetadata> next(IndexPage<PhotoMetadata> page, Class<PhotoMetadata> docClass) throws IOException {
             return this.document.next(page, docClass);
+        }
+
+        @Override
+        public void close() throws IOException {
+            if(this.document != null) this.document.close();
         }
     }
 }
