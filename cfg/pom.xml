@@ -7,7 +7,16 @@
   </parent>
   <artifactId>cfg</artifactId>
 
+  <properties>
+    <commons.text.version>1.9</commons.text.version>
+  </properties>
+
   <dependencies>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-text</artifactId>
+      <version>${commons.text.version}</version>
+    </dependency>
     <dependency>
       <groupId>asaintsever.tinyworld</groupId>
       <artifactId>metadata-extractor</artifactId>
@@ -15,6 +24,17 @@
     <dependency>
       <groupId>com.fasterxml.jackson.dataformat</groupId>
       <artifactId>jackson-dataformat-yaml</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit-pioneer</groupId>
+      <artifactId>junit-pioneer</artifactId>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 
@@ -29,26 +49,11 @@
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-resources-plugin</artifactId>
-        <version>3.2.0</version>
-        <executions>
-          <!-- copy tinyworld config -->
-          <execution>
-            <id>copy-cfg-config</id>
-            <phase>validate</phase>
-            <goals>
-              <goal>copy-resources</goal>
-            </goals>
-            <configuration>
-              <outputDirectory>${project.build.directory}/config</outputDirectory>
-              <resources>
-                <resource>
-                  <directory>${basedir}/src/main/resources/config</directory>
-                </resource>
-              </resources>
-            </configuration>
-          </execution>
-        </executions>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <!-- Required because of use of JUnit Pioneer extension (see unit tests) -->
+          <argLine>--add-opens java.base/java.util=ALL-UNNAMED --add-opens java.base/java.lang=ALL-UNNAMED</argLine>
+        </configuration>
       </plugin>
     </plugins>
   </build>

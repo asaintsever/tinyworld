@@ -115,6 +115,10 @@
                 <resource>
                   <directory>${basedir}/src/main/resources/config</directory>
                 </resource>
+                <!-- copy from cfg project -->
+                <resource>
+                  <directory>${basedir}/../cfg/src/main/resources/config</directory>
+                </resource>
               </resources>
             </configuration>
           </execution>

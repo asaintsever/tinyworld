@@ -24,17 +24,18 @@ import org.opensearch.rest.RestStatus;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import asaintsever.tinyworld.indexor.IndexPage;
-import asaintsever.tinyworld.indexor.opensearch.Cluster.ClusterNode;
 import asaintsever.tinyworld.indexor.opensearch.Cluster.ClusterNodeException;
 import asaintsever.tinyworld.metadata.extractor.CustomDateSerializer;
+import lombok.ToString;
 
 
 public class ClusterClientTest {
     
-    private static ClusterNode node;
+    private static Cluster cluster;
     private static ClusterClient client;
     private static long seed;
     
+    @ToString
     static class DocObject {
         public String attr1;
         public String attr2;
@@ -45,11 +46,6 @@ public class ClusterClientTest {
         public Date creationDate;
         
         public String latlong;
-        
-        @Override
-        public String toString() {
-            return "[attr1:" + this.attr1 + ", attr2:" + this.attr2 + ", attr3:" + this.attr3 + ",attr4:" + this.attr4 + ", creationDate:" + this.creationDate.toString() + ", latlong:" + this.latlong + "]";
-        }
     }
     
     class LatLongGenerator implements Randomizer<String> {
@@ -66,7 +62,7 @@ public class ClusterClientTest {
     @BeforeAll
     public static void setup() throws ClusterNodeException {
         // Create single node cluster
-        node = new Cluster().setPathHome("target/index").create(true);
+        cluster = new Cluster().setPathHome("target/index").create(true);
         
         // Create client
         client = new ClusterClient("localhost", 9200);
@@ -75,7 +71,7 @@ public class ClusterClientTest {
     @AfterAll
     public static void tearDown() throws IOException {
         client.close();
-        node.close();
+        cluster.close();
     }
     
     @BeforeEach

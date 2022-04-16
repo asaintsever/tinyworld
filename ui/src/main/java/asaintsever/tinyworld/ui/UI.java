@@ -50,7 +50,7 @@ public class UI extends Globe {
         }
         
         if (logger.isDebugEnabled())
-            logger.debug("Configuration: " + cfg.toString());
+            logger.debug("Loaded config: " + cfg.toString());
         
         routeJULtoSLF4J();
         
