@@ -3,20 +3,20 @@
 ui:
   deps:
     logging:      # logging for dependencies
-      wwj: on     # on/off
-      flatlaf: on # on/off
+      wwj: ${TW_UI_LOGS_WWJ:-on}          # on/off
+      flatlaf: ${TW_UI_LOGS_FLATLAF:-on}  # on/off
  
 indexor:
   # Default TinyWorld's embedded cluster is running at localhost:9200
   # Make sure to edit config below if there's another OpenSearch / Elasticsearch cluster running at this address or if you don't want to use the embedded one.
   cluster:
     embedded:
-      enabled: true     # true to use TinyWorld's embedded cluster, false to use external OpenSearch / Elasticsearch cluster
-      expose: false     # true to expose cluster to external machines (with CORS enabled as well). Default to false.
-    address: localhost  # address of OpenSearch / Elasticsearch cluster
-    port: 9200          # cluster listening port
+      enabled: ${TW_IDX_CLUSTER_EMBEDDED:-true}         # true to use TinyWorld's embedded cluster, false to use external OpenSearch / Elasticsearch cluster
+      expose: ${TW_IDX_CLUSTER_EMBEDDED_EXPOSE:-false}  # true to expose embedded cluster to external machines (with CORS enabled as well). Default to false.
+    address: ${TW_IDX_CLUSTER_ADDRESS:-localhost}       # address of OpenSearch / Elasticsearch cluster
+    port: ${TW_IDX_CLUSTER_PORT:-9200}                  # cluster listening port
   photo:
-    defaultMetadata:  # Default attributes to set if not found in photo metadata
+    defaultMetadata:  # Default attribute(s) to set if not found in photo metadata (for easier filtering and display)
+      country: "_Unknown_"
       gpsLatLong: "25.0,-71.0"  # Bermuda Triangle
-      country: Atlantis
  

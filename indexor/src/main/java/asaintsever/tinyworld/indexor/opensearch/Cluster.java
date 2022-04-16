@@ -1,5 +1,7 @@
 package asaintsever.tinyworld.indexor.opensearch;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -13,7 +15,7 @@ import org.opensearch.plugins.Plugin;
 import org.opensearch.transport.Netty4Plugin;
 
 
-public class Cluster {
+public class Cluster implements Closeable {
     
     public class ClusterNode extends Node {
         public ClusterNode(Settings preparedSettings, Collection<Class<? extends Plugin>> classpathPlugins) {
@@ -34,6 +36,7 @@ public class Cluster {
     private final String networkHost = "_local_";   // will listen on localhost
     
     private String pathHome = "index";              // location for index storage
+    private ClusterNode node;
     
     
     public Cluster() {}
@@ -44,7 +47,7 @@ public class Cluster {
         return this;
     }
 
-    public ClusterNode create(boolean expose) throws ClusterNodeException {
+    public Cluster create(boolean expose) throws ClusterNodeException {
         Builder settingsBuilder = Settings.builder()
                                         .put("cluster.name", this.clusterName)
                                         .put("node.name", this.nodeName)
@@ -61,15 +64,20 @@ public class Cluster {
                 .put("http.cors.allow-origin", "*");
         }
         
-        ClusterNode node = null;
-        
         try {
             // Create and start node all at once
-            node = (ClusterNode) new ClusterNode(settingsBuilder.build(), Arrays.asList(Netty4Plugin.class)).start();
+            this.node = new ClusterNode(settingsBuilder.build(), Arrays.asList(Netty4Plugin.class));
+            this.node.start();
         } catch (NodeValidationException e) {
             throw new ClusterNodeException(e);
         }
         
-        return node;
+        return this;
+    }
+
+    @Override
+    public void close() throws IOException {
+        if (this.node != null) this.node.close();
+        this.node = null;
     }
 }

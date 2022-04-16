@@ -50,7 +50,7 @@ public class ExtractMetadataFromPhotoTest {
     }
 
     @Test
-    void getTinyWorldPhotoMetadata() {	
+    void getTinyWorldPhotoMetadata() {
         // Using 1 to indicate that only first level should be visited.
         int nb_photo = Extract.exploreFS("src/test/resources/photos", 1, new IPhotoProcess() {
             
@@ -68,6 +68,31 @@ public class ExtractMetadataFromPhotoTest {
         });
         
         assertEquals(12, nb_photo);
+    }
+    
+    @Test
+    void getTinyWorldPhotoMetadataWithDefaults() {
+        PhotoMetadata defaultMetadata = new PhotoMetadata();
+        defaultMetadata.country = "France";
+        defaultMetadata.gpsLatLong = "48.85,2.35";
+        
+        // Using 1 to indicate that only first level should be visited.
+        int nb_photo = Extract.exploreFS("src/test/resources/photos/level1", 1, new IPhotoProcess() {
+            
+            @Override
+            public void task(URI uri, FileType fileType, Metadata metadata) {
+                System.out.println("\n" + uri + "\n=================================================");
+                
+                try {
+                    PhotoObject photo = new PhotoObject(defaultMetadata);   // Provide default metadata to be used if not found in photos
+                    System.out.println(photo.extractMetadata(uri, fileType, metadata).getMetadataAsJson());
+                } catch (IOException | ParseException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        });
+        
+        assertEquals(6, nb_photo);
     }
 
     @Test

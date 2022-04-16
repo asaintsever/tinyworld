@@ -7,6 +7,13 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
+import lombok.Setter;
+import lombok.ToString;
+import lombok.experimental.Accessors;
+
+@ToString
+@Setter
+@Accessors(chain = true)
 @JsonInclude(Include.NON_NULL)
 public class PhotoMetadata {
     
@@ -79,15 +86,38 @@ public class PhotoMetadata {
     // (https://www.elastic.co/guide/en/elasticsearch/reference/current/geo-point.html)
     public String gpsLatLong;
     
-    @Override
-    public String toString() {
-        return "metadata[" + 
-                "path=" + this.path + ",fileName=" + this.fileName + ",sizeMb=" + this.sizeMb + ",takenDate=" + this.takenDate + 
-                ",timeZoneOffset=" + this.timeZoneOffset + ",thumbnail=" + this.thumbnail + ",camModelMake=" + this.camModelMake + 
-                ",pixelRes=" + this.pixelRes + ",countryCode=" + this.countryCode + ",country=" + this.country + 
-                ",stateOrProvince=" + this.stateOrProvince + ",city=" + this.city + ",sublocation=" + this.sublocation + 
-                ",caption=" + this.caption + ",title=" + this.title + ",headline=" + this.headline + ",gpsDatum=" + this.gpsDatum + 
-                ",gpsLatLong=" + this.gpsLatLong + 
-                "]";
+        
+    /**
+     * Initialize from default metadata
+     */
+    public PhotoMetadata from(PhotoMetadata defaultMetadata) {
+        if(defaultMetadata != null) {
+            // Only handle default country & GPS coordinates to be able to easily filter & display non-geotagged photos on the globe
+            // Handling other fields not relevant unless we want to add extended metadata ingestion capabilities to TinyWorld (not the intent now)
+            this.setCountry(defaultMetadata.country);
+            this.setGpsLatLong(defaultMetadata.gpsLatLong);
+        }
+        
+        return this;
+    }
+    
+    /**
+     * Setters with validation (to not overwrite defaults)
+     */
+    
+    public PhotoMetadata setCountry(String country) {
+        if(country != null && !country.isBlank()) {
+            this.country = country;
+        }
+        
+        return this;
+    }
+    
+    public PhotoMetadata setGpsLatLong(String latlong) {
+        if(latlong != null && !latlong.isBlank()) {
+            this.gpsLatLong = latlong;
+        }
+        
+        return this;
     }
 }

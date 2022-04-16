@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 
 import asaintsever.tinyworld.cfg.Configuration;
 import asaintsever.tinyworld.indexor.opensearch.Cluster;
-import asaintsever.tinyworld.indexor.opensearch.Cluster.ClusterNode;
 import asaintsever.tinyworld.indexor.opensearch.Cluster.ClusterNodeException;
 import asaintsever.tinyworld.indexor.opensearch.ClusterClient;
 import asaintsever.tinyworld.indexor.opensearch.Document;
@@ -27,7 +26,7 @@ public class Indexor implements Closeable {
     private boolean useEmbeddedCluster;
     
     private ClusterClient clusterClient;
-    private ClusterNode embeddedClusterNode;
+    private Cluster embeddedCluster;
     
     private MetadataIndex mtdIndx;
     private Photo photos;
@@ -134,7 +133,7 @@ public class Indexor implements Closeable {
         
         if(this.useEmbeddedCluster) {
             try {
-                this.embeddedClusterNode = new Cluster().setPathHome(CLUSTER_PATH_HOME).create(exposeEmbeddedCluster);
+                this.embeddedCluster = new Cluster().setPathHome(CLUSTER_PATH_HOME).create(exposeEmbeddedCluster);
             } catch (ClusterNodeException e) {
                 logger.error("Fail to create and start embedded cluster: " + e.getMessage());
                 throw e;
@@ -168,7 +167,7 @@ public class Indexor implements Closeable {
         this.clusterClient = null;
         
         if(this.useEmbeddedCluster) {
-            this.embeddedClusterNode.close();
+            this.embeddedCluster.close();
         }
     }
     

@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import org.junit.jupiter.api.Test;
 
-import asaintsever.tinyworld.indexor.opensearch.Cluster.ClusterNode;
 import asaintsever.tinyworld.indexor.opensearch.Cluster.ClusterNodeException;
 
 
@@ -12,8 +11,8 @@ public class ClusterTest {
     
     @Test
     void startStopSingleNodeCluster() {
-        // ClusterNode implements Closeable interface (via Node inheritance): close() method will be called (internally invoke stop() method)
-        try (ClusterNode node = new Cluster().setPathHome("target/index").create(true)) {
+        // Cluster implements Closeable interface: close() method will be called
+        try (Cluster cluster = new Cluster().setPathHome("target/index").create(true)) {
 
             // Pause
             Thread.sleep(8000);
