@@ -12,7 +12,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.jeasy.random.EasyRandom;
 import org.jeasy.random.EasyRandomParameters;
 import org.jeasy.random.FieldPredicates;
-import org.jeasy.random.api.Randomizer;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -24,6 +23,7 @@ import org.opensearch.rest.RestStatus;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import asaintsever.tinyworld.indexor.IndexPage;
+import asaintsever.tinyworld.indexor.LatLongGenerator;
 import asaintsever.tinyworld.indexor.opensearch.Cluster.ClusterNodeException;
 import asaintsever.tinyworld.metadata.extractor.CustomDateSerializer;
 import lombok.ToString;
@@ -46,18 +46,7 @@ public class ClusterClientTest {
         public Date creationDate;
         
         public String latlong;
-    }
-    
-    class LatLongGenerator implements Randomizer<String> {
-        private Random random = new Random();
-
-        @Override
-        public String getRandomValue() {
-            // return random, but valid, "latitude,longitude" as per geo_point string format
-            return random.nextDouble(-90.0, 90.0) + "," + random.nextDouble(-180.0, 180.0);
-        }
-    }
-        
+    }   
     
     @BeforeAll
     public static void setup() throws ClusterNodeException {
@@ -69,7 +58,7 @@ public class ClusterClientTest {
     }
     
     @AfterAll
-    public static void tearDown() throws IOException {
+    public static void teardown() throws IOException {
         client.close();
         cluster.close();
     }
