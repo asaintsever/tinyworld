@@ -26,6 +26,7 @@
 
   <dependencyManagement>
     <dependencies>
+      <!-- TinyWorld libraries -->
       <dependency>
         <groupId>asaintsever.tinyworld</groupId>
         <artifactId>metadata-extractor</artifactId>
@@ -36,6 +37,12 @@
         <artifactId>cfg</artifactId>
         <version>${project.version}</version>
       </dependency>
+      <dependency>
+        <groupId>asaintsever.tinyworld</groupId>
+        <artifactId>indexor</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <!-- TinyWorld libraries -->
       <dependency>
         <groupId>org.junit</groupId>
         <artifactId>junit-bom</artifactId>

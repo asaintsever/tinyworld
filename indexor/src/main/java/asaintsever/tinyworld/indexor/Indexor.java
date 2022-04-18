@@ -2,6 +2,7 @@ package asaintsever.tinyworld.indexor;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +18,7 @@ import asaintsever.tinyworld.metadata.extractor.PhotoMetadata;
 public class Indexor implements Closeable {
     protected static Logger logger = LoggerFactory.getLogger(Indexor.class);
     
-    public final static String DEFAULT_HOST = "localhost";  // Use local cluster by default (TinyWorld's embedded or external one)
+    public final static String DEFAULT_HOST = "localhost";  // Use local cluster by default (TinyWorld's embedded or external local one)
     public final static int DEFAULT_PORT = 9200;
     
     private Configuration.INDEXOR indexorCfg;
@@ -31,9 +32,10 @@ public class Indexor implements Closeable {
     private MetadataIndex mtdIndx;
     private Photo photos;
     
-    // Default for TinyWorld's index name, mapping and storage path. Can be modified using static setters.
+    // Default for TinyWorld's index name, date format, mapping and storage path. Can be modified using static setters.
     private static String INDEX = "photos";
     private static String CLUSTER_PATH_HOME = "index";
+    private static String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
     private static String MAPPING = ""
             + "{\n"
             + " \"properties\": {\n"
@@ -108,6 +110,10 @@ public class Indexor implements Closeable {
         INDEX = index;
     }
     
+    public static void setDateFormat(String format) {
+        DATE_FORMAT = format;
+    }
+    
     public static void setMapping(String mapping) {
         MAPPING = mapping;
     }
@@ -117,10 +123,12 @@ public class Indexor implements Closeable {
     }
 
     
+    // Using defaults
     public Indexor() throws Exception {
         this(DEFAULT_HOST, DEFAULT_PORT, true, false);
     }
     
+    // From config file
     public Indexor(Configuration.INDEXOR indexorCfg) throws Exception {
         this(indexorCfg.cluster.address, indexorCfg.cluster.port, indexorCfg.cluster.embedded.enabled, indexorCfg.cluster.embedded.expose);
         this.indexorCfg = indexorCfg;
@@ -147,7 +155,7 @@ public class Indexor implements Closeable {
     
     
     public PhotoMetadata getDefaultMetadata() {
-        return this.indexorCfg != null ? this.indexorCfg.photo.defaultMetadata : null;
+        return (this.indexorCfg != null && this.indexorCfg.photo != null) ? this.indexorCfg.photo.defaultMetadata : null;
     }
     
     public void reset() throws IOException {
@@ -216,7 +224,9 @@ public class Indexor implements Closeable {
         
         public Photo setClient(ClusterClient clusterClient) {
             this.document = new Document<>(clusterClient);
-            this.document.setIndex(INDEX);
+            
+            // Set index and date format
+            this.document.setIndex(INDEX).getMapper().setDateFormat(new SimpleDateFormat(DATE_FORMAT));
             return this;
         }
         

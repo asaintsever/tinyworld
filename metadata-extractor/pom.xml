@@ -9,7 +9,7 @@
 
   <properties>
     <metextractor.version>2.16.0</metextractor.version>
-    <thumbnailator.version>0.4.16</thumbnailator.version>
+    <thumbnailator.version>0.4.17</thumbnailator.version>
   </properties>
 
   <dependencies>
