@@ -128,9 +128,9 @@
   </build>
 
   <profiles>
-    <!-- To test via 'mvn package -P testUI' -->
+    <!-- To test via 'mvn package -Dmaven.test.skip=true -P UI' -->
     <profile>
-      <id>testUI</id>
+      <id>UI</id>
       <activation>
         <activeByDefault>false</activeByDefault>
       </activation>

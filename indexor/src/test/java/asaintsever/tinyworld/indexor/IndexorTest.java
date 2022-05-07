@@ -44,6 +44,7 @@ public class IndexorTest {
         EasyRandomParameters parameters = new EasyRandomParameters()
                 .seed(new Random().nextLong())
                 .dateRange(LocalDate.of(2021, 12, 1), LocalDate.of(2022, 1, 10))
+                .randomize(FieldPredicates.named("path"), new UrlGenerator())
                 .randomize(FieldPredicates.named("gpsLatLong"), new LatLongGenerator());
         
         easyRandom = new EasyRandom(parameters);
@@ -71,14 +72,16 @@ public class IndexorTest {
     void addCountGetMetadata() throws IOException, InterruptedException {
         assertTrue(indexor.metadataIndex().create());   // Index must be explicitly created as our mapping is set here
         
-        String id = indexor.photos().add(easyRandom.nextObject(PhotoMetadata.class));
+        PhotoMetadata mtd = easyRandom.nextObject(PhotoMetadata.class);
+        
+        String id = indexor.photos().add(mtd, false);
         assertTrue((id != null) && !id.isEmpty());
         
         // Pause before asking # of photos in index
         Thread.sleep(2000);
         assertEquals(indexor.photos().count(), 1);
         
-        PhotoMetadata mtd = indexor.photos().get(id, PhotoMetadata.class);
+        mtd = indexor.photos().get(id, PhotoMetadata.class);
         System.out.println("mtd=" + mtd.toString());
     }
     
@@ -90,7 +93,9 @@ public class IndexorTest {
             assertTrue(() -> {
                 try {
                     // Insert photo metadata
-                    String id = indexor.photos().add(easyRandom.nextObject(PhotoMetadata.class));
+                    PhotoMetadata mtd = easyRandom.nextObject(PhotoMetadata.class);
+                    
+                    String id = indexor.photos().add(mtd, false);
                     return ((id != null) && !id.isEmpty());
                 } catch (IOException e) {
                     throw new RuntimeException(e);

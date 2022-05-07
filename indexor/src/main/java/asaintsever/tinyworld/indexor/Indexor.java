@@ -4,6 +4,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,6 +13,7 @@ import asaintsever.tinyworld.indexor.opensearch.Cluster;
 import asaintsever.tinyworld.indexor.opensearch.Cluster.ClusterNodeException;
 import asaintsever.tinyworld.indexor.opensearch.ClusterClient;
 import asaintsever.tinyworld.indexor.opensearch.Document;
+import asaintsever.tinyworld.indexor.opensearch.DocumentAlreadyExistsException;
 import asaintsever.tinyworld.metadata.extractor.PhotoMetadata;
 
 
@@ -141,7 +143,7 @@ public class Indexor implements Closeable {
         
         if(this.useEmbeddedCluster) {
             try {
-                this.embeddedCluster = new Cluster().setPathHome(CLUSTER_PATH_HOME).create(exposeEmbeddedCluster);
+                this.embeddedCluster = new Cluster().setHttpPort(port).setPathHome(CLUSTER_PATH_HOME).create(exposeEmbeddedCluster);
             } catch (ClusterNodeException e) {
                 logger.error("Fail to create and start embedded cluster: " + e.getMessage());
                 throw e;
@@ -209,13 +211,13 @@ public class Indexor implements Closeable {
         @Override
         public Boolean clear() throws IOException {
             try {
-                this.clusterClient.deleteIndex(INDEX);
+                this.delete();
             } catch (IOException e) {
-                // Warning only in case clear is invoked before create
+                // Warning in case clear is invoked and index does not exist
                 logger.warn("Fail to delete index " + INDEX + ": " + e.getMessage());
             }
             
-            return this.clusterClient.createIndex(INDEX, MAPPING);
+            return this.create();
         }
     }
     
@@ -231,8 +233,17 @@ public class Indexor implements Closeable {
         }
         
         @Override
-        public String add(PhotoMetadata photo) throws IOException {
-            return this.document.add(photo);
+        public String add(PhotoMetadata photo, boolean allowUpdate) throws IOException {
+            // Compute unique photo metadata id from path
+            String id = DigestUtils.sha256Hex(photo.path.toString());
+            
+            try {
+                return this.document.add(id, photo, allowUpdate);
+            } catch(DocumentAlreadyExistsException e) {
+                String msg = "Photo [id=" + id + ", path=" + photo.path + "] already exists in index " + INDEX;
+                logger.error(msg);
+                throw new IOException(msg, e);
+            }
         }
         
         @Override

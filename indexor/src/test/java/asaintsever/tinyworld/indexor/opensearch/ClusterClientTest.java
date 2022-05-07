@@ -26,6 +26,7 @@ import asaintsever.tinyworld.indexor.IndexPage;
 import asaintsever.tinyworld.indexor.LatLongGenerator;
 import asaintsever.tinyworld.indexor.opensearch.Cluster.ClusterNodeException;
 import asaintsever.tinyworld.metadata.extractor.CustomDateSerializer;
+import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 
@@ -36,6 +37,7 @@ public class ClusterClientTest {
     private static long seed;
     
     @ToString
+    @EqualsAndHashCode
     static class DocObject {
         public String attr1;
         public String attr2;
@@ -50,11 +52,11 @@ public class ClusterClientTest {
     
     @BeforeAll
     public static void setup() throws ClusterNodeException {
-        // Create single node cluster
-        cluster = new Cluster().setPathHome("target/index").create(true);
+        // Create single node cluster on special port
+        cluster = new Cluster().setHttpPort(9299).setPathHome("target/index").create(true);
         
-        // Create client
-        client = new ClusterClient("localhost", 9200);
+        // Create client, connect on local cluster
+        client = new ClusterClient("localhost", 9299);
     }
     
     @AfterAll
@@ -127,6 +129,49 @@ public class ClusterClientTest {
             
             DocObject docObj = doc.get(id, DocObject.class);
             System.out.println("Document=" + docObj.toString());
+        }
+    }
+    
+    @Test
+    void insertDocumentWithSameId() throws IOException, InterruptedException {
+        assertFalse(client.isIndexExists("test.index"));
+        
+        try(Document<DocObject> doc = new Document<>(client)) {
+            doc.setIndex("test.index").getMapper().setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
+            
+            EasyRandomParameters parameters = new EasyRandomParameters().seed(seed);
+            EasyRandom easyRandom = new EasyRandom(parameters);
+            
+            final String id = doc.add(easyRandom.nextObject(DocObject.class));
+            assertTrue((id != null) && !id.isEmpty());
+            
+            // Index is created automatically if not exist when inserting documents
+            assertTrue(client.isIndexExists("test.index"));
+            
+            DocObject docObj = doc.get(id, DocObject.class);
+            System.out.println("Document[id:" + id + "]=" + docObj.toString());
+            
+            // Pause before adding another doc
+            Thread.sleep(2000);
+            
+            // Try to update previously inserted doc => use same id and set boolean flag to 'true'
+            String id2 = doc.add(id, easyRandom.nextObject(DocObject.class), true);
+            assertTrue((id2 != null) && !id2.isEmpty() && id2.equals(id));
+            
+            DocObject docObj2 = doc.get(id2, DocObject.class);
+            System.out.println("Document[id:" + id2 + "]=" + docObj2.toString());
+            
+            Thread.sleep(2000);
+            // We still should have 1 doc as we did an update
+            assertEquals(doc.count(), 1);
+            
+            // Pause before adding another doc
+            Thread.sleep(2000);
+            
+            // Try to add another doc still using same Id but this time with boolean flag to 'false' => must fail with error
+            assertThrows(DocumentAlreadyExistsException.class, () -> {
+                doc.add(id, easyRandom.nextObject(DocObject.class), false);
+            });
         }
     }
     

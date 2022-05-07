@@ -6,7 +6,7 @@ import asaintsever.tinyworld.metadata.extractor.PhotoMetadata;
 
 public interface IPhoto {
 
-    String add(PhotoMetadata photo) throws IOException;
+    String add(PhotoMetadata photo, boolean allowUpdate) throws IOException;
     
     PhotoMetadata get(String id, Class<PhotoMetadata> docClass) throws IOException;
     
