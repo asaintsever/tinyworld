@@ -43,6 +43,8 @@ public class PhotoMetadata {
     
     /**
      * File protocol (eg "file:///<path>"), HTTP (eg "http://<path>") ...
+     * 
+     * Used to compute Id/Primary Key during ingestion
      */
     public URL path;
     

@@ -68,6 +68,8 @@ public class PhotoObject {
     public PhotoObject extractMetadata(URI uri, FileType fileType, Metadata metadata) throws ParseException, IOException {
         logger.info("Extracting metadata from " + uri);
         
+        this.metadata.setPath(uri.toURL());
+        
         ExifSubIFDDirectory exfSubDir = metadata.getFirstDirectoryOfType(ExifSubIFDDirectory.class);
         if (exfSubDir != null) {
             ExifSubIFDDescriptor exfSubDesc = new ExifSubIFDDescriptor(exfSubDir);
@@ -136,8 +138,6 @@ public class PhotoObject {
             this.metadata.setFileName(fsDesc.getDescription(FileSystemDirectory.TAG_FILE_NAME));
         }
         
-        this.metadata.setPath(uri.toURL());
-        
         ExifIFD0Directory exfDir = metadata.getFirstDirectoryOfType(ExifIFD0Directory.class);
         if (exfDir != null) {
             ExifIFD0Descriptor exfDesc = new ExifIFD0Descriptor(exfDir);
@@ -155,11 +155,11 @@ public class PhotoObject {
     }
 
     public PhotoObject extractThumbnail(URI uri, FileType fileType, Metadata metadata, String dumpPath) throws MalformedURLException, IOException {
-        logger.info("Extracting thumbnail from " + uri);
-        
         String filename = "";
         
         if (dumpPath != null) {
+            logger.info("Extracting thumbnail from " + uri);
+            
             FileSystemDirectory fsDir = metadata.getFirstDirectoryOfType(FileSystemDirectory.class);
             if (fsDir != null) {
                 FileSystemDescriptor fsDesc = new FileSystemDescriptor(fsDir);

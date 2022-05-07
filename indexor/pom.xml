@@ -81,7 +81,7 @@
   </dependencies>
 
   <profiles>
-    <!-- To test via 'mvn package -Dindexor.cmd.path=<ingestion path> -P indexorCmd' -->
+    <!-- To test via 'mvn package -Dmaven.test.skip=true -Dindexor.cmd.path=<ingestion path> -P indexorCmd' -->
     <profile>
       <id>indexorCmd</id>
       <activation>
@@ -126,8 +126,10 @@
                 <argument>-Xmx2048m</argument>
                 <argument>-cp</argument>
                 <argument>*</argument>
+                <argument>-Dlog4j2.configurationFile=classes/log4j2-indexor-cmd.xml</argument>
                 <argument>asaintsever.tinyworld.indexor.IndexorCmd</argument>
                 <argument>${indexor.cmd.path}</argument>
+                <argument>${indexor.cmd.clearIndex}</argument>
               </arguments>
             </configuration>
           </plugin>

@@ -11,6 +11,7 @@ import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -32,13 +33,36 @@ import com.drew.metadata.MetadataException;
 import com.drew.metadata.exif.ExifReader;
 import com.drew.metadata.exif.ExifThumbnailDirectory;
 
+import lombok.Getter;
+import lombok.ToString;
+
 
 public class Extract {
+    
+    @Getter
+    @ToString
+    public static class Result {
+        private int processed_ok;
+        private int processed_nok;
+        private int skipped;
+        private List<String> errorMsg;
+        
+        public Result(int ok, int nok, int skip, List<String> errors) {
+            this.processed_ok = ok;
+            this.processed_nok = nok;
+            this.skipped = skip;
+            this.errorMsg = errors;
+        }
+    }
+    
     protected static Logger logger = LoggerFactory.getLogger(Extract.class);
 
     
-    public static int exploreFS(String rootDir, int depth, IPhotoProcess photoProcess) {
-        int nb_processed_photo = 0;
+    public static Result exploreFS(String rootDir, int depth, IPhotoProcess photoProcess) {
+        int nb_processed_ok = 0;
+        int nb_processed_error = 0;
+        int nb_skipped = 0;
+        List<String> errors = new ArrayList<String>();
         
         try {
             Set<URI> photos = listFilesUsingFileWalk(rootDir, depth);
@@ -53,18 +77,27 @@ public class Extract {
                         if (fileType == FileType.Jpeg || fileType == FileType.Png) {
                             Metadata metadata = ImageMetadataReader.readMetadata(photoFile); // Use File here, not stream, to get FileSystemDirectory info (photo name and size)
                             photoProcess.task(photo, fileType, metadata);
-                            nb_processed_photo++;
+                            nb_processed_ok++;
                         } else {
-                            logger.warn("Skipping " + photo + ": unsupported media type");
+                            logger.warn("Skipping " + photo + ": unsupported media type (" + fileType.getName() + ")");
+                            nb_skipped++;
                         }
+                    } catch (ImageProcessingException | PhotoProcessException e) {
+                        nb_processed_error++;
+                        errors.add(e.getMessage());
+                        logger.error(e.getMessage());
                     }
+                } catch (IOException e) {
+                    logger.error(e.getMessage());
+                    e.printStackTrace();
                 }
             }
-        } catch (ImageProcessingException | IOException e) {
+        } catch (IOException e) {
+            logger.error(e.getMessage());
             e.printStackTrace();
         }
         
-        return nb_processed_photo;
+        return new Result(nb_processed_ok, nb_processed_error, nb_skipped, errors);
     }
     
     private static Set<URI> listFilesUsingFileWalk(String dir, int depth) throws IOException {
