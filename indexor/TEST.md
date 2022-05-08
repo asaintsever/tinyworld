@@ -6,7 +6,8 @@ A little program is provided to test extraction of photo metadata: [IndexorCmd](
 
 ```sh
 # Set indexor.cmd.clearIndex to false if you want to keep previously indexed data
-mvn package -Dmaven.test.skip=true -Dindexor.cmd.path=<full path to root directory to index> -Dindexor.cmd.clearIndex=true -P indexorCmd
+# Set indexor.cmd.allowUpdate to true if you allow updates of existing photo metadata in index
+mvn package -Dmaven.test.skip=true -Dindexor.cmd.path=<full path to root directory to index> -Dindexor.cmd.clearIndex=true -Dindexor.cmd.allowUpdate=false -P indexorCmd
 ```
 
 Once metadata extraction has been done, the program will pause to give you the opportunity to inspect the index (see procedure in next section). Press `Q + <Enter>` to exit the program.

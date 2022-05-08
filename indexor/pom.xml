@@ -81,7 +81,7 @@
   </dependencies>
 
   <profiles>
-    <!-- To test via 'mvn package -Dmaven.test.skip=true -Dindexor.cmd.path=<ingestion path> -P indexorCmd' -->
+    <!-- To test via 'mvn package -Dmaven.test.skip=true -Dindexor.cmd.path=<ingestion path> -Dindexor.cmd.clearIndex=<true|false> -Dindexor.cmd.allowUpdate=<true|false> -P indexorCmd' -->
     <profile>
       <id>indexorCmd</id>
       <activation>
@@ -130,6 +130,7 @@
                 <argument>asaintsever.tinyworld.indexor.IndexorCmd</argument>
                 <argument>${indexor.cmd.path}</argument>
                 <argument>${indexor.cmd.clearIndex}</argument>
+                <argument>${indexor.cmd.allowUpdate}</argument>
               </arguments>
             </configuration>
           </plugin>
