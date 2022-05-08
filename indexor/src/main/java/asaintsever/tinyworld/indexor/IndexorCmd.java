@@ -22,21 +22,26 @@ import asaintsever.tinyworld.metadata.extractor.PhotoProcessException;
 public class IndexorCmd {
     
     protected static Logger logger = LoggerFactory.getLogger(IndexorCmd.class);
+    private static boolean clearIndex = true;
+    private static boolean allowUpdate = false;
     
     private static void usage() {
-        System.out.println("Usage: " + IndexorCmd.class.getCanonicalName() + " <full path to ingest> [<boolean to clear index if already exists, default is 'true'>]\n");
+        System.out.println("Usage: " + IndexorCmd.class.getCanonicalName() + " <full path to ingest> [<boolean to clear index if already exists, default is 'true'>] [<boolean to allow updates in index, default is 'false'>]\n");
         System.exit(1);
     }
     
 
     public static void main(String[] args) throws Exception {
         // Check args
-        if (args.length == 0 || args.length > 2) usage();
+        if (args.length == 0 || args.length > 3) usage();
         
         String ingestionPath = args[0];
-        boolean clearIndex = true;
+
+        if (args.length >= 2) clearIndex = Boolean.valueOf(args[1]);
+        if (args.length >= 3) allowUpdate = Boolean.valueOf(args[2]);
         
-        if (args.length == 2) clearIndex = Boolean.valueOf(args[1]);
+        System.out.println("--> clearIndex: " + clearIndex);
+        System.out.println("--> allowUpdate: " + allowUpdate);
         
         // Change defaults for our program
         Indexor.setIndex("indexor.cmd");
@@ -63,7 +68,7 @@ public class IndexorCmd {
                         
                         // Extract then insert photo metadata
                         PhotoMetadata mtd = photo.extractMetadata(uri, fileType, metadata).getMetadata();
-                        indexor.photos().add(mtd, false);
+                        indexor.photos().add(mtd, allowUpdate);
                     } catch (IOException | ParseException e) {
                         throw new PhotoProcessException(e);
                     }
