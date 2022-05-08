@@ -43,11 +43,8 @@ public class IndexorCmd {
         System.out.println("--> clearIndex: " + clearIndex);
         System.out.println("--> allowUpdate: " + allowUpdate);
         
-        // Change defaults for our program
-        Indexor.setIndex("indexor.cmd");
-        
         // Create an indexor instance spawning an embedded cluster with expose set to 'true' to be able to connect to it with Elasticvue tool
-        try(Indexor indexor = new Indexor(Indexor.DEFAULT_HOST, Indexor.DEFAULT_PORT, true, true)) {
+        try(Indexor indexor = new Indexor(Indexor.DEFAULT_HOST, Indexor.DEFAULT_PORT, "indexor.cmd", true, true)) {
             logger.info("Indexor Cmd started and ready to ingest photos from " + ingestionPath);
             
             PhotoMetadata defaultMetadata = new PhotoMetadata();

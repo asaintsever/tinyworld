@@ -30,6 +30,7 @@ public class Configuration {
             public Embedded embedded;
             public String address;
             public int port;
+            public String index;
             
             @ToString
             public class Embedded {
