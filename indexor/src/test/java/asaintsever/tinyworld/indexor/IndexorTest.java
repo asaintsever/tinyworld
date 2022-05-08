@@ -28,10 +28,9 @@ public class IndexorTest {
     public static void setup() throws Exception {
         // Change defaults for our tests
         Indexor.setClusterPathHome("target/index");
-        Indexor.setIndex("indexor.test");
         
         // Create indexor
-        indexor = new Indexor();
+        indexor = new Indexor("indexor.test");
     }
     
     @AfterAll

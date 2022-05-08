@@ -15,6 +15,7 @@ indexor:
       expose: ${TW_IDX_CLUSTER_EMBEDDED_EXPOSE:-false}  # true to expose embedded cluster to external machines (with CORS enabled as well). Default to false.
     address: ${TW_IDX_CLUSTER_ADDRESS:-localhost}       # address of OpenSearch / Elasticsearch cluster
     port: ${TW_IDX_CLUSTER_PORT:-9200}                  # cluster listening port
+    index: ${TW_IDX_CLUSTER_INDEX:-photos}              # cluster index name
   photo:
     defaultMetadata:  # Default attribute(s) to set if not found in photo metadata (for easier filtering and display)
       country: "_Unknown_"

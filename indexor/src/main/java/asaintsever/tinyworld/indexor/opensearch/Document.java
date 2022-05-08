@@ -60,6 +60,10 @@ public class Document<T> implements Closeable {
         this.index = index;
         return this;
     }
+    
+    public String getIndex() {
+        return this.index;
+    }
 
     public String add(T document) throws IOException {
         return this.add(null, document, false);

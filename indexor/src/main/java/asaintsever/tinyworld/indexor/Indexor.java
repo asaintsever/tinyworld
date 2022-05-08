@@ -26,6 +26,7 @@ public class Indexor implements Closeable {
     private Configuration.INDEXOR indexorCfg;
     private String host;
     private int port;
+    private String index; 
     private boolean useEmbeddedCluster;
     
     private ClusterClient clusterClient;
@@ -34,8 +35,7 @@ public class Indexor implements Closeable {
     private MetadataIndex mtdIndx;
     private Photo photos;
     
-    // Default for TinyWorld's index name, date format, mapping and storage path. Can be modified using static setters.
-    private static String INDEX = "photos";
+    // Default for TinyWorld's date format, mapping and storage path. Can be modified using static setters.
     private static String CLUSTER_PATH_HOME = "index";
     private static String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
     private static String MAPPING = ""
@@ -107,11 +107,7 @@ public class Indexor implements Closeable {
             + " }\n"
             + "}";
     
-    
-    public static void setIndex(String index) {
-        INDEX = index;
-    }
-    
+        
     public static void setDateFormat(String format) {
         DATE_FORMAT = format;
     }
@@ -126,19 +122,20 @@ public class Indexor implements Closeable {
 
     
     // Using defaults
-    public Indexor() throws Exception {
-        this(DEFAULT_HOST, DEFAULT_PORT, true, false);
+    public Indexor(String index) throws Exception {
+        this(DEFAULT_HOST, DEFAULT_PORT, index, true, false);
     }
     
     // From config file
     public Indexor(Configuration.INDEXOR indexorCfg) throws Exception {
-        this(indexorCfg.cluster.address, indexorCfg.cluster.port, indexorCfg.cluster.embedded.enabled, indexorCfg.cluster.embedded.expose);
+        this(indexorCfg.cluster.address, indexorCfg.cluster.port, indexorCfg.cluster.index, indexorCfg.cluster.embedded.enabled, indexorCfg.cluster.embedded.expose);
         this.indexorCfg = indexorCfg;
     }
     
-    public Indexor(String host, int port, boolean useEmbeddedCluster, boolean exposeEmbeddedCluster) throws Exception {
+    public Indexor(String host, int port, String index, boolean useEmbeddedCluster, boolean exposeEmbeddedCluster) throws Exception {
         this.host = host;
         this.port = port;
+        this.index = index; 
         this.useEmbeddedCluster = useEmbeddedCluster;
         
         if(this.useEmbeddedCluster) {
@@ -151,8 +148,8 @@ public class Indexor implements Closeable {
         }
         
         this.clusterClient = new ClusterClient(this.host, this.port);
-        this.mtdIndx = new MetadataIndex().setClient(this.clusterClient);
-        this.photos = new Photo().setClient(this.clusterClient);
+        this.mtdIndx = new MetadataIndex().setConnection(this.clusterClient, this.index);
+        this.photos = new Photo().setConnection(this.clusterClient, this.index);
     }
     
     
@@ -166,8 +163,8 @@ public class Indexor implements Closeable {
         
         this.clusterClient = new ClusterClient(this.host, this.port);
         
-        this.mtdIndx.setClient(this.clusterClient);
-        this.photos.setClient(this.clusterClient);
+        this.mtdIndx.setConnection(this.clusterClient, this.index);
+        this.photos.setConnection(this.clusterClient, this.index);
     }
     
     @Override
@@ -192,20 +189,22 @@ public class Indexor implements Closeable {
         
     private class MetadataIndex implements IIndex {
         private ClusterClient clusterClient;
+        private String index;
                 
-        public MetadataIndex setClient(ClusterClient clusterClient) {
+        public MetadataIndex setConnection(ClusterClient clusterClient, String index) {
             this.clusterClient = clusterClient;
+            this.index = index;
             return this;
         }
         
         @Override
         public Boolean create() throws IOException {
-            return this.clusterClient.createIndex(INDEX, MAPPING);
+            return this.clusterClient.createIndex(this.index, MAPPING);
         }
         
         @Override
         public Boolean delete() throws IOException {
-            return this.clusterClient.deleteIndex(INDEX);
+            return this.clusterClient.deleteIndex(this.index);
         }
         
         @Override
@@ -214,7 +213,7 @@ public class Indexor implements Closeable {
                 this.delete();
             } catch (IOException e) {
                 // Warning in case clear is invoked and index does not exist
-                logger.warn("Fail to delete index " + INDEX + ": " + e.getMessage());
+                logger.warn("Fail to delete index " + this.index + ": " + e.getMessage());
             }
             
             return this.create();
@@ -224,11 +223,11 @@ public class Indexor implements Closeable {
     private class Photo implements IPhoto, Closeable {
         private Document<PhotoMetadata> document;
         
-        public Photo setClient(ClusterClient clusterClient) {
+        public Photo setConnection(ClusterClient clusterClient, String index) {
             this.document = new Document<>(clusterClient);
             
             // Set index and date format
-            this.document.setIndex(INDEX).getMapper().setDateFormat(new SimpleDateFormat(DATE_FORMAT));
+            this.document.setIndex(index).getMapper().setDateFormat(new SimpleDateFormat(DATE_FORMAT));
             return this;
         }
         
@@ -240,7 +239,7 @@ public class Indexor implements Closeable {
             try {
                 return this.document.add(id, photo, allowUpdate);
             } catch(DocumentAlreadyExistsException e) {
-                String msg = "Photo [id=" + id + ", path=" + photo.path + "] already exists in index " + INDEX;
+                String msg = "Photo [id=" + id + ", path=" + photo.path + "] already exists in index " + this.document.getIndex();
                 logger.error(msg);
                 throw new IOException(msg, e);
             }

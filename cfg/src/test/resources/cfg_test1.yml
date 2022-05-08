@@ -15,3 +15,4 @@ indexor:
       expose: true          # true to expose embedded cluster to external machines (with CORS enabled as well). Default to false.
     address: localhost      # address of OpenSearch / Elasticsearch cluster
     port: 9200              # cluster listening port
+    index: my_index         # cluster index name
