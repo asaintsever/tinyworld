@@ -312,12 +312,12 @@ public class Globe {
             System.setProperty("com.apple.mrj.application.apple.menu.about.name", "WorldWind Application");
             System.setProperty("com.apple.mrj.application.growbox.intrudes", "false");
             System.setProperty("apple.awt.brushMetalLook", "true");
-        } else if (Configuration.isWindowsOS()) {
+        } else if (Configuration.isWindowsOS() || (Configuration.isLinuxOS() && System.getProperty("os.version") != null && System.getProperty("os.version").toLowerCase().contains("wsl"))) {
             System.setProperty("sun.awt.noerasebackground", "true"); // prevents flashing during window resizing
         }
     }
 
-    public static AppFrame start(String appName, Class<?> appFrameClass) {
+    public static AppFrame start(String appName, Class<?> appFrameClass, asaintsever.tinyworld.cfg.Configuration.UI uiCfg) {
         if (Configuration.isMacOS() && appName != null) {
             System.setProperty("com.apple.mrj.application.apple.menu.about.name", appName);
         }

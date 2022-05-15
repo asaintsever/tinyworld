@@ -1,5 +1,7 @@
-# Testing TinyWorld UI
+# TinyWorld UI
+
+## Testing
 
 ```sh
-mvn clean package -P UI
+mvn package -Dmaven.test.skip=true -P UI
 ```
