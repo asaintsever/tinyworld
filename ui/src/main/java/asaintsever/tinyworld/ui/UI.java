@@ -29,22 +29,28 @@ public class UI extends Globe {
         return Loader.getConfig();
     }
     
-    protected static void routeJULtoSLF4J() {
+    protected static void routeJULtoSLF4J(Configuration.UI uiCfg) {
         // Enable JUL to SLF4J bridge
         SLF4JBridgeHandler.removeHandlersForRootLogger();
         SLF4JBridgeHandler.install();
-               
-        // Set log level for WWJ
-        wwjJULlogger.setLevel(java.util.logging.Level.FINER);
         
-        // Set log level for FlatLaf
-        flatlafJULlogger.setLevel(java.util.logging.Level.CONFIG);
+        // By default, turn off logging for dependencies
+        wwjJULlogger.setLevel(java.util.logging.Level.OFF);
+        flatlafJULlogger.setLevel(java.util.logging.Level.OFF);
+        
+        // Set log level for WWJ from config
+        if (uiCfg.deps.logging.get("wwj").toLowerCase().equals("on"))
+            wwjJULlogger.setLevel(java.util.logging.Level.FINER);
+        
+        // Set log level for FlatLaf from config
+        if (uiCfg.deps.logging.get("flatlaf").toLowerCase().equals("on"))
+            flatlafJULlogger.setLevel(java.util.logging.Level.CONFIG);
     }
 
     public static void main(String[] args) {
         Configuration cfg = readConfig();
         
-        if (cfg == null) {
+        if (cfg == null || cfg.ui == null) {
             logger.error("Cannot read configuration");
             System.exit(1);
         }
@@ -52,11 +58,11 @@ public class UI extends Globe {
         if (logger.isDebugEnabled())
             logger.debug("Loaded config: " + cfg.toString());
         
-        routeJULtoSLF4J();
+        routeJULtoSLF4J(cfg.ui);
         
         // Apply dark theme
         FlatDarkLaf.setup();
         
-        Globe.start("TinyWorld", AppFrame.class);
+        Globe.start("TinyWorld", AppFrame.class, cfg.ui);
     }
 }
