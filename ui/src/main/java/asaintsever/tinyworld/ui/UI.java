@@ -8,7 +8,7 @@ import com.formdev.flatlaf.FlatDarkLaf;
 
 import asaintsever.tinyworld.cfg.Configuration;
 import asaintsever.tinyworld.cfg.Loader;
-import asaintsever.tinyworld.ui.globe.Globe;
+import asaintsever.tinyworld.ui.component.Globe;
 
 public class UI extends Globe {
     
@@ -63,6 +63,6 @@ public class UI extends Globe {
         // Apply dark theme
         FlatDarkLaf.setup();
         
-        Globe.start("TinyWorld", AppFrame.class, cfg.ui);
+        Globe.start("TinyWorld", cfg.ui);
     }
 }

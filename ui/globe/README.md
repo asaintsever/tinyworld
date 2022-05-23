@@ -15,6 +15,12 @@ Below is a list of the most useful ones for TinyWorld usage:
   - `deps/wwj/wwj-utils.sh gov.nasa.worldwindx.examples.AnnotationControls`
 - Manage local cache: `deps/wwj/wwj-utils.sh gov.nasa.worldwindx.examples.util.cachecleaner.DataCacheViewer`
 - Bulk download layers: `deps/wwj/wwj-utils.sh gov.nasa.worldwindx.examples.BulkDownload`
+- UI & Controls:
+  - Split Pane: `deps/wwj/wwj-utils.sh gov.nasa.worldwindx.examples.SplitPaneUsage`
+  - Tree control: `deps/wwj/wwj-utils.sh gov.nasa.worldwindx.examples.util.TreeControl`
+  - Layer Tree: `deps/wwj/wwj-utils.sh gov.nasa.worldwindx.examples.LayerTreeUsage`
+  - On Screen Layer Manager: `deps/wwj/wwj-utils.sh gov.nasa.worldwindx.examples.OnScreenLayerManager`
+  - View Controls: `deps/wwj/wwj-utils.sh gov.nasa.worldwindx.examples.ViewControls`
 
 ## Workarounds
 

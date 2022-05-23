@@ -1,25 +1,22 @@
-package asaintsever.tinyworld.ui.globe;
+package asaintsever.tinyworld.ui.component;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.event.ActionEvent;
+import java.awt.GraphicsEnvironment;
+import java.awt.Window;
 import java.awt.image.BufferedImage;
 import java.net.URL;
 
 import javax.imageio.ImageIO;
-import javax.swing.AbstractAction;
-import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.EtchedBorder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import asaintsever.tinyworld.ui.layer.TinyWorldMenuLayer;
 import gov.nasa.worldwind.Configuration;
 import gov.nasa.worldwind.Model;
 import gov.nasa.worldwind.WorldWind;
@@ -29,20 +26,15 @@ import gov.nasa.worldwind.awt.WorldWindowGLCanvas;
 import gov.nasa.worldwind.event.SelectEvent;
 import gov.nasa.worldwind.event.SelectListener;
 import gov.nasa.worldwind.exception.WWAbsentRequirementException;
-import gov.nasa.worldwind.layers.CompassLayer;
 import gov.nasa.worldwind.layers.Layer;
 import gov.nasa.worldwind.layers.LayerList;
-import gov.nasa.worldwind.layers.ViewControlsLayer;
-import gov.nasa.worldwind.layers.ViewControlsSelectListener;
 import gov.nasa.worldwind.layers.WorldMapLayer;
-import gov.nasa.worldwind.layers.placename.PlaceNameLayer;
 import gov.nasa.worldwind.terrain.ZeroElevationModel;
-import gov.nasa.worldwind.util.StatisticsPanel;
 import gov.nasa.worldwind.util.WWUtil;
 import gov.nasa.worldwindx.examples.ClickAndGoSelectListener;
-import gov.nasa.worldwindx.examples.FlatWorldPanel;
 import gov.nasa.worldwindx.examples.util.HighlightController;
 import gov.nasa.worldwindx.examples.util.ToolTipController;
+
 
 public class Globe {
 
@@ -56,90 +48,88 @@ public class Globe {
         public AppPanel(Dimension canvasSize, boolean includeStatusBar) {
             super(new BorderLayout());
 
-            this.wwd = this.createWorldWindow();
+            this.wwd = new WorldWindowGLCanvas();
             ((Component) this.wwd).setPreferredSize(canvasSize);
+            
+            // To work around a Swing bug the WorldWindow must be placed within a JPanel and
+            // that JPanel's minimum preferred size must be set to zero (both width and height)
+            this.setMinimumSize(new Dimension(0, 0));
 
             // Create the default model as described in the current worldwind properties.
             Model m = (Model) WorldWind.createConfigurationComponent(AVKey.MODEL_CLASS_NAME);
             this.wwd.setModel(m);
 
             // Setup a select listener for the worldmap click-and-go feature
-            this.wwd.addSelectListener(new ClickAndGoSelectListener(this.getWwd(), WorldMapLayer.class));
+            this.wwd.addSelectListener(new ClickAndGoSelectListener(this.wwd, WorldMapLayer.class));
 
             this.add((Component) this.wwd, BorderLayout.CENTER);
             if (includeStatusBar) {
                 this.statusBar = new StatusBar();
                 this.add(statusBar, BorderLayout.PAGE_END);
-                this.statusBar.setEventSource(wwd);
+                this.statusBar.setEventSource(this.wwd);
             }
 
             // Add controllers to manage highlighting and tool tips.
-            this.toolTipController = new ToolTipController(this.getWwd(), AVKey.DISPLAY_NAME, null);
-            this.highlightController = new HighlightController(this.getWwd(), SelectEvent.ROLLOVER);
-        }
-
-        protected WorldWindow createWorldWindow() {
-            return new WorldWindowGLCanvas();
+            this.toolTipController = new ToolTipController(this.wwd, AVKey.DISPLAY_NAME, null);
+            this.highlightController = new HighlightController(this.wwd, SelectEvent.ROLLOVER);
         }
 
         public WorldWindow getWwd() {
-            return wwd;
+            return this.wwd;
         }
 
         public StatusBar getStatusBar() {
-            return statusBar;
+            return this.statusBar;
         }
     }
 
     protected static class AppFrame extends JFrame {
 
-        private Dimension canvasSize = new Dimension(1000, 800);
+        private Dimension canvasSize = new Dimension(1000, 800); // the desired WorldWindow size
 
         protected AppPanel wwjPanel;
-        protected JPanel controlPanel;
-        protected LayerPanel layerPanel;
-        protected StatisticsPanel statsPanel;
+        protected SettingsPanel settingslPanel;
         protected Logger logger = LoggerFactory.getLogger(AppFrame.class);
         
 
         public AppFrame() {
-            this.initialize(true, true, false);
+            this.initialize(true);
         }
 
         public AppFrame(Dimension size) {
             this.canvasSize = size;
-            this.initialize(true, true, false);
+            this.initialize(true);
         }
 
-        public AppFrame(boolean includeStatusBar, boolean includeLayerPanel, boolean includeStatsPanel) {
-            this.initialize(includeStatusBar, includeLayerPanel, includeStatsPanel);
+        public AppFrame(boolean includeStatusBar) {
+            this.initialize(includeStatusBar);
         }
 
-        protected void initialize(boolean includeStatusBar, boolean includeLayerPanel, boolean includeStatsPanel) {
+        protected void initialize(boolean includeStatusBar) {
             // Create the WorldWindow.
             this.wwjPanel = this.createAppPanel(this.canvasSize, includeStatusBar);
             this.wwjPanel.setPreferredSize(canvasSize);
-
-            // Put the pieces together.
+            
             this.getContentPane().add(wwjPanel, BorderLayout.CENTER);
-            if (includeLayerPanel) {
-                this.controlPanel = new JPanel(new BorderLayout(10, 10));
-                this.layerPanel = new LayerPanel(this.getWwd());
-                this.controlPanel.add(this.layerPanel, BorderLayout.CENTER);
-                this.controlPanel.add(new FlatWorldPanel(this.getWwd()), BorderLayout.NORTH);
-                this.controlPanel.add(this.createNetworkStatusPanel(), BorderLayout.SOUTH);
-                this.getContentPane().add(this.controlPanel, BorderLayout.WEST);
-            }
 
-            if (includeStatsPanel || System.getProperty("gov.nasa.worldwind.showStatistics") != null) {
-                this.statsPanel = new StatisticsPanel(this.wwjPanel.getWwd(), new Dimension(250, canvasSize.height));
-                this.getContentPane().add(this.statsPanel, BorderLayout.EAST);
+            this.settingslPanel = new SettingsPanel(this.wwjPanel.getWwd());
+            this.settingslPanel.setVisible(false);    // No visible by default (click on 'Settings' button to enable config pane)
+            this.getContentPane().add(this.settingslPanel, BorderLayout.WEST);
+            
+            TinyWorldMenuLayer twMenuLayer = new TinyWorldMenuLayer(this.wwjPanel.getWwd(), this.settingslPanel);
+            insertLayerAtTheEnd(this.wwjPanel.getWwd(), twMenuLayer);
+            
+            for (Layer layer : this.wwjPanel.getWwd().getModel().getLayers()) {
+                // Search the layer list for layers that are also select listeners and register them with the World
+                // Window. This enables interactive layers to be included without specific knowledge of them here.
+                if (layer instanceof SelectListener) {
+                    this.wwjPanel.getWwd().addSelectListener((SelectListener) layer);
+                }
+                
+                if (layer instanceof WorldMapLayer) {
+                    ((WorldMapLayer) layer).setPosition(AVKey.NORTHEAST);
+                }
             }
-
-            // Create and install the view controls layer and register a controller for it with the WorldWindow.
-            ViewControlsLayer viewControlsLayer = new ViewControlsLayer();
-            insertBeforeCompass(getWwd(), viewControlsLayer);
-            this.getWwd().addSelectListener(new ViewControlsSelectListener(this.getWwd(), viewControlsLayer));
 
             // Register a rendering exception listener that's notified when exceptions occur during rendering.
             this.wwjPanel.getWwd().addRenderingExceptionListener((Throwable t) -> {
@@ -149,19 +139,10 @@ public class Globe {
                     message += "Reason: " + t.getMessage() + "\n";
                     message += "This program will end when you press OK.";
 
-                    JOptionPane.showMessageDialog(AppFrame.this, message, "Unable to Start Program",
-                            JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(AppFrame.this, message, "Unable to Start Program", JOptionPane.ERROR_MESSAGE);
                     System.exit(-1);
                 }
             });
-
-            // Search the layer list for layers that are also select listeners and register them with the World
-            // Window. This enables interactive layers to be included without specific knowledge of them here.
-            for (Layer layer : this.wwjPanel.getWwd().getModel().getLayers()) {
-                if (layer instanceof SelectListener) {
-                    this.getWwd().addSelectListener((SelectListener) layer);
-                }
-            }
 
             this.pack();
 
@@ -173,7 +154,7 @@ public class Globe {
             
             // Eliminate elevations by simply setting the globe's elevation model to ZeroElevationModel.
             // Elevation info have also been removed from status bar (see custom StatusBar class) and on/off checkbox from panel (see custom LayerPanel class)
-            this.getWwd().getModel().getGlobe().setElevationModel(new ZeroElevationModel());
+            this.wwjPanel.getWwd().getModel().getGlobe().setElevationModel(new ZeroElevationModel());
         }
         
         protected void setAppIcon() {
@@ -184,31 +165,6 @@ public class Globe {
             } catch (Exception e) {
                 this.logger.error("Fail to set application icon", e);
             }
-        }
-        
-        protected JPanel createNetworkStatusPanel() {
-            JPanel panel = new JPanel(new BorderLayout(5, 5));
-            panel.setBorder(new CompoundBorder(new EmptyBorder(0, 10, 15, 10), new EtchedBorder()));
-
-            JCheckBox modeSwitch = new JCheckBox(new AbstractAction(" Online") {
-
-                public void actionPerformed(ActionEvent actionEvent) {
-                    // Get the current status
-                    boolean offline = WorldWind.getNetworkStatus().isOfflineMode();
-
-                    // Change it to its opposite
-                    offline = !offline;
-                    WorldWind.getNetworkStatus().setOfflineMode(offline);
-
-                    // Cause data retrieval to resume if now online
-                    if (!offline)
-                        getWwd().redraw();
-                }
-            });
-            
-            modeSwitch.setSelected(true); // WW starts out online
-            panel.add(modeSwitch, BorderLayout.CENTER);
-            return panel;
         }
 
         protected AppPanel createAppPanel(Dimension canvasSize, boolean includeStatusBar) {
@@ -231,12 +187,8 @@ public class Globe {
             return this.wwjPanel.getStatusBar();
         }
 
-        public JPanel getControlPanel() {
-            return this.controlPanel;
-        }
-
-        public StatisticsPanel getStatsPanel() {
-            return statsPanel;
+        public JPanel getSettingsPanel() {
+            return this.settingslPanel;
         }
 
         public void setToolTipController(ToolTipController controller) {
@@ -256,57 +208,30 @@ public class Globe {
         }
     }
 
-    public static void insertBeforeCompass(WorldWindow wwd, Layer layer) {
-        // Insert the layer into the layer list just before the compass.
-        int compassPosition = 0;
+    public static void insertLayerAtTheEnd(WorldWindow wwd, Layer layer) {
+        // Insert the layer at the end of the layer list
         LayerList layers = wwd.getModel().getLayers();
-        for (Layer l : layers) {
-            if (l instanceof CompassLayer) {
-                compassPosition = layers.indexOf(l);
-            }
-        }
-        layers.add(compassPosition, layer);
-    }
-
-    public static void insertBeforePlacenames(WorldWindow wwd, Layer layer) {
-        // Insert the layer into the layer list just before the placenames.
-        int compassPosition = 0;
-        LayerList layers = wwd.getModel().getLayers();
-        for (Layer l : layers) {
-            if (l instanceof PlaceNameLayer) {
-                compassPosition = layers.indexOf(l);
-            }
-        }
-        layers.add(compassPosition, layer);
-    }
-
-    public static void insertAfterPlacenames(WorldWindow wwd, Layer layer) {
-        // Insert the layer into the layer list just after the placenames.
-        int compassPosition = 0;
-        LayerList layers = wwd.getModel().getLayers();
-        for (Layer l : layers) {
-            if (l instanceof PlaceNameLayer) {
-                compassPosition = layers.indexOf(l);
-            }
-        }
-        layers.add(compassPosition + 1, layer);
+        layers.add(layer);
     }
 
     public static void insertBeforeLayerName(WorldWindow wwd, Layer layer, String targetName) {
         // Insert the layer into the layer list just before the target layer.
         int targetPosition = 0;
         LayerList layers = wwd.getModel().getLayers();
+        
         for (Layer l : layers) {
             if (l.getName().contains(targetName)) {
                 targetPosition = layers.indexOf(l);
                 break;
             }
         }
+        
         layers.add(targetPosition, layer);
     }
 
     static {
         System.setProperty("java.net.useSystemProxies", "true");
+        
         if (Configuration.isMacOS()) {
             System.setProperty("apple.laf.useScreenMenuBar", "true");
             System.setProperty("com.apple.mrj.application.apple.menu.about.name", "WorldWind Application");
@@ -317,15 +242,20 @@ public class Globe {
         }
     }
 
-    public static AppFrame start(String appName, Class<?> appFrameClass, asaintsever.tinyworld.cfg.Configuration.UI uiCfg) {
+    public static AppFrame start(String appName, asaintsever.tinyworld.cfg.Configuration.UI uiCfg) {
         if (Configuration.isMacOS() && appName != null) {
             System.setProperty("com.apple.mrj.application.apple.menu.about.name", appName);
         }
 
         try {
-            final AppFrame frame = (AppFrame) appFrameClass.getConstructor().newInstance();
+            final AppFrame frame =  new AppFrame();
             frame.setTitle(appName);
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            
+            for (Window w : Window.getWindows()) {
+                GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().setFullScreenWindow(w);
+            }
+            
             java.awt.EventQueue.invokeLater(() -> {
                 frame.setVisible(true);
             });
