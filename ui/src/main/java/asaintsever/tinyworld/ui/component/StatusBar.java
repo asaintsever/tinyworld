@@ -1,4 +1,4 @@
-package asaintsever.tinyworld.ui.globe;
+package asaintsever.tinyworld.ui.component;
 
 public class StatusBar extends gov.nasa.worldwind.util.StatusBar {
 
