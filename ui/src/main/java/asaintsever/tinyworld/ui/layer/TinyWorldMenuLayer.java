@@ -6,9 +6,13 @@ import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
 
-import javax.swing.JPanel;
+import javax.swing.JOptionPane;
 
-import gov.nasa.worldwind.WorldWindow;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import asaintsever.tinyworld.ui.UIStrings;
+import asaintsever.tinyworld.ui.component.MainFrame;
 import gov.nasa.worldwind.avlist.AVKey;
 import gov.nasa.worldwind.avlist.AVList;
 import gov.nasa.worldwind.event.SelectEvent;
@@ -25,14 +29,15 @@ import gov.nasa.worldwind.util.Logging;
  */
 public class TinyWorldMenuLayer extends RenderableLayer implements SelectListener {
     
+    protected static Logger logger = LoggerFactory.getLogger(TinyWorldMenuLayer.class);
+    
     protected final static String LAYER_NAME = "TinyWorld Menu";
     
     protected final static String IMAGE_INDEX = "images/tw-index-48x48.png";
     protected final static String IMAGE_FILTER = "images/tw-filter-48x48.png";
     protected final static String IMAGE_SETTINGS = "images/tw-settings-48x48.png";
     
-    protected WorldWindow wwd;
-    protected JPanel settingsPanel;
+    protected MainFrame frame;
     
     // The annotations used to display the menu buttons.
     protected ScreenAnnotation buttonIndex;
@@ -52,15 +57,14 @@ public class TinyWorldMenuLayer extends RenderableLayer implements SelectListene
     protected String pressedButtonType;
 
     
-    public TinyWorldMenuLayer(WorldWindow wwd, JPanel settingsPanel) {
-        if (wwd == null) {
+    public TinyWorldMenuLayer(MainFrame frame) {
+        if (frame == null || frame.getWwd() == null) {
             String msg = Logging.getMessage("nullValue.WorldWindow");
-            Logging.logger().severe(msg);
+            logger.error(msg);
             throw new IllegalArgumentException(msg);
         }
         
-        this.wwd = wwd;
-        this.settingsPanel = settingsPanel;
+        this.frame = frame;
         
         // Mark the layer as hidden to prevent it being included in the layer tree's model
         this.setValue(AVKey.HIDDEN, true);
@@ -79,7 +83,7 @@ public class TinyWorldMenuLayer extends RenderableLayer implements SelectListene
      */
     public void setBorderWidth(int borderWidth) {
         this.borderWidth = borderWidth;
-        clearControls();
+        this.clearControls();
     }
     
     /**
@@ -98,7 +102,7 @@ public class TinyWorldMenuLayer extends RenderableLayer implements SelectListene
      */
     public void setScale(double scale) {
         this.scale = scale;
-        clearControls();
+        this.clearControls();
     }
     
     /**
@@ -120,12 +124,12 @@ public class TinyWorldMenuLayer extends RenderableLayer implements SelectListene
     public void setPosition(String position) {
         if (position == null) {
             String message = Logging.getMessage("nullValue.PositionIsNull");
-            Logging.logger().severe(message);
+            logger.error(message);
             throw new IllegalArgumentException(message);
         }
         
         this.position = position;
-        clearControls();
+        this.clearControls();
     }
     
     /**
@@ -145,13 +149,13 @@ public class TinyWorldMenuLayer extends RenderableLayer implements SelectListene
     public void setLayout(String layout) {
         if (layout == null) {
             String message = Logging.getMessage("nullValue.StringIsNull");
-            Logging.logger().severe(message);
+            logger.error(message);
             throw new IllegalArgumentException(message);
         }
         
         if (!this.layout.equals(layout)) {
             this.layout = layout;
-            clearControls();
+            this.clearControls();
         }
     }
     
@@ -212,10 +216,10 @@ public class TinyWorldMenuLayer extends RenderableLayer implements SelectListene
     @Override
     public void doRender(DrawContext dc) {
         if (!this.initialized)
-            initialize(dc);
+            this.initialize(dc);
 
         if (!this.referenceViewport.equals(dc.getView().getViewport()))
-            updatePositions(dc);
+            this.updatePositions(dc);
 
         super.doRender(dc);
     }
@@ -224,7 +228,7 @@ public class TinyWorldMenuLayer extends RenderableLayer implements SelectListene
     public void selected(SelectEvent event) {
         if (this.getHighlightedObject() != null) {
             this.highlight(null);
-            this.wwd.redraw(); // must redraw so the de-highlight can take effect
+            this.frame.getWwd().redraw(); // must redraw so the de-highlight can take effect
         }
         
         if (event.getMouseEvent() != null && event.getMouseEvent().isConsumed())
@@ -233,7 +237,7 @@ public class TinyWorldMenuLayer extends RenderableLayer implements SelectListene
         if (event.getTopObject() == null || event.getTopPickedObject().getParentLayer() != this || !(event.getTopObject() instanceof AVList))
             return;
         
-        //Logging.logger().fine("Mouse event: " + event.getEventAction());
+        //logger.debug("Mouse event: " + event.getEventAction());
         
         String menuOpType = ((AVList) event.getTopObject()).getStringValue(LayerOperations.MENU_OPERATION);
         if (menuOpType == null)
@@ -246,14 +250,14 @@ public class TinyWorldMenuLayer extends RenderableLayer implements SelectListene
         case SelectEvent.HOVER:
             // Highlight
             this.highlight(selectedObject);
-            this.wwd.redraw();
+            this.frame.getWwd().redraw();
             break;
         case SelectEvent.LEFT_PRESS:
             this.pressedButton = selectedObject;
             this.pressedButtonType = menuOpType;
             
             this.highlight(this.pressedButton);
-            this.wwd.redraw();
+            this.frame.getWwd().redraw();
             break;
         case SelectEvent.LEFT_CLICK:
             // Release pressed button
@@ -263,9 +267,19 @@ public class TinyWorldMenuLayer extends RenderableLayer implements SelectListene
             this.pressedButton = null;
             
             switch(menuOpType) {
+            case LayerOperations.MENU_INDEX:
+                JOptionPane.showMessageDialog(this.frame, "Not implemented yet", UIStrings.MENU_INDEX_DISPLAYNAME, JOptionPane.INFORMATION_MESSAGE);
+                break;
+            case LayerOperations.MENU_FILTER:
+                JOptionPane.showMessageDialog(this.frame, "Not implemented yet", UIStrings.MENU_FILTER_DISPLAYNAME, JOptionPane.INFORMATION_MESSAGE);
+                break;
             case LayerOperations.MENU_SETTINGS:
-                boolean panelStatus = this.settingsPanel.isVisible();
-                this.settingsPanel.setVisible(!panelStatus);
+                if (this.frame.getSettingsPanel() != null) {
+                    boolean panelStatus = this.frame.getSettingsPanel().isVisible();
+                    this.frame.getSettingsPanel().setVisible(!panelStatus);
+                } else {
+                    logger.warn("SettingsPanel has not been set!");
+                }
                 break;
             }
             break;
@@ -273,6 +287,13 @@ public class TinyWorldMenuLayer extends RenderableLayer implements SelectListene
             event.consume();
             break;
         }
+    }
+    
+    public void setToolTips(boolean enable) {
+        // Enable/Disable tooltips (see ToolTipController in GlobePanel)
+        if (this.buttonIndex != null) this.buttonIndex.setValue(AVKey.DISPLAY_NAME, enable ? UIStrings.MENU_INDEX_DISPLAYNAME : null);
+        if (this.buttonFilter != null) this.buttonFilter.setValue(AVKey.DISPLAY_NAME, enable ? UIStrings.MENU_FILTER_DISPLAYNAME : null);
+        if (this.buttonSettings != null) this.buttonSettings.setValue(AVKey.DISPLAY_NAME, enable ? UIStrings.MENU_SETTINGS_DISPLAYNAME : null);
     }
     
     @Override
@@ -321,8 +342,11 @@ public class TinyWorldMenuLayer extends RenderableLayer implements SelectListene
         this.buttonSettings.getAttributes().setImageSource(IMAGE_SETTINGS);
         this.addRenderable(this.buttonSettings);
         
+        // Set tooltips on/off depending on actual choice in Settings panel
+        this.setToolTips(this.frame.getSettingsPanel().isMenuTooltipEnabled());
+        
         // Place controls according to layout and viewport dimension
-        updatePositions(dc);
+        this.updatePositions(dc);
 
         this.initialized = true;
     }
