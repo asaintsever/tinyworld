@@ -1,5 +1,10 @@
 package asaintsever.tinyworld.ui;
 
+import java.awt.Dimension;
+import java.awt.Toolkit;
+
+import javax.swing.JFrame;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
@@ -8,9 +13,9 @@ import com.formdev.flatlaf.FlatDarkLaf;
 
 import asaintsever.tinyworld.cfg.Configuration;
 import asaintsever.tinyworld.cfg.Loader;
-import asaintsever.tinyworld.ui.component.Globe;
+import asaintsever.tinyworld.ui.component.MainFrame;
 
-public class UI extends Globe {
+public class UI {
     
     protected static Logger logger = LoggerFactory.getLogger(UI.class);
     
@@ -24,6 +29,40 @@ public class UI extends Globe {
                                                                     );
     protected static java.util.logging.Logger flatlafJULlogger = java.util.logging.Logger.getLogger(com.formdev.flatlaf.FlatLaf.class.getName());
 
+
+    static {
+        System.setProperty("java.net.useSystemProxies", "true");
+        
+        if (gov.nasa.worldwind.Configuration.isMacOS()) {
+            System.setProperty("apple.laf.useScreenMenuBar", "true");
+            System.setProperty("com.apple.mrj.application.apple.menu.about.name", "WorldWind Application");
+            System.setProperty("com.apple.mrj.application.growbox.intrudes", "false");
+            System.setProperty("apple.awt.brushMetalLook", "true");
+        } else if (gov.nasa.worldwind.Configuration.isWindowsOS() || (gov.nasa.worldwind.Configuration.isLinuxOS() && System.getProperty("os.version") != null && System.getProperty("os.version").toLowerCase().contains("wsl"))) {
+            System.setProperty("sun.awt.noerasebackground", "true"); // prevents flashing during window resizing
+        }
+    }
+    
+
+    public static void main(String[] args) {
+        Configuration cfg = readConfig();
+        
+        if (cfg == null || cfg.ui == null) {
+            logger.error("Cannot read configuration");
+            System.exit(1);
+        }
+        
+        if (logger.isDebugEnabled())
+            logger.debug("Loaded config: " + cfg.toString());
+        
+        routeJULtoSLF4J(cfg.ui);
+        
+        // Apply dark theme
+        FlatDarkLaf.setup();
+        
+        start("TinyWorld", cfg.ui);
+    }
+    
     
     protected static Configuration readConfig() {
         return Loader.getConfig();
@@ -46,23 +85,26 @@ public class UI extends Globe {
         if (uiCfg.deps.logging.get("flatlaf").toLowerCase().equals("on"))
             flatlafJULlogger.setLevel(java.util.logging.Level.CONFIG);
     }
-
-    public static void main(String[] args) {
-        Configuration cfg = readConfig();
-        
-        if (cfg == null || cfg.ui == null) {
-            logger.error("Cannot read configuration");
-            System.exit(1);
+    
+    protected static MainFrame start(String appName, Configuration.UI uiCfg) {
+        if (gov.nasa.worldwind.Configuration.isMacOS() && appName != null) {
+            System.setProperty("com.apple.mrj.application.apple.menu.about.name", appName);
         }
-        
-        if (logger.isDebugEnabled())
-            logger.debug("Loaded config: " + cfg.toString());
-        
-        routeJULtoSLF4J(cfg.ui);
-        
-        // Apply dark theme
-        FlatDarkLaf.setup();
-        
-        Globe.start("TinyWorld", cfg.ui);
+
+        try {
+            Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+            final MainFrame frame =  new MainFrame(new Dimension(screenSize.width - 100, screenSize.height - 100));
+            frame.setTitle(appName);
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            
+            java.awt.EventQueue.invokeLater(() -> {
+                frame.setVisible(true);
+            });
+
+            return frame;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }

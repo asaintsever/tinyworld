@@ -44,6 +44,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.TitledBorder;
 
+import asaintsever.tinyworld.ui.UIStrings;
 import gov.nasa.worldwind.WorldWindow;
 import gov.nasa.worldwind.avlist.AVKey;
 import gov.nasa.worldwind.event.RenderingEvent;
@@ -78,8 +79,8 @@ public class LayerManagerPanel extends JPanel
 
         // Add the scroll pane to a titled panel that will resize with the main window.
         JPanel titlePanel = new JPanel(new GridLayout(0, 1, 0, 10));
-        titlePanel.setBorder(new CompoundBorder(BorderFactory.createEmptyBorder(9, 9, 9, 9), new TitledBorder("Layers")));
-        titlePanel.setToolTipText("Layers to Show");
+        titlePanel.setBorder(new CompoundBorder(BorderFactory.createEmptyBorder(9, 9, 9, 9), new TitledBorder(UIStrings.LAYERS_LABEL)));
+        titlePanel.setToolTipText(UIStrings.LAYERS_TOOLTIP);
         titlePanel.add(scrollPane);
         titlePanel.setPreferredSize(new Dimension(200, 500));
         this.add(titlePanel, BorderLayout.CENTER);
