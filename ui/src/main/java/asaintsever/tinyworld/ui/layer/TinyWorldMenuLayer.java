@@ -57,7 +57,7 @@ public class TinyWorldMenuLayer extends RenderableLayer implements SelectListene
     protected String pressedButtonType;
 
     
-    public TinyWorldMenuLayer(MainFrame frame) {
+    public TinyWorldMenuLayer(final MainFrame frame) {
         if (frame == null || frame.getWwd() == null) {
             String msg = Logging.getMessage("nullValue.WorldWindow");
             logger.error(msg);
@@ -268,10 +268,10 @@ public class TinyWorldMenuLayer extends RenderableLayer implements SelectListene
             
             switch(menuOpType) {
             case LayerOperations.MENU_INDEX:
-                JOptionPane.showMessageDialog(this.frame, "Not implemented yet", UIStrings.MENU_INDEX_DISPLAYNAME, JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(this.frame, "Not implemented yet", UIStrings.APP_NAME + " - " + UIStrings.MENU_INDEX_DISPLAYNAME, JOptionPane.INFORMATION_MESSAGE);
                 break;
             case LayerOperations.MENU_FILTER:
-                JOptionPane.showMessageDialog(this.frame, "Not implemented yet", UIStrings.MENU_FILTER_DISPLAYNAME, JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(this.frame, "Not implemented yet", UIStrings.APP_NAME + " - " + UIStrings.MENU_FILTER_DISPLAYNAME, JOptionPane.INFORMATION_MESSAGE);
                 break;
             case LayerOperations.MENU_SETTINGS:
                 if (this.frame.getSettingsPanel() != null) {

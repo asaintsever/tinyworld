@@ -4,6 +4,7 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 
 import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,7 +61,7 @@ public class UI {
         // Apply dark theme
         FlatDarkLaf.setup();
         
-        start("TinyWorld", cfg.ui);
+        start(UIStrings.APP_NAME, cfg.ui);
     }
     
     
@@ -97,7 +98,7 @@ public class UI {
             frame.setTitle(appName);
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             
-            java.awt.EventQueue.invokeLater(() -> {
+            SwingUtilities.invokeLater(() -> {
                 frame.setVisible(true);
             });
 

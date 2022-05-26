@@ -28,6 +28,7 @@ import gov.nasa.worldwind.WorldWind;
 import gov.nasa.worldwind.WorldWindow;
 import gov.nasa.worldwind.avlist.AVKey;
 import gov.nasa.worldwind.layers.Layer;
+import gov.nasa.worldwind.util.Logging;
 import gov.nasa.worldwindx.examples.FlatWorldPanel;
 
 
@@ -39,11 +40,17 @@ public class SettingsPanel extends JPanel {
     protected JCheckBox twMenuTooltipSwitch;
     
 
-    public SettingsPanel(final WorldWindow wwd) {
+    public SettingsPanel(final MainFrame frame) {
         super(new BorderLayout(10, 10));
         
+        if (frame == null || frame.getWwd() == null) {
+            String msg = Logging.getMessage("nullValue.WorldWindow");
+            logger.error(msg);
+            throw new IllegalArgumentException(msg);
+        }
+        
         // Find TinyWorldMenuLayer layer and keep reference to it
-        for (Layer layer : wwd.getModel().getLayers()) {
+        for (Layer layer : frame.getWwd().getModel().getLayers()) {
             if (layer instanceof TinyWorldMenuLayer) {
                 this.twMenuLayer = (TinyWorldMenuLayer) layer;
             }
@@ -57,12 +64,12 @@ public class SettingsPanel extends JPanel {
         
         JPanel layersPanel = new JPanel();
         layersPanel.setLayout(new BorderLayout(10, 10));
-        layersPanel.add(new FlatWorldPanel(wwd), BorderLayout.NORTH);
-        layersPanel.add(new LayerManagerPanel(wwd), BorderLayout.CENTER);
+        layersPanel.add(new FlatWorldPanel(frame.getWwd()), BorderLayout.NORTH);
+        layersPanel.add(new LayerManagerPanel(frame), BorderLayout.CENTER);
         
-        this.add(this.createTWMenuPanel(wwd), BorderLayout.NORTH);
+        this.add(this.createTWMenuPanel(frame.getWwd()), BorderLayout.NORTH);
         this.add(layersPanel, BorderLayout.CENTER);
-        this.add(this.createNetworkStatusPanel(wwd), BorderLayout.SOUTH);
+        this.add(this.createNetworkStatusPanel(frame.getWwd()), BorderLayout.SOUTH);
     }
     
     

@@ -27,6 +27,8 @@ import gov.nasa.worldwindx.examples.util.ToolTipController;
 
 
 public class MainFrame extends JFrame {
+    
+    protected final static String APP_ICON = "/icon/tinyworldicon.jpg";
 
     private Dimension canvasSize = new Dimension(1000, 800); // the desired WorldWindow size
 
@@ -51,10 +53,6 @@ public class MainFrame extends JFrame {
     
     public Dimension getCanvasSize() {
         return canvasSize;
-    }
-
-    public GlobePanel getWwjPanel() {
-        return wwjPanel;
     }
 
     public WorldWindow getWwd() {
@@ -118,7 +116,7 @@ public class MainFrame extends JFrame {
             }
         }
 
-        this.settingsPanel = new SettingsPanel(this.wwjPanel.getWwd());
+        this.settingsPanel = new SettingsPanel(this);
         this.settingsPanel.setVisible(false);              // Not visible by default (click on 'Settings' button of TW menu to enable panel)
         
         this.getContentPane().add(wwjPanel, BorderLayout.CENTER);
@@ -138,7 +136,7 @@ public class MainFrame extends JFrame {
     
     protected void setAppIcon() {
         try {
-            URL resource = MainFrame.class.getResource("/icon/tinyworldicon.jpg");
+            URL resource = MainFrame.class.getResource(APP_ICON);
             BufferedImage image = ImageIO.read(resource);
             this.setIconImage(image);
         } catch (Exception e) {
