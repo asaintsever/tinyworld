@@ -1,43 +1,19 @@
-/*
- * Copyright 2006-2009, 2017, 2020 United States Government, as represented by the
- * Administrator of the National Aeronautics and Space Administration.
- * All rights reserved.
- * 
- * The NASA World Wind Java (WWJ) platform is licensed under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except in compliance
- * with the License. You may obtain a copy of the License at
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed
- * under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
- * CONDITIONS OF ANY KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations under the License.
- * 
- * NASA World Wind Java (WWJ) also contains the following 3rd party Open Source
- * software:
- * 
- *     Jackson Parser – Licensed under Apache 2.0
- *     GDAL – Licensed under MIT
- *     JOGL – Licensed under  Berkeley Software Distribution (BSD)
- *     Gluegen – Licensed under Berkeley Software Distribution (BSD)
- * 
- * A complete listing of 3rd Party software notices and licenses included in
- * NASA World Wind Java (WWJ)  can be found in the WorldWindJava-v2.2 3rd-party
- * notices and licenses PDF found in code directory.
- */
- 
 package asaintsever.tinyworld.ui.component;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
@@ -47,21 +23,23 @@ import javax.swing.border.TitledBorder;
 import asaintsever.tinyworld.ui.UIStrings;
 import gov.nasa.worldwind.WorldWindow;
 import gov.nasa.worldwind.avlist.AVKey;
+import gov.nasa.worldwind.cache.BasicDataFileStore;
+import gov.nasa.worldwind.cache.FileStore;
 import gov.nasa.worldwind.event.RenderingEvent;
-import gov.nasa.worldwind.event.RenderingListener;
 import gov.nasa.worldwind.layers.Layer;
 import gov.nasa.worldwind.layers.LayerList;
 import gov.nasa.worldwind.layers.TiledImageLayer;
 
 
-public class LayerManagerPanel extends JPanel
-{
+public class LayerManagerPanel extends JPanel {
+    
     protected JPanel layerNamesPanel;
     protected List<LayerPanel> layerPanels = new ArrayList<LayerPanel>();
     protected Font plainFont;
     protected Font boldFont;
 
-    public LayerManagerPanel(final WorldWindow wwd) {
+    
+    public LayerManagerPanel(final MainFrame frame) {
         super(new BorderLayout(10, 10));
 
         this.layerNamesPanel = new JPanel(new GridLayout(0, 1, 0, 5));
@@ -70,6 +48,34 @@ public class LayerManagerPanel extends JPanel
         // Must put the layer grid in a container to prevent the scroll pane from stretching vertical spacing.
         JPanel dummyPanel = new JPanel(new BorderLayout());
         dummyPanel.add(this.layerNamesPanel, BorderLayout.NORTH);
+        
+        // Add layers cache management button to panel
+        JButton layersCache = new JButton(UIStrings.LAYERS_CACHE_MGMT_LABEL);
+        layersCache.addActionListener((ActionEvent actionEvent) -> {
+            SwingUtilities.invokeLater(() -> {
+                JDialog layersCacheDialog = new JDialog(frame, UIStrings.APP_NAME, true);
+                layersCacheDialog.setPreferredSize(new Dimension(800, 300));
+                layersCacheDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+
+                FileStore store = new BasicDataFileStore();
+                File cacheRoot = store.getWriteLocation();
+                LayersCachePanel layersCachePanel = new LayersCachePanel(cacheRoot);
+                layersCacheDialog.getContentPane().add(layersCachePanel, BorderLayout.CENTER);
+                layersCacheDialog.pack();
+
+                // Center the application on the screen.
+                Dimension prefSize = layersCacheDialog.getPreferredSize();
+                Dimension parentSize;
+                java.awt.Point parentLocation = new java.awt.Point(0, 0);
+                parentSize = Toolkit.getDefaultToolkit().getScreenSize();
+                int x = parentLocation.x + (parentSize.width - prefSize.width) / 2;
+                int y = parentLocation.y + (parentSize.height - prefSize.height) / 2;
+                layersCacheDialog.setLocation(x, y);
+                layersCacheDialog.setVisible(true);
+            });
+        });
+        
+        dummyPanel.add(layersCache, BorderLayout.SOUTH);
 
         // Put the layers panel in a scroll pane.
         JScrollPane scrollPane = new JScrollPane(dummyPanel);
@@ -84,37 +90,28 @@ public class LayerManagerPanel extends JPanel
         titlePanel.add(scrollPane);
         titlePanel.setPreferredSize(new Dimension(200, 500));
         this.add(titlePanel, BorderLayout.CENTER);
-
-        this.fill(wwd);
+        
+        this.fill(frame.getWwd());
 
         this.plainFont = this.getFont().deriveFont(Font.PLAIN);
         this.boldFont = this.getFont().deriveFont(Font.BOLD);
 
         // Register a rendering listener that updates the was-rendered state of each image layer.
-        wwd.addRenderingListener(new RenderingListener() {
-            @Override
-            public void stageChanged(RenderingEvent event) {
-                updateLayerActivity(wwd);
-            }
+        frame.getWwd().addRenderingListener((RenderingEvent event) -> {
+            updateLayerActivity(frame.getWwd());
         });
 
         // Add a property change listener that causes this layer panel to be updated whenever the layer list changes.
-        wwd.getModel().getLayers().addPropertyChangeListener(new PropertyChangeListener() {
-            @Override
-            public void propertyChange(PropertyChangeEvent propertyChangeEvent) {
-                if (propertyChangeEvent.getPropertyName().equals(AVKey.LAYERS))
-                    SwingUtilities.invokeLater(new Runnable() {
-                        public void run() {
-                            update(wwd);
-                        }
-                    });
-            }
+        frame.getWwd().getModel().getLayers().addPropertyChangeListener((PropertyChangeEvent propertyChangeEvent) -> {
+            if (propertyChangeEvent.getPropertyName().equals(AVKey.LAYERS))
+                SwingUtilities.invokeLater(() -> {
+                    update(frame.getWwd());
+                });
         });
     }
 
     public void update(WorldWindow wwd) {
         // Repopulate this layer manager.
-
         this.fill(wwd);
     }
 

@@ -1,6 +1,8 @@
 package asaintsever.tinyworld.ui;
 
 public interface UIStrings {
+    
+    final String APP_NAME = "TinyWorld";
 
     final String MENU_LABEL = "Action Icons";
     final String MENU_INDEX_DISPLAYNAME = "Index";
@@ -15,6 +17,8 @@ public interface UIStrings {
     final String LAYER_SCALE_LABEL = "Scale:";
     final String LAYERS_LABEL = "Layers";
     final String LAYERS_TOOLTIP = "Layers to show";
+    
+    final String LAYERS_CACHE_MGMT_LABEL = "Manage Layers Cache";
     
     final String NETWORK_CHECKBOX_LABEL = " Online";
 }
