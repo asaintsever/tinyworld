@@ -65,7 +65,7 @@ public class SettingsPanel extends JPanel {
         JPanel layersPanel = new JPanel();
         layersPanel.setLayout(new BorderLayout(10, 10));
         layersPanel.add(new FlatWorldPanel(frame.getWwd()), BorderLayout.NORTH);
-        layersPanel.add(new LayerManagerPanel(frame), BorderLayout.CENTER);
+        layersPanel.add(new LayersManagerPanel(frame), BorderLayout.CENTER);
         
         this.add(this.createTWMenuPanel(frame.getWwd()), BorderLayout.NORTH);
         this.add(layersPanel, BorderLayout.CENTER);

@@ -239,7 +239,7 @@ public class TinyWorldMenuLayer extends RenderableLayer implements SelectListene
         
         //logger.debug("Mouse event: " + event.getEventAction());
         
-        String menuOpType = ((AVList) event.getTopObject()).getStringValue(LayerOperations.MENU_OPERATION);
+        String menuOpType = ((AVList) event.getTopObject()).getStringValue(TWLayerOperations.MENU_OPERATION);
         if (menuOpType == null)
             return;
 
@@ -267,13 +267,13 @@ public class TinyWorldMenuLayer extends RenderableLayer implements SelectListene
             this.pressedButton = null;
             
             switch(menuOpType) {
-            case LayerOperations.MENU_INDEX:
+            case TWLayerOperations.MENU_INDEX:
                 JOptionPane.showMessageDialog(this.frame, "Not implemented yet", UIStrings.APP_NAME + " - " + UIStrings.MENU_INDEX_DISPLAYNAME, JOptionPane.INFORMATION_MESSAGE);
                 break;
-            case LayerOperations.MENU_FILTER:
+            case TWLayerOperations.MENU_FILTER:
                 JOptionPane.showMessageDialog(this.frame, "Not implemented yet", UIStrings.APP_NAME + " - " + UIStrings.MENU_FILTER_DISPLAYNAME, JOptionPane.INFORMATION_MESSAGE);
                 break;
-            case LayerOperations.MENU_SETTINGS:
+            case TWLayerOperations.MENU_SETTINGS:
                 if (this.frame.getSettingsPanel() != null) {
                     boolean panelStatus = this.frame.getSettingsPanel().isVisible();
                     this.frame.getSettingsPanel().setVisible(!panelStatus);
@@ -326,19 +326,19 @@ public class TinyWorldMenuLayer extends RenderableLayer implements SelectListene
         
         // Index
         this.buttonIndex = new ScreenAnnotation(NOTEXT, ORIGIN, ca);
-        this.buttonIndex.setValue(LayerOperations.MENU_OPERATION, LayerOperations.MENU_INDEX);
+        this.buttonIndex.setValue(TWLayerOperations.MENU_OPERATION, TWLayerOperations.MENU_INDEX);
         this.buttonIndex.getAttributes().setImageSource(IMAGE_INDEX);
         this.addRenderable(this.buttonIndex);
 
         // Filter
         this.buttonFilter = new ScreenAnnotation(NOTEXT, ORIGIN, ca);
-        this.buttonFilter.setValue(LayerOperations.MENU_OPERATION, LayerOperations.MENU_FILTER);
+        this.buttonFilter.setValue(TWLayerOperations.MENU_OPERATION, TWLayerOperations.MENU_FILTER);
         this.buttonFilter.getAttributes().setImageSource(IMAGE_FILTER);
         this.addRenderable(this.buttonFilter);
 
         // Settings
         this.buttonSettings = new ScreenAnnotation(NOTEXT, ORIGIN, ca);
-        this.buttonSettings.setValue(LayerOperations.MENU_OPERATION, LayerOperations.MENU_SETTINGS);
+        this.buttonSettings.setValue(TWLayerOperations.MENU_OPERATION, TWLayerOperations.MENU_SETTINGS);
         this.buttonSettings.getAttributes().setImageSource(IMAGE_SETTINGS);
         this.addRenderable(this.buttonSettings);
         

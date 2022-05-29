@@ -1,6 +1,6 @@
 package asaintsever.tinyworld.ui.layer;
 
-public interface LayerOperations {
+public interface TWLayerOperations {
 
     // Menu operations
     final String MENU_OPERATION = "asaintsever.tinyworld.ui.key.MenuOperation";

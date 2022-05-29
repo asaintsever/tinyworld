@@ -57,8 +57,13 @@ public class ClusterClient implements Closeable {
     }
     
 
-    public Boolean isStarted() {
-        return (this.restClient != null && this.restClient.isRunning() && this.osClient != null);
+    public Boolean isStarted() throws IOException {
+        if (this.restClient != null && this.restClient.isRunning() && this.osClient != null) {
+            BooleanResponse pingResponse = this.osClient.ping();
+            return pingResponse.value();
+        }
+        else
+            return false;
     }
     
     public OpenSearchClient getClient() {

@@ -12,6 +12,8 @@ import javax.swing.JOptionPane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import asaintsever.tinyworld.cfg.Configuration;
+import asaintsever.tinyworld.indexor.Indexor;
 import asaintsever.tinyworld.ui.layer.TinyWorldMenuLayer;
 import gov.nasa.worldwind.WorldWindow;
 import gov.nasa.worldwind.avlist.AVKey;
@@ -32,24 +34,27 @@ public class MainFrame extends JFrame {
 
     private Dimension canvasSize = new Dimension(1000, 800); // the desired WorldWindow size
 
+    protected Configuration cfg;
+    protected Indexor indexor;
     protected GlobePanel wwjPanel;
     protected SettingsPanel settingsPanel;
     protected Logger logger = LoggerFactory.getLogger(MainFrame.class);
     
 
-    public MainFrame() {
-        this.initialize(true);
+    public MainFrame(Configuration cfg) {
+        this.initialize(cfg);
     }
 
-    public MainFrame(Dimension size) {
+    public MainFrame(Configuration cfg, Dimension size) {
         this.canvasSize = size;
-        this.initialize(true);
-    }
-
-    public MainFrame(boolean includeStatusBar) {
-        this.initialize(includeStatusBar);
+        this.initialize(cfg);
     }
     
+    
+    public void setIndexor(Indexor indexor) {
+        this.indexor = indexor;
+        this.getStatusBar().getIndexorStatusPanel().setIndexor(indexor);
+    }
     
     public Dimension getCanvasSize() {
         return canvasSize;
@@ -83,9 +88,12 @@ public class MainFrame extends JFrame {
         this.wwjPanel.highlightController = controller;
     }
     
-    protected void initialize(boolean includeStatusBar) {
+    
+    protected void initialize(Configuration cfg) {
+        this.cfg = cfg;
+        
         // Create the WorldWindow.
-        this.wwjPanel = new GlobePanel(this.canvasSize, includeStatusBar);
+        this.wwjPanel = new GlobePanel(cfg, this.canvasSize);
         this.wwjPanel.setPreferredSize(canvasSize);
         
         // Register a rendering exception listener that's notified when exceptions occur during rendering.
