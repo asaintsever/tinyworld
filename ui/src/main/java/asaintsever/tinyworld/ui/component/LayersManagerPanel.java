@@ -31,7 +31,7 @@ import gov.nasa.worldwind.layers.LayerList;
 import gov.nasa.worldwind.layers.TiledImageLayer;
 
 
-public class LayerManagerPanel extends JPanel {
+public class LayersManagerPanel extends JPanel {
     
     protected JPanel layerNamesPanel;
     protected List<LayerPanel> layerPanels = new ArrayList<LayerPanel>();
@@ -39,7 +39,7 @@ public class LayerManagerPanel extends JPanel {
     protected Font boldFont;
 
     
-    public LayerManagerPanel(final MainFrame frame) {
+    public LayersManagerPanel(final MainFrame frame) {
         super(new BorderLayout(10, 10));
 
         this.layerNamesPanel = new JPanel(new GridLayout(0, 1, 0, 5));

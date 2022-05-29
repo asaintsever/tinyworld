@@ -6,6 +6,7 @@ import java.awt.Dimension;
 
 import javax.swing.JPanel;
 
+import asaintsever.tinyworld.cfg.Configuration;
 import gov.nasa.worldwind.Model;
 import gov.nasa.worldwind.WorldWind;
 import gov.nasa.worldwind.WorldWindow;
@@ -25,7 +26,7 @@ public class GlobePanel extends JPanel {
     protected ToolTipController toolTipController;
     protected HighlightController highlightController;
 
-    public GlobePanel(Dimension canvasSize, boolean includeStatusBar) {
+    public GlobePanel(Configuration cfg, Dimension canvasSize) {
         super(new BorderLayout());
 
         this.wwd = new WorldWindowGLCanvas();
@@ -43,11 +44,10 @@ public class GlobePanel extends JPanel {
         this.wwd.addSelectListener(new ClickAndGoSelectListener(this.wwd, WorldMapLayer.class));
 
         this.add((Component) this.wwd, BorderLayout.CENTER);
-        if (includeStatusBar) {
-            this.statusBar = new StatusBar();
-            this.add(statusBar, BorderLayout.PAGE_END);
-            this.statusBar.setEventSource(this.wwd);
-        }
+
+        this.statusBar = new StatusBar(cfg);
+        this.add(statusBar, BorderLayout.PAGE_END);
+        this.statusBar.setEventSource(this.wwd);
 
         // Add controllers to manage highlighting and tool tips.
         this.toolTipController = new ToolTipController(this.wwd, AVKey.DISPLAY_NAME, null);

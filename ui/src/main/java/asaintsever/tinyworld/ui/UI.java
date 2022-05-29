@@ -2,9 +2,14 @@ package asaintsever.tinyworld.ui;
 
 import java.awt.Dimension;
 import java.awt.Toolkit;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.IOException;
+import java.util.concurrent.ExecutionException;
 
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +19,9 @@ import com.formdev.flatlaf.FlatDarkLaf;
 
 import asaintsever.tinyworld.cfg.Configuration;
 import asaintsever.tinyworld.cfg.Loader;
+import asaintsever.tinyworld.indexor.Indexor;
 import asaintsever.tinyworld.ui.component.MainFrame;
+
 
 public class UI {
     
@@ -45,7 +52,7 @@ public class UI {
     }
     
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         Configuration cfg = readConfig();
         
         if (cfg == null || cfg.ui == null) {
@@ -61,9 +68,40 @@ public class UI {
         // Apply dark theme
         FlatDarkLaf.setup();
         
-        start(UIStrings.APP_NAME, cfg.ui);
+        start(UIStrings.APP_NAME, cfg);
     }
     
+    
+    /**
+     * Use a Swing worker to create Indexor in background thread to not block UI
+     *
+     */
+    protected static class IndexorLoader extends SwingWorker<Indexor, Object> {
+        private MainFrame frame;
+        private Configuration.INDEXOR indexorCfg;
+        
+        
+        public IndexorLoader(MainFrame frame, Configuration.INDEXOR indexorCfg) {
+            this.frame = frame;
+            this.indexorCfg = indexorCfg;
+        }
+        
+        
+        @Override
+        protected Indexor doInBackground() throws Exception {
+            return new Indexor(this.indexorCfg);
+        }
+        
+        @Override
+        protected void done() {
+            try {
+                // When done: assign Indexor to main frame
+                this.frame.setIndexor(this.get());
+            } catch (InterruptedException | ExecutionException e) {
+                logger.error("Fail to create Indexor", e);
+            }
+        }
+    }
     
     protected static Configuration readConfig() {
         return Loader.getConfig();
@@ -79,33 +117,50 @@ public class UI {
         flatlafJULlogger.setLevel(java.util.logging.Level.OFF);
         
         // Set log level for WWJ from config
-        if (uiCfg.deps.logging.get("wwj").toLowerCase().equals("on"))
+        if (uiCfg.deps.logging.get(UIStrings.DEP_WORLDWIND).toLowerCase().equals("on"))
             wwjJULlogger.setLevel(java.util.logging.Level.FINER);
         
         // Set log level for FlatLaf from config
-        if (uiCfg.deps.logging.get("flatlaf").toLowerCase().equals("on"))
+        if (uiCfg.deps.logging.get(UIStrings.DEP_FLATLAF).toLowerCase().equals("on"))
             flatlafJULlogger.setLevel(java.util.logging.Level.CONFIG);
     }
     
-    protected static MainFrame start(String appName, Configuration.UI uiCfg) {
+    protected static MainFrame start(String appName, Configuration cfg) throws Exception {
         if (gov.nasa.worldwind.Configuration.isMacOS() && appName != null) {
             System.setProperty("com.apple.mrj.application.apple.menu.about.name", appName);
-        }
+        }        
+        
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        MainFrame frame =  new MainFrame(cfg, new Dimension(screenSize.width - 100, screenSize.height - 100));
+        frame.setTitle(appName);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        try {
-            Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-            final MainFrame frame =  new MainFrame(new Dimension(screenSize.width - 100, screenSize.height - 100));
-            frame.setTitle(appName);
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        SwingUtilities.invokeLater(() -> {
+            frame.setVisible(true);
             
-            SwingUtilities.invokeLater(() -> {
-                frame.setVisible(true);
+            // Create indexor in background thread
+            IndexorLoader idxLoader = new IndexorLoader(frame, cfg.indexor);
+            idxLoader.execute();
+            
+            frame.addWindowListener(new WindowAdapter() {
+                /**
+                 * Make sure to properly release Indexor before closing
+                 * (SwingWorker's get() method will wait in case Indexor creation is still on-going)
+                 */
+                @Override
+                public void windowClosing(WindowEvent event) {                                        
+                    try {
+                        Indexor indexor = idxLoader.get();
+                        indexor.close();
+                    } catch (IOException | InterruptedException | ExecutionException e) {
+                        logger.error("Error while trying to release Indexor", e);
+                    }
+                    
+                    frame.dispose();
+                }
             });
+        });
 
-            return frame;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+        return frame;
     }
 }

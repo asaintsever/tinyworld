@@ -157,6 +157,10 @@ public class Indexor implements Closeable {
         return (this.indexorCfg != null && this.indexorCfg.photo != null) ? this.indexorCfg.photo.defaultMetadata : null;
     }
     
+    public boolean isConnected() throws IOException {
+        return this.clusterClient.isStarted();
+    }
+    
     public void reset() throws IOException {
         this.photos.close();
         this.clusterClient.close();
@@ -176,6 +180,18 @@ public class Indexor implements Closeable {
         if(this.useEmbeddedCluster) {
             this.embeddedCluster.close();
         }
+    }
+    
+    public String getHost() {
+        return this.host;
+    }
+    
+    public int getPort() {
+        return this.port;
+    }
+    
+    public String getIndex() {
+        return this.index;
     }
     
     public IIndex metadataIndex() {

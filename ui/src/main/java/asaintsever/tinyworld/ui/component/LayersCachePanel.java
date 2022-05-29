@@ -20,6 +20,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ListSelectionEvent;
 
+import asaintsever.tinyworld.ui.UIStrings;
 import gov.nasa.worldwindx.examples.util.FileStoreDataSet;
 import gov.nasa.worldwindx.examples.util.cachecleaner.CacheTable;
 
@@ -36,7 +37,7 @@ public class LayersCachePanel extends JPanel {
     public LayersCachePanel(File cacheRoot) {
         super(new BorderLayout(5, 5));
         
-        JLabel rootLabel = new JLabel("Cache Root: " + cacheRoot.getPath());
+        JLabel rootLabel = new JLabel(UIStrings.LAYERS_CACHE_ROOT_LABEL + cacheRoot.getPath());
         rootLabel.setBorder(new EmptyBorder(10, 15, 10, 10));
         this.add(rootLabel, BorderLayout.NORTH);
 
@@ -46,9 +47,9 @@ public class LayersCachePanel extends JPanel {
         this.add(sp, BorderLayout.CENTER);
 
         JPanel pa = new JPanel(new BorderLayout(10, 10));
-        pa.add(new JLabel("Delete selected data older than"), BorderLayout.WEST);
+        pa.add(new JLabel(UIStrings.LAYERS_CACHE_DELETE_PANEL_LABEL), BorderLayout.WEST);
         this.ageSpinner = new JSpinner(new SpinnerNumberModel(6, 0, 10000, 1));
-        this.ageSpinner.setToolTipText("0 selects the entire dataset regardless of age");
+        this.ageSpinner.setToolTipText(UIStrings.LAYERS_CACHE_AGE_TOOLTIP);
         JPanel pas = new JPanel();
         pas.add(this.ageSpinner);
         pa.add(pas, BorderLayout.CENTER);
@@ -58,9 +59,9 @@ public class LayersCachePanel extends JPanel {
         pa.add(this.ageUnit, BorderLayout.EAST);
 
         JPanel pb = new JPanel(new BorderLayout(5, 10));
-        this.deleteSizeLabel = new JLabel("Total to delete: N/A");
+        this.deleteSizeLabel = new JLabel(UIStrings.LAYERS_CACHE_SIZE_PANEL_LABEL + "N/A");
         pb.add(this.deleteSizeLabel, BorderLayout.WEST);
-        this.delBtn = new JButton("Delete");
+        this.delBtn = new JButton(UIStrings.LAYERS_CACHE_DELETE_BUTTON_LABEL);
         this.delBtn.setEnabled(false);
         JPanel pbb = new JPanel();
         pbb.add(this.delBtn);
@@ -124,7 +125,7 @@ public class LayersCachePanel extends JPanel {
         int age = Integer.parseInt(this.ageSpinner.getValue().toString());
 
         if (dataSets.size() == 0) {
-            this.deleteSizeLabel.setText("Total to delete: N/A");
+            this.deleteSizeLabel.setText(UIStrings.LAYERS_CACHE_SIZE_PANEL_LABEL + "N/A");
             this.delBtn.setEnabled(false);
             return;
         }
@@ -138,7 +139,7 @@ public class LayersCachePanel extends JPanel {
 
         Formatter formatter = new Formatter();
         formatter.format("%5.1f", ((float) totalSize) / 1e6);
-        this.deleteSizeLabel.setText("Total to delete: " + formatter.toString() + " MB");
+        this.deleteSizeLabel.setText(UIStrings.LAYERS_CACHE_SIZE_PANEL_LABEL + formatter.toString() + " MB");
 
         this.delBtn.setEnabled(true);
     }
