@@ -71,14 +71,12 @@ public class IndexorStatusPanel extends JPanel {
     }
     
     
-    public IndexorStatusPanel setIndexor(Indexor indexor) {
+    public SwingWorker<Void, Void> getIndexorStatusWorker(Indexor indexor) {
         this.indexor = indexor;
+        
         this.indexorStatusWorker = new IndexorStatusWorker(this);
         this.indexorStatusWorker.execute();
-        return this;
-    }
-    
-    public SwingWorker<Void, Void> getIndexorStatusWorker() {
+        
         return this.indexorStatusWorker;
     }
     
