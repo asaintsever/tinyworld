@@ -61,7 +61,6 @@ public class JacksonJsonProvider extends JsonProvider {
         if (config == null || config.isEmpty()) {
             return defaultParserFactory;
         } else {
-            // TODO: handle specific configuration
             return defaultParserFactory;
         }
     }
@@ -146,7 +145,6 @@ public class JacksonJsonProvider extends JsonProvider {
         if (config == null || config.isEmpty()) {
             return defaultGeneratorFactory;
         } else {
-            // TODO: handle specific configuration
             return defaultGeneratorFactory;
         }
     }

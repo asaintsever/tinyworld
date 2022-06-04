@@ -1,11 +1,13 @@
 package asaintsever.tinyworld.ui.component;
 
+import java.awt.Color;
 import java.awt.Dimension;
 
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
+import javax.swing.SwingWorker;
 
 import asaintsever.tinyworld.cfg.Configuration;
 import asaintsever.tinyworld.indexor.Indexor;
@@ -21,23 +23,84 @@ public class IndexorStatusPanel extends JPanel {
     protected JLabel indexorIcon;
     protected String connectionString;
     protected Indexor indexor;
+    protected IndexorStatusWorker indexorStatusWorker;
+    
+    // Swing Worker to continuously test Indexor isConnected() and update status
+    // Should run until app is closed. Closing will send cancellation signal to this worker (from MainFrame cancelSwingWorkers())
+    protected class IndexorStatusWorker extends SwingWorker<Void, Void> {
+        private IndexorStatusPanel indexorStatusPanel;
+        
+        public IndexorStatusWorker(IndexorStatusPanel indexorStatusPanel) {
+            this.indexorStatusPanel = indexorStatusPanel;
+        }
+
+        @Override
+        protected Void doInBackground() throws Exception {
+            long pingInterval = 2000;
+            
+            while (!isCancelled()) {
+                Thread.sleep(pingInterval);
+                
+                if (this.indexorStatusPanel.getIndexor().isConnected()) {
+                    this.indexorStatusPanel.setStatus(UIStrings.INDEXOR_STATUS_CONNECTED_LABEL);
+                    pingInterval = 60000;
+                }
+                else {
+                    this.indexorStatusPanel.setStatus(UIStrings.INDEXOR_STATUS_CONNECTING_LABEL);
+                    pingInterval = 2000;
+                }
+            }
+            
+            return null;
+        }
+    }
     
     
     public IndexorStatusPanel(Configuration.INDEXOR idxCfg) {
         this.connectionString = idxCfg.cluster.address + ":" + idxCfg.cluster.port;
         
-        this.indexorStatusLabel = new JLabel(UIStrings.INDEXOR_STATUS_CONNECTING_LABEL + this.connectionString);
+        this.indexorStatusLabel = new JLabel();
         this.indexorStatusLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-        
-        this.indexorIcon = new JLabel(CONNECTING);
+        this.indexorIcon = new JLabel();
         this.indexorIcon.setPreferredSize(new Dimension(16,16));
+        
+        this.setStatus(UIStrings.INDEXOR_STATUS_CONNECTING_LABEL);
         
         this.add(this.indexorStatusLabel);
         this.add(this.indexorIcon);
     }
     
     
-    public void setIndexor(Indexor indexor) {
+    public IndexorStatusPanel setIndexor(Indexor indexor) {
         this.indexor = indexor;
+        this.indexorStatusWorker = new IndexorStatusWorker(this);
+        this.indexorStatusWorker.execute();
+        return this;
+    }
+    
+    public SwingWorker<Void, Void> getIndexorStatusWorker() {
+        return this.indexorStatusWorker;
+    }
+    
+    
+    protected Indexor getIndexor() {
+        return this.indexor;
+    }
+    
+    protected IndexorStatusPanel setStatus(String status) {
+        switch(status) {
+        case UIStrings.INDEXOR_STATUS_CONNECTING_LABEL:
+            this.indexorStatusLabel.setText(String.format(UIStrings.INDEXOR_STATUS_CONNECTING_LABEL, this.connectionString));
+            this.indexorStatusLabel.setForeground(new Color(255,0,0));
+            this.indexorIcon.setIcon(CONNECTING);
+            break;
+        case UIStrings.INDEXOR_STATUS_CONNECTED_LABEL:
+            this.indexorStatusLabel.setText(String.format(UIStrings.INDEXOR_STATUS_CONNECTED_LABEL, this.connectionString));
+            this.indexorStatusLabel.setForeground(new Color(255,255,255));
+            this.indexorIcon.setIcon(CONNECTED);
+            break;
+        }
+        
+        return this;
     }
 }

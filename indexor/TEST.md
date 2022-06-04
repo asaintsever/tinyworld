@@ -25,16 +25,18 @@ To connect on OpenSearch/Elasticsearch cluster using Elasticvue's docker image:
 
     - Using TinyWorld's embedded OpenSearch cluster
   
-        Make sure you also expose the cluster. Check configuration file:
+        - Make sure you also expose the cluster. Check configuration file:
 
-        ```yaml
-        indexor:
-          cluster:
-            embedded:
-              expose: true
-        ```
+            ```yaml
+            indexor:
+              cluster:
+                embedded:
+                  expose: true
+            ```
 
-        (Re)Start TinyWorld
+            *Or* set env var `TW_IDX_CLUSTER_EMBEDDED_EXPOSE=true`
+
+        - (Re)Start TinyWorld
 
 2) Start Elasticvue
 
