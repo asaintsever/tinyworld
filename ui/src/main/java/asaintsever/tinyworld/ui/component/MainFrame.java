@@ -57,8 +57,7 @@ public class MainFrame extends JFrame {
     
     public void setIndexor(Indexor indexor) {
         this.indexor = indexor;
-        this.workers.add(this.getStatusBar().getIndexorStatusPanel().getIndexorStatusWorker());
-        this.getStatusBar().getIndexorStatusPanel().setIndexor(indexor);
+        this.workers.add(this.getStatusBar().getIndexorStatusPanel().getIndexorStatusWorker(indexor));
     }
     
     public Dimension getCanvasSize() {
