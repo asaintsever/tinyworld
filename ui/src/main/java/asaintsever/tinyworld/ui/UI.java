@@ -73,15 +73,15 @@ public class UI {
     
     
     /**
-     * Use a Swing worker to create Indexor in background thread to not block UI
+     * Use a Swing Worker to create Indexor in background thread to not block UI
      *
      */
-    protected static class IndexorLoader extends SwingWorker<Indexor, Object> {
+    protected static class IndexorLoaderWorker extends SwingWorker<Indexor, Object> {
         private MainFrame frame;
         private Configuration.INDEXOR indexorCfg;
         
         
-        public IndexorLoader(MainFrame frame, Configuration.INDEXOR indexorCfg) {
+        public IndexorLoaderWorker(MainFrame frame, Configuration.INDEXOR indexorCfg) {
             this.frame = frame;
             this.indexorCfg = indexorCfg;
         }
@@ -139,7 +139,7 @@ public class UI {
             frame.setVisible(true);
             
             // Create indexor in background thread
-            IndexorLoader idxLoader = new IndexorLoader(frame, cfg.indexor);
+            IndexorLoaderWorker idxLoader = new IndexorLoaderWorker(frame, cfg.indexor);
             idxLoader.execute();
             
             frame.addWindowListener(new WindowAdapter() {
@@ -155,6 +155,9 @@ public class UI {
                     } catch (IOException | InterruptedException | ExecutionException e) {
                         logger.error("Error while trying to release Indexor", e);
                     }
+                    
+                    // Cancel running Swing Workers (if any)
+                    frame.cancelSwingWorkers();
                     
                     frame.dispose();
                 }

@@ -157,8 +157,8 @@ public class Indexor implements Closeable {
         return (this.indexorCfg != null && this.indexorCfg.photo != null) ? this.indexorCfg.photo.defaultMetadata : null;
     }
     
-    public boolean isConnected() throws IOException {
-        return this.clusterClient.isStarted();
+    public boolean isConnected() {
+        return this.clusterClient.isConnected();
     }
     
     public void reset() throws IOException {

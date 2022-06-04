@@ -16,6 +16,8 @@ import org.opensearch.client.opensearch.indices.CreateResponse;
 import org.opensearch.client.opensearch.indices.DeleteRequest;
 import org.opensearch.client.opensearch.indices.DeleteResponse;
 import org.opensearch.client.opensearch.indices.ExistsRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import jakarta.json.Json;
 import jakarta.json.JsonReader;
@@ -32,6 +34,8 @@ import asaintsever.tinyworld.indexor.opensearch.jackson.JacksonJsonpMapper; // C
 
 
 public class ClusterClient implements Closeable {
+    
+    protected static Logger logger = LoggerFactory.getLogger(ClusterClient.class);
     
     private RestClient restClient;
     private RestClientBuilder restClientBuilder;
@@ -57,13 +61,17 @@ public class ClusterClient implements Closeable {
     }
     
 
-    public Boolean isStarted() throws IOException {
+    public Boolean isConnected() {
         if (this.restClient != null && this.restClient.isRunning() && this.osClient != null) {
-            BooleanResponse pingResponse = this.osClient.ping();
-            return pingResponse.value();
+            try {
+                BooleanResponse pingResponse = this.osClient.ping();
+                return pingResponse.value();
+            } catch (IOException e) {
+                logger.warn("Fail to ping cluster: " + e.getMessage());
+            }
         }
-        else
-            return false;
+        
+        return false;
     }
     
     public OpenSearchClient getClient() {

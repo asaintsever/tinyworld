@@ -4,10 +4,13 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.SwingWorker;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +41,7 @@ public class MainFrame extends JFrame {
     protected Indexor indexor;
     protected GlobePanel wwjPanel;
     protected SettingsPanel settingsPanel;
+    protected List<SwingWorker<?, ?>> workers = new ArrayList<SwingWorker<?, ?>>();
     protected Logger logger = LoggerFactory.getLogger(MainFrame.class);
     
 
@@ -53,6 +57,7 @@ public class MainFrame extends JFrame {
     
     public void setIndexor(Indexor indexor) {
         this.indexor = indexor;
+        this.workers.add(this.getStatusBar().getIndexorStatusPanel().getIndexorStatusWorker());
         this.getStatusBar().getIndexorStatusPanel().setIndexor(indexor);
     }
     
@@ -86,6 +91,13 @@ public class MainFrame extends JFrame {
         }
 
         this.wwjPanel.highlightController = controller;
+    }
+    
+    
+    public void cancelSwingWorkers() {
+        for(SwingWorker<?, ?> worker : this.workers)
+            if (worker != null)
+                worker.cancel(false);
     }
     
     

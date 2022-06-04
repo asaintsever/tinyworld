@@ -4,7 +4,6 @@ import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 
-import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
@@ -14,8 +13,6 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JSlider;
 import javax.swing.border.CompoundBorder;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 
@@ -64,12 +61,11 @@ public class SettingsPanel extends JPanel {
         
         JPanel layersPanel = new JPanel();
         layersPanel.setLayout(new BorderLayout(10, 10));
-        layersPanel.add(new FlatWorldPanel(frame.getWwd()), BorderLayout.NORTH);
+        layersPanel.add(this.createFlatWorldPanel(frame.getWwd()), BorderLayout.NORTH);
         layersPanel.add(new LayersManagerPanel(frame), BorderLayout.CENTER);
         
         this.add(this.createTWMenuPanel(frame.getWwd()), BorderLayout.NORTH);
         this.add(layersPanel, BorderLayout.CENTER);
-        this.add(this.createNetworkStatusPanel(frame.getWwd()), BorderLayout.SOUTH);
     }
     
     
@@ -130,28 +126,26 @@ public class SettingsPanel extends JPanel {
         return twMenuPanel;
     }
     
-    protected JPanel createNetworkStatusPanel(final WorldWindow wwd) {
-        JPanel panel = new JPanel(new BorderLayout(5, 5));
-        panel.setBorder(new CompoundBorder(new EmptyBorder(0, 10, 15, 10), new EtchedBorder()));
+    protected JPanel createFlatWorldPanel(final WorldWindow wwd) {
+        FlatWorldPanel flatWorldPanel = new FlatWorldPanel(wwd);
 
-        JCheckBox modeSwitch = new JCheckBox(new AbstractAction(UIStrings.NETWORK_CHECKBOX_LABEL) {
+        JCheckBox onlineGlodeSwitch = new JCheckBox(UIStrings.NETWORK_CHECKBOX_LABEL);
+        onlineGlodeSwitch.addActionListener((ActionEvent actionEvent) -> {
+            // Get the current status
+            boolean offline = WorldWind.getNetworkStatus().isOfflineMode();
 
-            public void actionPerformed(ActionEvent actionEvent) {
-                // Get the current status
-                boolean offline = WorldWind.getNetworkStatus().isOfflineMode();
+            // Change it to its opposite
+            offline = !offline;
+            WorldWind.getNetworkStatus().setOfflineMode(offline);
 
-                // Change it to its opposite
-                offline = !offline;
-                WorldWind.getNetworkStatus().setOfflineMode(offline);
-
-                // Cause data retrieval to resume if now online
-                if (!offline)
-                    wwd.redraw();
-            }
+            // Cause data retrieval to resume if now online
+            if (!offline)
+                wwd.redraw();
         });
         
-        modeSwitch.setSelected(true); // WW starts out online
-        panel.add(modeSwitch, BorderLayout.CENTER);
-        return panel;
+        onlineGlodeSwitch.setSelected(true); // WW starts out online
+        
+        flatWorldPanel.add(onlineGlodeSwitch);
+        return flatWorldPanel;
     }
 }
