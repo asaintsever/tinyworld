@@ -8,7 +8,7 @@
 - Geolocalize photos on virtual globe with metadata in annotations
 - Search & filter capabilities to easily navigate your photos (by dates, countries, ...)
 - Offline mode (use local cache for globe data)
-- Available as portable app, Flatpack package and container image
+- Available as portable app, AppImage package and container image
 
 ## Supported Photo Formats
 
@@ -23,6 +23,27 @@
 ## Configuration
 
 See [TinyWorld Configuration](cfg/README.md)
+
+## Run
+
+### Using Container Image on Linux/WSL2
+
+```sh
+<docker|podman> run --rm -e DISPLAY -v "$HOME/.Xauthority:/root/.Xauthority:rw" --network host <TinyWorld image> 
+```
+
+## Building from Source
+
+```sh
+# Build TinyWorld portable app
+make gen-portableapp
+
+# Build TinyWorld container image
+make gen-container-image
+
+# Build TinyWorld AppImage
+make gen-appimage
+```
 
 ## Deps & Credits
 
