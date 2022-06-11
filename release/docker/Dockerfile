@@ -1,0 +1,16 @@
+FROM eclipse-temurin:17-jre
+
+RUN apt update && apt upgrade -y && apt install -y libxrender1 libxtst6 libxi6 libxxf86vm1 mesa-utils
+
+RUN mkdir -p /opt/tinyworld
+
+WORKDIR /opt/tinyworld
+
+COPY tinyworld.sh .
+COPY tmp/deps ./deps
+COPY tmp/config ./config
+COPY tmp/*.jar .
+
+RUN chmod +x tinyworld.sh
+
+CMD ["./tinyworld.sh"]
