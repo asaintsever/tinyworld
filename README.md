@@ -26,6 +26,13 @@ See [TinyWorld Configuration](cfg/README.md)
 
 ## Run
 
+### Using AppImage on Linux/WSL2
+
+```sh
+chmod +x TinyWorld-<release version>-x86_64.AppImage
+./TinyWorld-<release version>-x86_64.AppImage
+```
+
 ### Using Container Image on Linux/WSL2
 
 ```sh
@@ -38,11 +45,11 @@ See [TinyWorld Configuration](cfg/README.md)
 # Build TinyWorld portable app
 make gen-portableapp
 
-# Build TinyWorld container image
-make gen-container-image
-
 # Build TinyWorld AppImage
 make gen-appimage
+
+# Build TinyWorld container image
+make gen-container-image
 ```
 
 ## Deps & Credits
