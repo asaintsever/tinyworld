@@ -9,6 +9,6 @@ mkdir -p "$1/tmp/config"
 mkdir -p "$1/tmp/deps"
 
 # copy config, deps & jars
-cp ui/target/config/* "$1/tmp/config"
+cp ui/target/config/*.xml "$1/tmp/config"
 cp ui/target/deps/* "$1/tmp/deps"
 cp ui/target/*.jar "$1/tmp"

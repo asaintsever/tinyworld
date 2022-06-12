@@ -22,20 +22,20 @@ package asaintsever.tinyworld.cfg;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junitpioneer.jupiter.SetEnvironmentVariable;
 
 public class LoaderTest {
     
-    @AfterEach
+    @BeforeEach
     void teardown() {
-        Loader.setPathToConfigFile(Loader.DEFAULT_TINYWORL_CONFIG_FILE);
+        Loader.setPathToConfigFile("target/newconfig.yml");
     }
 
     @Test
     void loadDefaultInternalConfig() {
-        Configuration cfg = Loader.getConfig();
+        Configuration cfg = Loader.getConfig(false);
         assertNotNull(cfg);
         
         System.out.println(cfg.toString());
@@ -57,7 +57,7 @@ public class LoaderTest {
     @SetEnvironmentVariable(key="TW_IDX_CLUSTER_PORT", value="9210")
     @SetEnvironmentVariable(key="TW_IDX_CLUSTER_INDEX", value="test")
     void loadDefaultInternalConfigOverrideWithEnv() {
-        Configuration cfg = Loader.getConfig();
+        Configuration cfg = Loader.getConfig(false);
         assertNotNull(cfg);
         
         System.out.println(cfg.toString());
@@ -73,7 +73,7 @@ public class LoaderTest {
     void loadCustomConfig() {
         Loader.setPathToConfigFile("src/test/resources/cfg_test1.yml");
         
-        Configuration cfg = Loader.getConfig();
+        Configuration cfg = Loader.getConfig(false);
         assertNotNull(cfg);
         
         System.out.println(cfg.toString());
