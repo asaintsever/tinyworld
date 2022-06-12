@@ -123,7 +123,7 @@ public class UI {
     }
     
     protected static Configuration readConfig() {
-        return Loader.getConfig();
+        return Loader.getConfig(true);
     }
     
     protected static void routeJULtoSLF4J(Configuration.UI uiCfg) {

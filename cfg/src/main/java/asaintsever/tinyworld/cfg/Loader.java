@@ -20,10 +20,14 @@
 package asaintsever.tinyworld.cfg;
 
 import java.io.IOException;
+import java.net.URI;
 import java.net.URL;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
 
 import org.apache.commons.text.StringSubstitutor;
 import org.apache.commons.text.lookup.StringLookupFactory;
@@ -34,31 +38,39 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
 public class Loader {
-    public static final String DEFAULT_TINYWORL_CONFIG_FILE = "config/tinyworld.yml";
+    public static final String TINYWORLD_USER_HOME = ".tinyworld";
+    public static final String TINYWORLD_CONFIG_HOME = "config";
+    public static final String TINYWORLD_CONFIG_FILE = "tinyworld.yml";
     
     protected static Logger logger = LoggerFactory.getLogger(Loader.class);
     
-    private static String TINYWORLD_CONFIG_FILE = DEFAULT_TINYWORL_CONFIG_FILE;
+    private static Path TINYWORLD_CONFIG_HOME_PATH;
+    private static Path TINYWORLD_CONFIG_FILE_PATH;
+    
+    static {
+        String homedir = System.getProperty("user.home") != null ? System.getProperty("user.home") : ".";
+        TINYWORLD_CONFIG_HOME_PATH = Paths.get(homedir, TINYWORLD_USER_HOME, TINYWORLD_CONFIG_HOME);
+        TINYWORLD_CONFIG_FILE_PATH = Paths.get(TINYWORLD_CONFIG_HOME_PATH.toString(), TINYWORLD_CONFIG_FILE);
+    }
+    
     private static ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
     private static StringSubstitutor stringSubstitutor = new StringSubstitutor(StringLookupFactory.INSTANCE.environmentVariableStringLookup());
 
     public static void setPathToConfigFile(String pathCfg) {
-        TINYWORLD_CONFIG_FILE = pathCfg;
+        TINYWORLD_CONFIG_FILE_PATH = Paths.get(pathCfg);
     }
     
-    public static Configuration getConfig() {
+    public static Configuration getConfig(boolean writeDefaultCfgIfNotFound) {
         Configuration cfg = null;
         boolean internalCfg = false;
         
-        // Try reading config from external file first
+        // Try reading config from external file first (in current user's home directory)
         try {
             if (logger.isDebugEnabled()) {
-                String cwd = Paths.get("").toAbsolutePath().toString();
-                logger.debug("Current working directory: " + cwd);
+                logger.debug("Try reading config from: " + TINYWORLD_CONFIG_FILE_PATH);
             }
             
-            Path cfgFile = Path.of(TINYWORLD_CONFIG_FILE);
-            cfg = unserialize(cfgFile);
+            cfg = unserialize(TINYWORLD_CONFIG_FILE_PATH);
         } catch (Exception e) {
             logger.warn("Fail to load configuration from external file [" + e.getMessage() + "]. Default to internal configuration.");
             internalCfg = true;
@@ -68,9 +80,26 @@ public class Loader {
         if (internalCfg) {
             try {
                 ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-                URL resource = classLoader.getResource(TINYWORLD_CONFIG_FILE);
-                Path cfgFile = Path.of(resource.toURI());
-                cfg = unserialize(cfgFile);
+                URL resource = classLoader.getResource(TINYWORLD_CONFIG_HOME + "/" + TINYWORLD_CONFIG_FILE);
+                
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Loading internal configuration from: " + resource.toString());
+                }
+                
+                try (FileSystem fs = initFileSystem(resource.toURI())) {
+                    Path cfgFile = Paths.get(resource.toURI());
+                    cfg = unserialize(cfgFile);
+                    
+                    if (writeDefaultCfgIfNotFound) {
+                        // Write config in current user's home directory
+                        try {
+                            Files.createDirectories(TINYWORLD_CONFIG_HOME_PATH);
+                            Files.copy(cfgFile, TINYWORLD_CONFIG_FILE_PATH);
+                        } catch (Exception e) {
+                            logger.error("Fail to write default configuration", e);
+                        }
+                    }
+                } catch (UnsupportedOperationException e) {}
             } catch (Exception e) {
                 logger.error("Fail to load internal configuration", e);
             }
@@ -83,5 +112,15 @@ public class Loader {
         String cfgFileContent = stringSubstitutor.replace(new String(Files.readAllBytes(cfgFilePath)));
         Configuration cfg = mapper.readValue(cfgFileContent, Configuration.class);
         return cfg;
+    }
+    
+    // Create filesystem (see doc https://docs.oracle.com/javase/7/docs/technotes/guides/io/fsp/zipfilesystemprovider.html)
+    // See https://stackoverflow.com/questions/25032716/getting-filesystemnotfoundexception-from-zipfilesystemprovider-when-creating-a-p
+    private static FileSystem initFileSystem(URI uri) throws IOException {
+        try {
+            return FileSystems.newFileSystem(uri, Collections.emptyMap());
+        }catch(IllegalArgumentException e) {
+            return FileSystems.getDefault();
+        }
     }
 }

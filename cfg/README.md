@@ -2,9 +2,13 @@
 
 ## Configuration file
 
-TinyWorld will look after a file named `tinyworld.yml` under `config` directory. You can edit the provided configuration under this location to set your own custom values (or use env vars instead, see next section).
+TinyWorld will look after a file named `tinyworld.yml` under `.tinyworld/config` directory in current user's home directory. You can edit the provided configuration under this location to set your own custom values (or use env vars instead, see next section).
 
-If no configuration file can be loaded from this location, TinyWorld will fallback to an internal default configuration (embedded in its jar files) that can still be overridden with env vars. In DEBUG level, the logs display the loaded configuration at startup.
+If no configuration file can be loaded from this location, TinyWorld will fallback to an internal default configuration that will be saved into `.tinyworld/config` directory in current user's home directory. In DEBUG level, the logs display the loaded configuration at startup.
+
+In case your config file ends up being corrupted or you want to reset, just delete your `tinyworld.yml` file to let TinyWorld creates a new default one at next start.
+
+**Default configuration**: [tinyworld.yml](src/main/resources/config/tinyworld.yml)
 
 ## Environment Variables
 
