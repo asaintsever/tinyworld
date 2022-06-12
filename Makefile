@@ -9,7 +9,7 @@ IMAGE_FQIN:=asaintsever/tinyworld
 
 .SILENT: ;  	# No need for @
 .ONESHELL: ; 	# Single shell for a target (required to properly use local variables)
-.PHONY: help clean test package run-ui run-indexor gen-portableapp gen-container-image gen-appimage release
+.PHONY: help clean test package run-ui run-indexor pre-release gen-portableapp gen-container-image gen-appimage release
 .DEFAULT_GOAL := help
 
 help: ## Show Help
@@ -17,6 +17,7 @@ help: ## Show Help
 
 clean: ## Clean
 	mvn clean
+	rm -rf release/artifacts || true
 
 test: clean ## Run tests
 	mvn test
@@ -31,18 +32,29 @@ run-indexor: ## Run Indexor test program
 run-ui: ## Run TinyWorld UI
 	mvn package -Dmaven.test.skip=true -P UI
 
-gen-portableapp: ## Generate TinyWorld Portable App
+pre-release:
+	mkdir -p release/artifacts
+	chmod +x release/release-helper.sh
+	chmod +x release/appimage/appdir-gen.sh
+	chmod +x release/appimage/x86_64/appimagetool-x86_64
+
+gen-portableapp: pre-release ## Generate TinyWorld Portable App
 	echo "Build Portable App ..."
 	echo "TODO"
 
-gen-appimage: package ## Generate TinyWorld AppImage
+# https://docs.appimage.org/packaging-guide/manual.html
+# https://github.com/AppImage/AppImageKit/wiki/Bundling-Java-apps#option-2-bundling-jre-manually
+gen-appimage: package pre-release ## Generate TinyWorld AppImage
+	set -e
 	echo "Build AppImage package ..."
-	echo "TODO"
+	release/release-helper.sh release/appimage
+	release/appimage/appdir-gen.sh
+	release/appimage/x86_64/appimagetool-x86_64 release/appimage/AppDir release/artifacts/TinyWorld-${RELEASE_VERSION}-x86_64.AppImage
 
-gen-container-image: package ## Generate TinyWorld Container Image
+gen-container-image: package pre-release ## Generate TinyWorld Container Image
+	set -e
 	echo "Build container image ..."
-	rm -rf release/docker/tmp || true
-	cp -R ui/target release/docker/tmp
+	release/release-helper.sh release/docker
 	podman build -t ${IMAGE_FQIN}:${RELEASE_VERSION} release/docker
 
 release: test gen-container-image gen-appimage gen-portableapp ## Release

@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=TinyWorld
+Exec=tinyworld.sh
+Icon=tinyworldicon
+Type=Application
+Categories=Utility;
+Name[en]=TinyWorld
+Terminal=false
+NoDisplay=false
