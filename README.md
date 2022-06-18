@@ -18,14 +18,21 @@
 ## Requirements
 
 - Java 11+ for portable app without JRE
-- Docker or Podman for container image
 - Linux or WSL2 for AppImage
+- Docker or Podman for container image
 
 ## Configuration
 
 See [TinyWorld Configuration](cfg/README.md)
 
 ## Run
+
+### Using Portable App
+
+*TODO*
+
+```sh
+```
 
 ### Using AppImage on Linux/WSL2
 
@@ -37,7 +44,7 @@ chmod +x TinyWorld-<release version>-x86_64.AppImage
 ### Using Container Image on Linux/WSL2
 
 ```sh
-<docker|podman> run --rm -e DISPLAY -v "$HOME/.Xauthority:/root/.Xauthority:rw" --network host <TinyWorld image> 
+<docker|podman> run --rm -e DISPLAY -v "$HOME/.Xauthority:/root/.Xauthority:rw" -v "$HOME/.tinyworld:/root/.tinyworld" --network host asaintsever/tinyworld:<release version> 
 ```
 
 ## Build
@@ -47,6 +54,7 @@ chmod +x TinyWorld-<release version>-x86_64.AppImage
 - Make
 - Maven 3
 - Java JDK 17
+- Podman
 
 ### Building from Source
 

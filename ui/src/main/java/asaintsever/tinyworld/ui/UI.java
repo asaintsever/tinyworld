@@ -24,6 +24,7 @@ import java.awt.Toolkit;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.concurrent.ExecutionException;
 
 import javax.swing.JFrame;
@@ -37,6 +38,7 @@ import org.slf4j.bridge.SLF4JBridgeHandler;
 import com.formdev.flatlaf.FlatDarkLaf;
 
 import asaintsever.tinyworld.cfg.Configuration;
+import asaintsever.tinyworld.cfg.Env;
 import asaintsever.tinyworld.cfg.Loader;
 import asaintsever.tinyworld.indexor.Indexor;
 import asaintsever.tinyworld.ui.component.MainFrame;
@@ -62,7 +64,7 @@ public class UI {
         
         if (gov.nasa.worldwind.Configuration.isMacOS()) {
             System.setProperty("apple.laf.useScreenMenuBar", "true");
-            System.setProperty("com.apple.mrj.application.apple.menu.about.name", "WorldWind Application");
+            System.setProperty("com.apple.mrj.application.apple.menu.about.name", UIStrings.APP_NAME);
             System.setProperty("com.apple.mrj.application.growbox.intrudes", "false");
             System.setProperty("apple.awt.brushMetalLook", "true");
         } else if (gov.nasa.worldwind.Configuration.isWindowsOS() || (gov.nasa.worldwind.Configuration.isLinuxOS() && System.getProperty("os.version") != null && System.getProperty("os.version").toLowerCase().contains("wsl"))) {
@@ -108,6 +110,8 @@ public class UI {
         
         @Override
         protected Indexor doInBackground() throws Exception {
+            // Store index in user's home directory
+            Indexor.setClusterPathHome(Paths.get(Env.TINYWORLD_USER_HOME_PATH.toString(), "index").toString());
             return new Indexor(this.indexorCfg);
         }
         
@@ -123,7 +127,7 @@ public class UI {
     }
     
     protected static Configuration readConfig() {
-        return Loader.getConfig(true);
+        return Loader.getConfig();
     }
     
     protected static void routeJULtoSLF4J(Configuration.UI uiCfg) {

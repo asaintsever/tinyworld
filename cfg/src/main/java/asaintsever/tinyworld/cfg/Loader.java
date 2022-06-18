@@ -38,26 +38,18 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
 public class Loader {
-    public static final String TINYWORLD_USER_HOME = ".tinyworld";
-    public static final String TINYWORLD_CONFIG_HOME = "config";
-    public static final String TINYWORLD_CONFIG_FILE = "tinyworld.yml";
-    
     protected static Logger logger = LoggerFactory.getLogger(Loader.class);
     
-    private static Path TINYWORLD_CONFIG_HOME_PATH;
-    private static Path TINYWORLD_CONFIG_FILE_PATH;
-    
-    static {
-        String homedir = System.getProperty("user.home") != null ? System.getProperty("user.home") : ".";
-        TINYWORLD_CONFIG_HOME_PATH = Paths.get(homedir, TINYWORLD_USER_HOME, TINYWORLD_CONFIG_HOME);
-        TINYWORLD_CONFIG_FILE_PATH = Paths.get(TINYWORLD_CONFIG_HOME_PATH.toString(), TINYWORLD_CONFIG_FILE);
-    }
-    
+    private static Path TINYWORLD_CONFIG_FILE_PATH = Paths.get(Env.TINYWORLD_CONFIG_HOME_PATH.toString(), Env.TINYWORLD_CONFIG_FILE);
     private static ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
     private static StringSubstitutor stringSubstitutor = new StringSubstitutor(StringLookupFactory.INSTANCE.environmentVariableStringLookup());
 
     public static void setPathToConfigFile(String pathCfg) {
         TINYWORLD_CONFIG_FILE_PATH = Paths.get(pathCfg);
+    }
+    
+    public static Configuration getConfig() {
+        return getConfig(true);
     }
     
     public static Configuration getConfig(boolean writeDefaultCfgIfNotFound) {
@@ -80,7 +72,7 @@ public class Loader {
         if (internalCfg) {
             try {
                 ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-                URL resource = classLoader.getResource(TINYWORLD_CONFIG_HOME + "/" + TINYWORLD_CONFIG_FILE);
+                URL resource = classLoader.getResource(Env.TINYWORLD_CONFIG_HOME + "/" + Env.TINYWORLD_CONFIG_FILE);
                 
                 if (logger.isDebugEnabled()) {
                     logger.debug("Loading internal configuration from: " + resource.toString());
@@ -93,7 +85,7 @@ public class Loader {
                     if (writeDefaultCfgIfNotFound) {
                         // Write config in current user's home directory
                         try {
-                            Files.createDirectories(TINYWORLD_CONFIG_HOME_PATH);
+                            Files.createDirectories(Env.TINYWORLD_CONFIG_HOME_PATH);
                             Files.copy(cfgFile, TINYWORLD_CONFIG_FILE_PATH);
                         } catch (Exception e) {
                             logger.error("Fail to write default configuration", e);
