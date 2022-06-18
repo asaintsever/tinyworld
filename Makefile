@@ -9,7 +9,7 @@ IMAGE_FQIN:=asaintsever/tinyworld
 
 .SILENT: ;  	# No need for @
 .ONESHELL: ; 	# Single shell for a target (required to properly use local variables)
-.PHONY: help init clean test package run-ui run-indexor pre-release gen-portableapp gen-container-image gen-appimage release
+.PHONY: help init clean test package run-ui run-indexor pre-release gen-portableapp gen-container-image gen-appimage next-version release
 .DEFAULT_GOAL := help
 
 help: ## Show Help
@@ -59,6 +59,12 @@ gen-container-image: package pre-release ## Generate TinyWorld Container Image
 	echo "Build container image ..."
 	release/release-helper.sh release/docker
 	podman build -t ${IMAGE_FQIN}:${RELEASE_VERSION} release/docker
+
+next-version: ## Set next version
+	set -e
+	read -p "Enter new TinyWorld version: " twNewVer
+	mvn versions:set -DnewVersion=$$twNewVer
+	echo -n $$twNewVer > VERSION
 
 release: test gen-container-image gen-appimage gen-portableapp ## Release
 	read -p "Publish image (y/n)? " answer
