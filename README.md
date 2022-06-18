@@ -17,8 +17,9 @@
 
 ## Requirements
 
-- Java 11+ for portable app
+- Java 11+ for portable app without JRE
 - Docker or Podman for container image
+- Linux or WSL2 for AppImage
 
 ## Configuration
 
@@ -39,7 +40,23 @@ chmod +x TinyWorld-<release version>-x86_64.AppImage
 <docker|podman> run --rm -e DISPLAY -v "$HOME/.Xauthority:/root/.Xauthority:rw" --network host <TinyWorld image> 
 ```
 
-## Building from Source
+## Build
+
+### Requirements
+
+- Make
+- Maven 3
+- Java JDK 17
+
+### Building from Source
+
+You need to init your environment the first time (will install WorlWind jar into your local Maven repo):
+
+```sh
+make init
+```
+
+Then you can generate all supported packages:
 
 ```sh
 # Build TinyWorld portable app
