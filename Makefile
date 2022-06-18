@@ -9,11 +9,14 @@ IMAGE_FQIN:=asaintsever/tinyworld
 
 .SILENT: ;  	# No need for @
 .ONESHELL: ; 	# Single shell for a target (required to properly use local variables)
-.PHONY: help clean test package run-ui run-indexor pre-release gen-portableapp gen-container-image gen-appimage release
+.PHONY: help init clean test package run-ui run-indexor pre-release gen-portableapp gen-container-image gen-appimage release
 .DEFAULT_GOAL := help
 
 help: ## Show Help
 	grep -E '^[a-zA-Z_-]+:.*?## .*$$' Makefile | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
+
+init: ## Init build (to run once)
+	mvn validate
 
 clean: ## Clean
 	mvn clean
