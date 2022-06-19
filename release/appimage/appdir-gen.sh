@@ -15,3 +15,7 @@ cp release/appimage/x86_64/AppRun-x86_64 release/appimage/AppDir/AppRun
 
 chmod +x release/appimage/AppDir/AppRun
 chmod +x release/appimage/AppDir/usr/bin/tinyworld.sh
+
+# Add JRE 17
+tar -xvzf release/jre/linux/OpenJDK17U-jre_x64_linux_*.tar.gz -C release/appimage/AppDir/usr/bin
+mv release/appimage/AppDir/usr/bin/jdk-* release/appimage/AppDir/usr/bin/jre
