@@ -40,10 +40,13 @@ pre-release:
 	chmod +x release/release-helper.sh
 	chmod +x release/appimage/appdir-gen.sh
 	chmod +x release/appimage/x86_64/appimagetool-x86_64
+	chmod +x release/portable/portableapp-gen.sh
 
-gen-portableapp: pre-release ## Generate TinyWorld Portable App
+gen-portableapp: package pre-release ## Generate TinyWorld Portable App
+	set -e
 	echo "Build Portable App ..."
-	echo "TODO"
+	release/release-helper.sh release/portable
+	release/portable/portableapp-gen.sh
 
 # https://docs.appimage.org/packaging-guide/manual.html
 # https://github.com/AppImage/AppImageKit/wiki/Bundling-Java-apps#option-2-bundling-jre-manually
