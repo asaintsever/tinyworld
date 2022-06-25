@@ -46,7 +46,7 @@ gen-portableapp: package pre-release ## Generate TinyWorld Portable App
 	set -e
 	echo "Build Portable App ..."
 	release/release-helper.sh release/portable
-	release/portable/portableapp-gen.sh
+	release/portable/portableapp-gen.sh ${RELEASE_VERSION}
 
 # https://docs.appimage.org/packaging-guide/manual.html
 # https://github.com/AppImage/AppImageKit/wiki/Bundling-Java-apps#option-2-bundling-jre-manually

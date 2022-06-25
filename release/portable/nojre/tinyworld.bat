@@ -1,4 +1,3 @@
-
 @echo off
 
 rem CD into directory where our script is located to get classpath right

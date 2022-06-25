@@ -2,6 +2,11 @@
 
 *Travel the globe from your photos. You'll see how small the World is.*
 
+[![License](https://img.shields.io/github/license/asaintsever/tinyworld?style=for-the-badge)](https://github.com/asaintsever/tinyworld/blob/main/LICENSE)
+[![GitHub All Releases](https://img.shields.io/github/downloads/asaintsever/tinyworld/total?style=for-the-badge)](https://github.com/asaintsever/tinyworld/releases)
+[![Docker Pulls](https://img.shields.io/docker/pulls/asaintsever/tinyworld?style=for-the-badge)](https://hub.docker.com/r/asaintsever/tinyworld)
+[![Latest release](https://img.shields.io/github/v/release/asaintsever/tinyworld?style=for-the-badge)](https://github.com/asaintsever/tinyworld/releases)
+
 ## Features
 
 - Catalog your photos: metadata extraction & thumbnails generation
@@ -29,10 +34,17 @@ See [TinyWorld Configuration](cfg/README.md)
 
 ### Using Portable App
 
-*TODO*
+Untar/Unzip downloaded portable package (several flavors available: without JRE, with Linux JRE, with Windows JRE) then run provided TinyWorld script:
 
 ```sh
+# On Linux
+<TinyWorld folder>/tinyworld.sh
+
+# On Windows
+<TinyWorld folder>\tinyworld.bat
 ```
+
+By default, 4Gb of memory is set via Xmx/Xms Java options: edit the script to change any Java options.
 
 ### Using AppImage on Linux/WSL2
 
@@ -68,7 +80,11 @@ By default, 4Gb of memory is set via Xmx/Xms Java options. You can override this
 - Make
 - Maven 3
 - Java JDK 17
-- Podman
+- zip/unzip *(to generate TinyWorld portable app for Windows)*
+- Podman *(to generate TinyWorld container image)*
+- FUSE *(to generate TinyWorld AppImage)*
+
+    > *On Ubuntu 22.04+, install required FUSE library using `sudo apt install libfuse2`*
 
 ### Building from Source
 
