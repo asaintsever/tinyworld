@@ -17,5 +17,6 @@ chmod +x release/appimage/AppDir/AppRun
 chmod +x release/appimage/AppDir/usr/bin/tinyworld.sh
 
 # Add JRE 17
-tar -xvzf release/jre/linux/OpenJDK17U-jre_x64_linux_*.tar.gz -C release/appimage/AppDir/usr/bin
+curl -s -L --create-dirs --output release/tmp/jre_linux.tar.gz https://github.com/asaintsever/tinyworld-utils/releases/download/jre-distro/OpenJDK17U-jre_x64_linux_hotspot_17.0.3_7.tar.gz
+tar -xzf release/tmp/jre_linux.tar.gz -C release/appimage/AppDir/usr/bin
 mv release/appimage/AppDir/usr/bin/jdk-* release/appimage/AppDir/usr/bin/jre
