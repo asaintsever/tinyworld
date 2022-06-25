@@ -1,4 +1,4 @@
-FROM eclipse-temurin:17-jre
+FROM docker.io/eclipse-temurin:17-jre
 
 RUN apt update && apt upgrade -y && apt install -y libxrender1 libxtst6 libxi6 libxxf86vm1 mesa-utils
 

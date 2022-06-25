@@ -23,7 +23,7 @@ chmod +x release/portable/tinyworld-nojre/tinyworld.sh
 
 # No JRE
 echo "Portable No JRE ..."
-tar -C release/portable -czf release/artifacts/TinyWorld-${RELEASE_VERSION}-x86_64.tgz tinyworld-nojre
+tar -C release/portable -czf release/artifacts/TinyWorld-noJRE-${RELEASE_VERSION}-x86_64.tgz tinyworld-nojre
 
 # Linux - Add JRE 17
 echo "Portable Linux JRE ..."
