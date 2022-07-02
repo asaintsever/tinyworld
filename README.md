@@ -73,6 +73,16 @@ By default, 4Gb of memory is set via Xmx/Xms Java options. You can override this
 <docker|podman> run --rm -e DISPLAY -e JAVA_OPTS="-Xmx2048m -Xms1024m" -v "$HOME/.Xauthority:/root/.Xauthority:rw" -v "$HOME/.tinyworld:/root/.tinyworld" -v "$HOME/var/cache:/root/var/cache" --network host asaintsever/tinyworld:<release version>
 ```
 
+## Workarounds
+
+### Scaling UI issue on High DPI resolutions
+
+In case you experience scaling issue with High DPI (such as globe not filling the whole UI for example), you can disable UI scaling for TinyWorld application only by providing following option to the JVM:
+
+```sh
+-Dsun.java2d.uiScale=1.0
+```
+
 ## Build
 
 ### Requirements

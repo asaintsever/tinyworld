@@ -20,9 +20,14 @@
 package asaintsever.tinyworld.ui;
 
 import java.awt.Dimension;
+import java.awt.GraphicsConfiguration;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
+import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.geom.AffineTransform;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.concurrent.ExecutionException;
@@ -93,6 +98,28 @@ public class UI {
     }
     
     
+    protected static Configuration readConfig() {
+        return Loader.getConfig();
+    }
+    
+    protected static void routeJULtoSLF4J(Configuration.UI uiCfg) {
+        // Enable JUL to SLF4J bridge
+        SLF4JBridgeHandler.removeHandlersForRootLogger();
+        SLF4JBridgeHandler.install();
+        
+        // By default, turn off logging for dependencies
+        wwjJULlogger.setLevel(java.util.logging.Level.OFF);
+        flatlafJULlogger.setLevel(java.util.logging.Level.OFF);
+        
+        // Set log level for WWJ from config
+        if (uiCfg.deps.logging.get(UIStrings.DEP_WORLDWIND).toLowerCase().equals("on"))
+            wwjJULlogger.setLevel(java.util.logging.Level.FINER);
+        
+        // Set log level for FlatLaf from config
+        if (uiCfg.deps.logging.get(UIStrings.DEP_FLATLAF).toLowerCase().equals("on"))
+            flatlafJULlogger.setLevel(java.util.logging.Level.CONFIG);
+    }
+    
     /**
      * Use a Swing Worker to create Indexor in background thread to not block UI
      *
@@ -126,32 +153,24 @@ public class UI {
         }
     }
     
-    protected static Configuration readConfig() {
-        return Loader.getConfig();
-    }
-    
-    protected static void routeJULtoSLF4J(Configuration.UI uiCfg) {
-        // Enable JUL to SLF4J bridge
-        SLF4JBridgeHandler.removeHandlersForRootLogger();
-        SLF4JBridgeHandler.install();
-        
-        // By default, turn off logging for dependencies
-        wwjJULlogger.setLevel(java.util.logging.Level.OFF);
-        flatlafJULlogger.setLevel(java.util.logging.Level.OFF);
-        
-        // Set log level for WWJ from config
-        if (uiCfg.deps.logging.get(UIStrings.DEP_WORLDWIND).toLowerCase().equals("on"))
-            wwjJULlogger.setLevel(java.util.logging.Level.FINER);
-        
-        // Set log level for FlatLaf from config
-        if (uiCfg.deps.logging.get(UIStrings.DEP_FLATLAF).toLowerCase().equals("on"))
-            flatlafJULlogger.setLevel(java.util.logging.Level.CONFIG);
-    }
-    
     protected static MainFrame start(String appName, Configuration cfg) throws Exception {
         if (gov.nasa.worldwind.Configuration.isMacOS() && appName != null) {
             System.setProperty("com.apple.mrj.application.apple.menu.about.name", appName);
         }        
+        
+        if (logger.isDebugEnabled()) {
+            // Loop through all detected screens and get size + UI scaling factor
+        	for(GraphicsDevice gd : GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices()) {
+        		GraphicsConfiguration gConf = gd.getDefaultConfiguration();
+        		
+        		Rectangle screenArea = gConf.getBounds();
+        		logger.debug("[Screen id " + gd.getIDstring() + "] Detected Screen Size: " + screenArea.width + "x" + screenArea.height); // Beware: won't return "real" size if High DPI scaling is in use
+        		
+        		AffineTransform globalTransform = gConf.getDefaultTransform();
+                double scaleX = globalTransform.getScaleX();	// Only get X, we expect same scaling factor on Y
+                logger.debug("[Screen id " + gd.getIDstring() + "] Detected UI Scaling Factor: " + scaleX);
+        	}
+        }
         
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         MainFrame frame =  new MainFrame(cfg, new Dimension(screenSize.width - 100, screenSize.height - 100));

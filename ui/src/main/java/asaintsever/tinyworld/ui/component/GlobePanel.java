@@ -25,12 +25,13 @@ import java.awt.Dimension;
 
 import javax.swing.JPanel;
 
+import com.jogamp.opengl.awt.GLCanvas;
+
 import asaintsever.tinyworld.cfg.Configuration;
 import gov.nasa.worldwind.Model;
 import gov.nasa.worldwind.WorldWind;
 import gov.nasa.worldwind.WorldWindow;
 import gov.nasa.worldwind.avlist.AVKey;
-import gov.nasa.worldwind.awt.WorldWindowGLCanvas;
 import gov.nasa.worldwind.event.SelectEvent;
 import gov.nasa.worldwind.layers.WorldMapLayer;
 import gov.nasa.worldwindx.examples.ClickAndGoSelectListener;
@@ -48,13 +49,13 @@ public class GlobePanel extends JPanel {
     public GlobePanel(Configuration cfg, Dimension canvasSize) {
         super(new BorderLayout());
 
-        this.wwd = new WorldWindowGLCanvas();
+        this.wwd = new GlobeGLCanvas();
         ((Component) this.wwd).setPreferredSize(canvasSize);
         
         // To work around a Swing bug the WorldWindow must be placed within a JPanel and
         // that JPanel's minimum preferred size must be set to zero (both width and height)
         this.setMinimumSize(new Dimension(0, 0));
-
+        
         // Create the default model as described in the current worldwind properties.
         Model m = (Model) WorldWind.createConfigurationComponent(AVKey.MODEL_CLASS_NAME);
         this.wwd.setModel(m);
@@ -71,6 +72,11 @@ public class GlobePanel extends JPanel {
         // Add controllers to manage highlighting and tool tips.
         this.toolTipController = new ToolTipController(this.wwd, AVKey.DISPLAY_NAME, null);
         this.highlightController = new HighlightController(this.wwd, SelectEvent.ROLLOVER);
+    }
+    
+    
+    public GLCanvas getGLCanvas() {
+    	return (GLCanvas)this.wwd;
     }
 
     public WorldWindow getWwd() {
