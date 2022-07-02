@@ -41,7 +41,7 @@
       <version>${worldwindjava.version}</version>
     </dependency>
 
-    <!-- Required to compile Globe class -->
+    <!-- Required to compile GlobeGLCanvas class -->
     <!-- Ignore maven warnings on this dep -->
     <dependency>
       <groupId>com.jogamp</groupId>
@@ -49,6 +49,13 @@
       <version>2.4</version>
       <scope>system</scope>
       <systemPath>${basedir}/globe/deps/wwj/lib/jogl-all.jar</systemPath>
+    </dependency>
+    <dependency>
+      <groupId>com.jogamp</groupId>
+      <artifactId>gluegen-rt</artifactId>
+      <version>2.4</version>
+      <scope>system</scope>
+      <systemPath>${basedir}/globe/deps/wwj/lib/gluegen-rt.jar</systemPath>
     </dependency>
   </dependencies>
 
@@ -90,7 +97,7 @@
         <artifactId>maven-resources-plugin</artifactId>
         <version>3.2.0</version>
         <executions>
-          <!-- copy required lib for WWJ -->
+          <!-- copy JOGL libs required by WWJ -->
           <execution>
             <id>copy-wwj-resources</id>
             <phase>validate</phase>
@@ -150,6 +157,7 @@
             </goals>
             <configuration>
               <excludeGroupIds>asaintsever.tinyworld</excludeGroupIds>
+              <excludeScope>system</excludeScope> <!-- To not copy again jogl-all/gluegen jars (as we had to declare them as system scope deps to be able to compile GlobeGLCanvas class) -->
               <outputDirectory>${project.build.directory}/deps</outputDirectory>
             </configuration>
           </execution>

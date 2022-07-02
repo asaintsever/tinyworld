@@ -78,14 +78,14 @@ public class MainFrame extends JFrame {
         this.indexor = indexor;
         this.workers.add(this.getStatusBar().getIndexorStatusPanel().getIndexorStatusWorker(indexor));
     }
-    
-    public Dimension getCanvasSize() {
-        return canvasSize;
-    }
 
     public WorldWindow getWwd() {
         return this.wwjPanel.getWwd();
     }
+    
+    /*public GlobePanel getGlobe() {
+    	return this.wwjPanel;
+    }*/
 
     public StatusBar getStatusBar() {
         return this.wwjPanel.getStatusBar();

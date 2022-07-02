@@ -256,13 +256,17 @@ public class TinyWorldMenuLayer extends RenderableLayer implements SelectListene
         if (event.getTopObject() == null || event.getTopPickedObject().getParentLayer() != this || !(event.getTopObject() instanceof AVList))
             return;
         
-        //logger.debug("Mouse event: " + event.getEventAction());
-        
         String menuOpType = ((AVList) event.getTopObject()).getStringValue(TWLayerOperations.MENU_OPERATION);
         if (menuOpType == null)
             return;
 
         ScreenAnnotation selectedObject = (ScreenAnnotation) event.getTopObject();
+        
+        /*if (logger.isDebugEnabled()) {
+        	logger.debug("SelectEvent: " + event.toString());
+        	logger.debug("PickPoint: " + event.getPickPoint() != null ? event.getPickPoint().toString() : "");
+        	logger.debug("EventAction: " + event.getEventAction());
+        }*/
         
         switch(event.getEventAction()) {
         case SelectEvent.ROLLOVER:
@@ -383,7 +387,7 @@ public class TinyWorldMenuLayer extends RenderableLayer implements SelectListene
         int yOffset = (int) (this.buttonSize * this.scale);
 
         if (!horizontalLayout) {
-         // vertical layout
+            // vertical layout
             int temp = height;
             height = width;
             width = temp;
