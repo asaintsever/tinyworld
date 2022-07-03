@@ -34,4 +34,4 @@ Add `--add-exports` args to java command line:
 java --add-exports java.base/java.lang=ALL-UNNAMED --add-exports java.desktop/sun.awt=ALL-UNNAMED --add-exports java.desktop/sun.java2d=ALL-UNNAMED ...
 ```
 
-This fix has already been applied to [deps/wwj/wwj-utils.sh](deps/wwj/wwj-utils.sh) script.
+This fix has already been applied to [deps/wwj/wwj-utils.sh](deps/wwj/wwj-utils.sh) and TinyWorld scripts.

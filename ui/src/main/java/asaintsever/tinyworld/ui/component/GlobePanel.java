@@ -34,8 +34,10 @@ import gov.nasa.worldwind.WorldWindow;
 import gov.nasa.worldwind.avlist.AVKey;
 import gov.nasa.worldwind.event.SelectEvent;
 import gov.nasa.worldwind.layers.WorldMapLayer;
+import gov.nasa.worldwind.terrain.ZeroElevationModel;
 import gov.nasa.worldwindx.examples.ClickAndGoSelectListener;
 import gov.nasa.worldwindx.examples.util.HighlightController;
+import gov.nasa.worldwindx.examples.util.HotSpotController;
 import gov.nasa.worldwindx.examples.util.ToolTipController;
 
 
@@ -45,6 +47,7 @@ public class GlobePanel extends JPanel {
     protected StatusBar statusBar;
     protected ToolTipController toolTipController;
     protected HighlightController highlightController;
+    protected HotSpotController hotSpotController;
 
     public GlobePanel(Configuration cfg, Dimension canvasSize) {
         super(new BorderLayout());
@@ -68,10 +71,15 @@ public class GlobePanel extends JPanel {
         this.statusBar = new StatusBar(cfg);
         this.add(statusBar, BorderLayout.PAGE_END);
         this.statusBar.setEventSource(this.wwd);
+        
+        // Eliminate elevations by simply setting the globe's elevation model to ZeroElevationModel.
+        // Elevation info have also been removed from status bar (see custom StatusBar class)
+        this.wwd.getModel().getGlobe().setElevationModel(new ZeroElevationModel());
 
-        // Add controllers to manage highlighting and tool tips.
+        // Add controllers to manage tooltips, highlighting and hotspots.
         this.toolTipController = new ToolTipController(this.wwd, AVKey.DISPLAY_NAME, null);
         this.highlightController = new HighlightController(this.wwd, SelectEvent.ROLLOVER);
+        this.hotSpotController = new HotSpotController(this.wwd);
     }
     
     
