@@ -44,10 +44,7 @@ import gov.nasa.worldwind.exception.WWAbsentRequirementException;
 import gov.nasa.worldwind.layers.Layer;
 import gov.nasa.worldwind.layers.LayerList;
 import gov.nasa.worldwind.layers.WorldMapLayer;
-import gov.nasa.worldwind.terrain.ZeroElevationModel;
 import gov.nasa.worldwind.util.WWUtil;
-import gov.nasa.worldwindx.examples.util.HighlightController;
-import gov.nasa.worldwindx.examples.util.ToolTipController;
 
 
 public class MainFrame extends JFrame {
@@ -58,7 +55,7 @@ public class MainFrame extends JFrame {
 
     protected Configuration cfg;
     protected Indexor indexor;
-    protected GlobePanel wwjPanel;
+    protected GlobePanel globePanel;
     protected SettingsPanel settingsPanel;
     protected List<SwingWorker<?, ?>> workers = new ArrayList<SwingWorker<?, ?>>();
     protected Logger logger = LoggerFactory.getLogger(MainFrame.class);
@@ -80,37 +77,20 @@ public class MainFrame extends JFrame {
     }
 
     public WorldWindow getWwd() {
-        return this.wwjPanel.getWwd();
+        return this.globePanel.getWwd();
     }
     
     /*public GlobePanel getGlobe() {
-    	return this.wwjPanel;
+    	return this.globePanel;
     }*/
 
     public StatusBar getStatusBar() {
-        return this.wwjPanel.getStatusBar();
+        return this.globePanel.getStatusBar();
     }
 
     public SettingsPanel getSettingsPanel() {
         return this.settingsPanel;
     }
-    
-    public void setToolTipController(ToolTipController controller) {
-        if (this.wwjPanel.toolTipController != null) {
-            this.wwjPanel.toolTipController.dispose();
-        }
-
-        this.wwjPanel.toolTipController = controller;
-    }
-
-    public void setHighlightController(HighlightController controller) {
-        if (this.wwjPanel.highlightController != null) {
-            this.wwjPanel.highlightController.dispose();
-        }
-
-        this.wwjPanel.highlightController = controller;
-    }
-    
     
     public void cancelSwingWorkers() {
         for(SwingWorker<?, ?> worker : this.workers)
@@ -123,11 +103,11 @@ public class MainFrame extends JFrame {
         this.cfg = cfg;
         
         // Create the WorldWindow.
-        this.wwjPanel = new GlobePanel(cfg, this.canvasSize);
-        this.wwjPanel.setPreferredSize(canvasSize);
+        this.globePanel = new GlobePanel(cfg, this.canvasSize);
+        this.globePanel.setPreferredSize(canvasSize);
         
         // Register a rendering exception listener that's notified when exceptions occur during rendering.
-        this.wwjPanel.getWwd().addRenderingExceptionListener((Throwable t) -> {
+        this.globePanel.getWwd().addRenderingExceptionListener((Throwable t) -> {
             if (t instanceof WWAbsentRequirementException) {
                 String message = "Computer does not meet minimum graphics requirements.\n";
                 message += "Please install up-to-date graphics driver and try again.\n";
@@ -140,13 +120,13 @@ public class MainFrame extends JFrame {
         });
         
         TinyWorldMenuLayer twMenuLayer = new TinyWorldMenuLayer(this);
-        this.insertLayerAtTheEnd(this.wwjPanel.getWwd(), twMenuLayer);
+        this.insertLayerAtTheEnd(this.globePanel.getWwd(), twMenuLayer);
         
-        for (Layer layer : this.wwjPanel.getWwd().getModel().getLayers()) {
+        for (Layer layer : this.globePanel.getWwd().getModel().getLayers()) {
             // Search the layer list for layers that are also select listeners and register them with the World
             // Window. This enables interactive layers to be included without specific knowledge of them here.
             if (layer instanceof SelectListener) {
-                this.wwjPanel.getWwd().addSelectListener((SelectListener) layer);
+                this.globePanel.getWwd().addSelectListener((SelectListener) layer);
             }
             
             if (layer instanceof WorldMapLayer) {
@@ -157,7 +137,7 @@ public class MainFrame extends JFrame {
         this.settingsPanel = new SettingsPanel(this);
         this.settingsPanel.setVisible(false);              // Not visible by default (click on 'Settings' button of TW menu to enable panel)
         
-        this.getContentPane().add(wwjPanel, BorderLayout.CENTER);
+        this.getContentPane().add(globePanel, BorderLayout.CENTER);
         this.getContentPane().add(this.settingsPanel, BorderLayout.WEST);
 
         this.pack();
@@ -166,10 +146,6 @@ public class MainFrame extends JFrame {
         WWUtil.alignComponent(null, this, AVKey.CENTER);
         this.setResizable(true);
         this.setAppIcon();
-        
-        // Eliminate elevations by simply setting the globe's elevation model to ZeroElevationModel.
-        // Elevation info have also been removed from status bar (see custom StatusBar class) and on/off checkbox from panel (see custom LayerPanel class)
-        this.wwjPanel.getWwd().getModel().getGlobe().setElevationModel(new ZeroElevationModel());
     }
     
     protected void setAppIcon() {

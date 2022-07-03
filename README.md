@@ -98,7 +98,7 @@ In case you experience scaling issue with High DPI (such as globe not filling th
 
 ### Building from Source
 
-You need to init your environment the first time (will install WorlWind jar into your local Maven repo):
+You need to init your environment the first time (will install WorlWind jar and sources into your local Maven repo):
 
 ```sh
 make init
