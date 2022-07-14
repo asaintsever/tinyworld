@@ -17,7 +17,7 @@
  *
  *    https://github.com/asaintsever/tinyworld
  */
-package asaintsever.tinyworld.ui.component;
+package asaintsever.tinyworld.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -36,7 +36,8 @@ import org.slf4j.LoggerFactory;
 
 import asaintsever.tinyworld.cfg.Configuration;
 import asaintsever.tinyworld.indexor.Indexor;
-import asaintsever.tinyworld.ui.layer.TinyWorldMenuLayer;
+import asaintsever.tinyworld.ui.component.*;
+import asaintsever.tinyworld.ui.layer.*;
 import gov.nasa.worldwind.WorldWindow;
 import gov.nasa.worldwind.avlist.AVKey;
 import gov.nasa.worldwind.event.SelectListener;
@@ -51,9 +52,6 @@ public class MainFrame extends JFrame {
     
     protected final static String APP_ICON = "/icon/tinyworldicon.jpg";
 
-    private Dimension canvasSize = new Dimension(1000, 800); // the desired WorldWindow size
-
-    protected Configuration cfg;
     protected Indexor indexor;
     protected GlobePanel globePanel;
     protected SettingsPanel settingsPanel;
@@ -61,13 +59,8 @@ public class MainFrame extends JFrame {
     protected Logger logger = LoggerFactory.getLogger(MainFrame.class);
     
 
-    public MainFrame(Configuration cfg) {
-        this.initialize(cfg);
-    }
-
     public MainFrame(Configuration cfg, Dimension size) {
-        this.canvasSize = size;
-        this.initialize(cfg);
+        this.initialize(cfg, size);
     }
     
     
@@ -78,6 +71,10 @@ public class MainFrame extends JFrame {
 
     public WorldWindow getWwd() {
         return this.globePanel.getWwd();
+    }
+    
+    public LayerList getLayers() {
+    	return this.getWwd().getModel().getLayers();
     }
     
     /*public GlobePanel getGlobe() {
@@ -99,12 +96,10 @@ public class MainFrame extends JFrame {
     }
     
     
-    protected void initialize(Configuration cfg) {
-        this.cfg = cfg;
-        
+    protected void initialize(Configuration cfg, Dimension size) {
         // Create the WorldWindow.
-        this.globePanel = new GlobePanel(cfg, this.canvasSize);
-        this.globePanel.setPreferredSize(canvasSize);
+        this.globePanel = new GlobePanel(cfg, size);
+        this.globePanel.setPreferredSize(size);
         
         // Register a rendering exception listener that's notified when exceptions occur during rendering.
         this.globePanel.getWwd().addRenderingExceptionListener((Throwable t) -> {
@@ -120,9 +115,12 @@ public class MainFrame extends JFrame {
         });
         
         TinyWorldMenuLayer twMenuLayer = new TinyWorldMenuLayer(this);
-        this.insertLayerAtTheEnd(this.globePanel.getWwd(), twMenuLayer);
+        TinyWorldPhotoTreeLayer twPhotoTreeLayer = new TinyWorldPhotoTreeLayer();
         
-        for (Layer layer : this.globePanel.getWwd().getModel().getLayers()) {
+        this.globePanel.addLayer(twMenuLayer);
+        this.globePanel.addLayer(twPhotoTreeLayer);
+        
+        for (Layer layer : this.getLayers()) {
             // Search the layer list for layers that are also select listeners and register them with the World
             // Window. This enables interactive layers to be included without specific knowledge of them here.
             if (layer instanceof SelectListener) {
@@ -135,7 +133,7 @@ public class MainFrame extends JFrame {
         }
 
         this.settingsPanel = new SettingsPanel(this);
-        this.settingsPanel.setVisible(false);              // Not visible by default (click on 'Settings' button of TW menu to enable panel)
+        this.settingsPanel.setVisible(false); // Not visible by default (click on 'Settings' button of TW menu to enable panel)
         
         this.getContentPane().add(globePanel, BorderLayout.CENTER);
         this.getContentPane().add(this.settingsPanel, BorderLayout.WEST);
@@ -156,26 +154,5 @@ public class MainFrame extends JFrame {
         } catch (Exception e) {
             this.logger.error("Fail to set application icon", e);
         }
-    }
-    
-    protected void insertLayerAtTheEnd(WorldWindow wwd, Layer layer) {
-        // Insert the layer at the end of the layer list
-        LayerList layers = wwd.getModel().getLayers();
-        layers.add(layer);
-    }
-
-    protected void insertBeforeLayerName(WorldWindow wwd, Layer layer, String targetName) {
-        // Insert the layer into the layer list just before the target layer.
-        int targetPosition = 0;
-        LayerList layers = wwd.getModel().getLayers();
-        
-        for (Layer l : layers) {
-            if (l.getName().contains(targetName)) {
-                targetPosition = layers.indexOf(l);
-                break;
-            }
-        }
-        
-        layers.add(targetPosition, layer);
     }
 }

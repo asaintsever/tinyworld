@@ -25,7 +25,7 @@ import java.awt.Dimension;
 
 import javax.swing.JPanel;
 
-import com.jogamp.opengl.awt.GLCanvas;
+//import com.jogamp.opengl.awt.GLCanvas;
 
 import asaintsever.tinyworld.cfg.Configuration;
 import gov.nasa.worldwind.Model;
@@ -33,6 +33,8 @@ import gov.nasa.worldwind.WorldWind;
 import gov.nasa.worldwind.WorldWindow;
 import gov.nasa.worldwind.avlist.AVKey;
 import gov.nasa.worldwind.event.SelectEvent;
+import gov.nasa.worldwind.layers.Layer;
+import gov.nasa.worldwind.layers.LayerList;
 import gov.nasa.worldwind.layers.WorldMapLayer;
 import gov.nasa.worldwind.terrain.ZeroElevationModel;
 import gov.nasa.worldwindx.examples.ClickAndGoSelectListener;
@@ -49,6 +51,7 @@ public class GlobePanel extends JPanel {
     protected HighlightController highlightController;
     protected HotSpotController hotSpotController;
 
+    
     public GlobePanel(Configuration cfg, Dimension canvasSize) {
         super(new BorderLayout());
 
@@ -83,9 +86,9 @@ public class GlobePanel extends JPanel {
     }
     
     
-    public GLCanvas getGLCanvas() {
+    /*public GLCanvas getGLCanvas() {
     	return (GLCanvas)this.wwd;
-    }
+    }*/
 
     public WorldWindow getWwd() {
         return this.wwd;
@@ -93,5 +96,29 @@ public class GlobePanel extends JPanel {
 
     public StatusBar getStatusBar() {
         return this.statusBar;
+    }
+    
+    public LayerList getLayers() {
+    	return this.wwd.getModel().getLayers();
+    }
+    
+    public void addLayer(Layer layer) {
+        // Insert the layer at the end of the layers' list
+        this.getLayers().add(layer);
+    }
+
+    public void insertBeforeLayerName(Layer layer, String targetName) {
+        // Insert the layer into the layer list just before the target layer.
+        int targetPosition = 0;
+        LayerList layers = this.getLayers();
+        
+        for (Layer l : layers) {
+            if (l.getName().contains(targetName)) {
+                targetPosition = layers.indexOf(l);
+                break;
+            }
+        }
+        
+        layers.add(targetPosition, layer);
     }
 }

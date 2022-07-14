@@ -30,8 +30,8 @@ import javax.swing.JOptionPane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import asaintsever.tinyworld.ui.MainFrame;
 import asaintsever.tinyworld.ui.UIStrings;
-import asaintsever.tinyworld.ui.component.MainFrame;
 import gov.nasa.worldwind.avlist.AVKey;
 import gov.nasa.worldwind.avlist.AVList;
 import gov.nasa.worldwind.event.SelectEvent;

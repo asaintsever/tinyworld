@@ -30,7 +30,9 @@ package: clean ## Package
 
 run-indexor: ## Run Indexor test program
 	read -p "Full path to root directory to index: " pathToIndex
-	mvn package -Dmaven.test.skip=true -Dindexor.cmd.path=$$pathToIndex -Dindexor.cmd.clearIndex=true -Dindexor.cmd.allowUpdate=false -P indexorCmd
+	read -p "Clear previously indexed data (true/false): " clearIndex
+	read -p "Allow updates of existing photo metadata in index (true/false): " allowUpdate
+	mvn package -Dmaven.test.skip=true -Dindexor.cmd.path=$$pathToIndex -Dindexor.cmd.clearIndex=$$clearIndex -Dindexor.cmd.allowUpdate=$$allowUpdate -P indexorCmd
 
 run-ui: ## Run TinyWorld UI
 	mvn package -Dmaven.test.skip=true -P UI
