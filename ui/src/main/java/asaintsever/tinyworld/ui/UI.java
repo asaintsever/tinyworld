@@ -197,9 +197,6 @@ public class UI {
                         logger.error("Error while trying to release Indexor", e);
                     }
                     
-                    // Cancel running Swing Workers (if any)
-                    frame.cancelSwingWorkers();
-                    
                     frame.dispose();
                 }
             });

@@ -20,6 +20,8 @@
 package asaintsever.tinyworld.indexor;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
@@ -34,6 +36,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.opensearch.client.ResponseException;
+import org.opensearch.rest.RestStatus;
 
 import asaintsever.tinyworld.metadata.extractor.PhotoMetadata;
 
@@ -76,8 +80,23 @@ public class IndexorTest {
     
     @Test
     void createThenClearMetadataIndex() throws IOException {
+    	assertFalse(indexor.metadataIndex().exists());
         assertTrue(indexor.metadataIndex().create());
+        assertTrue(indexor.metadataIndex().exists());
         assertTrue(indexor.metadataIndex().clear());
+    }
+    
+    @Test
+    void createIndexTwice() throws IOException {
+    	assertTrue(indexor.metadataIndex().create());
+        assertTrue(indexor.metadataIndex().exists());
+        
+        assertEquals(
+                assertThrows(ResponseException.class, () -> {
+                	indexor.metadataIndex().create();
+                })
+                .getResponse().getStatusLine().getStatusCode(), 
+                RestStatus.BAD_REQUEST.getStatus());
     }
     
     @Test

@@ -238,6 +238,11 @@ public class Indexor implements Closeable {
         }
         
         @Override
+		public Boolean exists() throws IOException {
+			return this.clusterClient.isIndexExists(this.index);
+		}
+        
+        @Override
         public Boolean delete() throws IOException {
             return this.clusterClient.deleteIndex(this.index);
         }

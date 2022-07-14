@@ -17,17 +17,12 @@
  *
  *    https://github.com/asaintsever/tinyworld
  */
-package asaintsever.tinyworld.indexor;
+package asaintsever.tinyworld.ui.event;
 
-import java.io.IOException;
+import java.util.EventListener;
 
-public interface IIndex {
 
-    Boolean create() throws IOException;
-    
-    Boolean exists() throws IOException;
-    
-    Boolean delete() throws IOException;
-    
-    Boolean clear() throws IOException;
+public interface SwingWorkerListener extends EventListener {
+
+	void cancelWorkers();
 }

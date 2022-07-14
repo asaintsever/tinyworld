@@ -31,9 +31,11 @@ import javax.swing.SwingWorker;
 import asaintsever.tinyworld.cfg.Configuration;
 import asaintsever.tinyworld.indexor.Indexor;
 import asaintsever.tinyworld.ui.UIStrings;
+import asaintsever.tinyworld.ui.event.IndexorListener;
+import asaintsever.tinyworld.ui.event.SwingWorkerListener;
 
 
-public class IndexorStatusPanel extends JPanel {
+public class IndexorStatusPanel extends JPanel implements IndexorListener, SwingWorkerListener {
 
     protected static final ImageIcon CONNECTING = new ImageIcon(IndexorStatusPanel.class.getResource("/images/tw-indexor-plug-16x16.png"));
     protected static final ImageIcon CONNECTED = new ImageIcon(IndexorStatusPanel.class.getResource("/images/tw-indexor-plugged-16x16.png"));
@@ -90,14 +92,23 @@ public class IndexorStatusPanel extends JPanel {
     }
     
     
-    public SwingWorker<Void, Void> getIndexorStatusWorker(Indexor indexor) {
-        this.indexor = indexor;
+    @Override
+	public void created(Indexor indexor) {
+    	this.indexor = indexor;
         
+    	// Cancel any already running indexorStatusWorker before creating new one
+    	if (this.indexorStatusWorker != null)
+			this.indexorStatusWorker.cancel(false);
+    	
         this.indexorStatusWorker = new IndexorStatusWorker(this);
         this.indexorStatusWorker.execute();
-        
-        return this.indexorStatusWorker;
-    }
+	}
+    
+    @Override
+	public void cancelWorkers() {
+		if (this.indexorStatusWorker != null)
+			this.indexorStatusWorker.cancel(false);
+	}
     
     
     protected Indexor getIndexor() {
@@ -120,4 +131,5 @@ public class IndexorStatusPanel extends JPanel {
         
         return this;
     }
+
 }
