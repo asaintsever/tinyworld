@@ -67,7 +67,7 @@ public class SettingsPanel extends JPanel {
         }
         
         // Find TinyWorldMenuLayer layer and keep reference to it
-        for (Layer layer : frame.getLayers()) {
+        for (Layer layer : frame.getWwd().getModel().getLayers()) {
             if (layer instanceof TinyWorldMenuLayer) {
                 this.twMenuLayer = (TinyWorldMenuLayer) layer;
             }

@@ -29,7 +29,6 @@ import java.util.List;
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-import javax.swing.SwingWorker;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,13 +36,14 @@ import org.slf4j.LoggerFactory;
 import asaintsever.tinyworld.cfg.Configuration;
 import asaintsever.tinyworld.indexor.Indexor;
 import asaintsever.tinyworld.ui.component.*;
+import asaintsever.tinyworld.ui.event.IndexorListener;
+import asaintsever.tinyworld.ui.event.SwingWorkerListener;
 import asaintsever.tinyworld.ui.layer.*;
 import gov.nasa.worldwind.WorldWindow;
 import gov.nasa.worldwind.avlist.AVKey;
 import gov.nasa.worldwind.event.SelectListener;
 import gov.nasa.worldwind.exception.WWAbsentRequirementException;
 import gov.nasa.worldwind.layers.Layer;
-import gov.nasa.worldwind.layers.LayerList;
 import gov.nasa.worldwind.layers.WorldMapLayer;
 import gov.nasa.worldwind.util.WWUtil;
 
@@ -55,7 +55,8 @@ public class MainFrame extends JFrame {
     protected Indexor indexor;
     protected GlobePanel globePanel;
     protected SettingsPanel settingsPanel;
-    protected List<SwingWorker<?, ?>> workers = new ArrayList<SwingWorker<?, ?>>();
+    protected List<SwingWorkerListener> workers = new ArrayList<SwingWorkerListener>();
+    protected List<IndexorListener> indexorListeners = new ArrayList<IndexorListener>();
     protected Logger logger = LoggerFactory.getLogger(MainFrame.class);
     
 
@@ -66,33 +67,37 @@ public class MainFrame extends JFrame {
     
     public void setIndexor(Indexor indexor) {
         this.indexor = indexor;
-        this.workers.add(this.getStatusBar().getIndexorStatusPanel().getIndexorStatusWorker(indexor));
+        
+        // Notify all Indexor listeners
+        for(IndexorListener listener : this.indexorListeners)
+        	if (listener != null)
+        		listener.created(indexor);
     }
 
     public WorldWindow getWwd() {
         return this.globePanel.getWwd();
-    }
-    
-    public LayerList getLayers() {
-    	return this.getWwd().getModel().getLayers();
-    }
-    
-    /*public GlobePanel getGlobe() {
-    	return this.globePanel;
-    }*/
-
-    public StatusBar getStatusBar() {
-        return this.globePanel.getStatusBar();
     }
 
     public SettingsPanel getSettingsPanel() {
         return this.settingsPanel;
     }
     
-    public void cancelSwingWorkers() {
-        for(SwingWorker<?, ?> worker : this.workers)
+    public void addIndexorListener(IndexorListener listener) {
+    	this.indexorListeners.add(listener);
+    }
+    
+    public void addWorkerListener(SwingWorkerListener worker) {
+    	this.workers.add(worker);
+    }
+    
+    @Override
+    public void dispose() {
+    	// Notify all Swing Workers
+    	for(SwingWorkerListener worker : this.workers)
             if (worker != null)
-                worker.cancel(false);
+                worker.cancelWorkers();
+        
+    	super.dispose();
     }
     
     
@@ -120,16 +125,15 @@ public class MainFrame extends JFrame {
         this.globePanel.addLayer(twMenuLayer);
         this.globePanel.addLayer(twPhotoTreeLayer);
         
-        for (Layer layer : this.getLayers()) {
+        this.addListeners(this.globePanel.getStatusBar().getIndexorStatusPanel());
+        
+        for (Layer layer : this.globePanel.getLayers()) {
             // Search the layer list for layers that are also select listeners and register them with the World
             // Window. This enables interactive layers to be included without specific knowledge of them here.
-            if (layer instanceof SelectListener) {
-                this.globePanel.getWwd().addSelectListener((SelectListener) layer);
-            }
+            this.addListeners(layer);
             
-            if (layer instanceof WorldMapLayer) {
+            if (layer instanceof WorldMapLayer)
                 ((WorldMapLayer) layer).setPosition(AVKey.NORTHEAST);
-            }
         }
 
         this.settingsPanel = new SettingsPanel(this);
@@ -144,6 +148,17 @@ public class MainFrame extends JFrame {
         WWUtil.alignComponent(null, this, AVKey.CENTER);
         this.setResizable(true);
         this.setAppIcon();
+    }
+    
+    protected void addListeners(Object obj) {
+    	if (obj instanceof SelectListener)
+            this.globePanel.getWwd().addSelectListener((SelectListener)obj);
+        
+        if (obj instanceof IndexorListener)
+        	this.addIndexorListener((IndexorListener)obj);
+        
+        if (obj instanceof SwingWorkerListener)
+        	this.addWorkerListener((SwingWorkerListener)obj);
     }
     
     protected void setAppIcon() {

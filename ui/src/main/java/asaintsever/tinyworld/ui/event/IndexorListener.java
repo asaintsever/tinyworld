@@ -17,17 +17,14 @@
  *
  *    https://github.com/asaintsever/tinyworld
  */
-package asaintsever.tinyworld.indexor;
+package asaintsever.tinyworld.ui.event;
 
-import java.io.IOException;
+import java.util.EventListener;
 
-public interface IIndex {
+import asaintsever.tinyworld.indexor.Indexor;
 
-    Boolean create() throws IOException;
-    
-    Boolean exists() throws IOException;
-    
-    Boolean delete() throws IOException;
-    
-    Boolean clear() throws IOException;
+
+public interface IndexorListener extends EventListener {
+
+	void created(Indexor indexor);
 }

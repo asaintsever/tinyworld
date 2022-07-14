@@ -20,10 +20,13 @@
 package asaintsever.tinyworld.ui.layer;
 
 import java.awt.Color;
+import java.io.IOException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import asaintsever.tinyworld.indexor.Indexor;
+import asaintsever.tinyworld.ui.event.IndexorListener;
 import gov.nasa.worldwind.avlist.AVKey;
 import gov.nasa.worldwind.event.SelectEvent;
 import gov.nasa.worldwind.event.SelectListener;
@@ -40,7 +43,7 @@ import gov.nasa.worldwind.util.tree.BasicTreeNode;
  * 
  *
  */
-public class TinyWorldPhotoTreeLayer extends RenderableLayer implements SelectListener {
+public class TinyWorldPhotoTreeLayer extends RenderableLayer implements SelectListener, IndexorListener {
 
 	protected static Logger logger = LoggerFactory.getLogger(TinyWorldPhotoTreeLayer.class);
     
@@ -48,13 +51,12 @@ public class TinyWorldPhotoTreeLayer extends RenderableLayer implements SelectLi
     protected final static String ICON_PATH = "icon/tinyworldicon.jpg";
     
     protected BasicTree photoTree;
+    protected Indexor indexor;
         
     
     public TinyWorldPhotoTreeLayer() {
     	// Mark the layer as hidden to prevent it being included in the layer tree's model
         this.setValue(AVKey.HIDDEN, true);
-        
-        this.initialize();
     }
     
 
@@ -97,12 +99,23 @@ public class TinyWorldPhotoTreeLayer extends RenderableLayer implements SelectLi
 	}
 	
 	@Override
+	public void created(Indexor indexor) {
+		this.indexor = indexor;
+		this.initialize();
+	}
+	
+	@Override
     public String toString() {
         return LAYER_NAME;
     }
 	
 	
 	protected void initialize() {
+		if (this.photoTree != null && this.photoTree.getLayout() != null) {
+			this.removeRenderable(this.photoTree.getLayout());
+			this.photoTree = null;
+		}
+		
 		this.photoTree = new BasicTree();
 		
         BasicTreeLayout layout = new BasicTreeLayout(this.photoTree, 40, 140);
@@ -110,7 +123,7 @@ public class TinyWorldPhotoTreeLayer extends RenderableLayer implements SelectLi
         layout.getFrame().setSize(Size.fromPixels(300, 600));	// TODO depending on screen resolution
         
         BasicTreeAttributes attributes = new BasicTreeAttributes();
-        attributes.setRootVisible(false);
+        attributes.setRootVisible(false);	// Do not display root node
         layout.setAttributes(attributes);
         
         BasicFrameAttributes frameAttributes = new BasicFrameAttributes();
@@ -133,8 +146,20 @@ public class TinyWorldPhotoTreeLayer extends RenderableLayer implements SelectLi
 
         BasicTreeNode root = new BasicTreeNode("Root", ICON_PATH);
         model.setRoot(root);
+        
+ 		if (this.indexor.isConnected()) {
+ 			try {
+				if (!this.indexor.metadataIndex().exists())
+					this.indexor.metadataIndex().create();
+				
+				// TODO default request on Indexor and dynamic photo tree construction (default request criteria to be added in config)
+				
+			} catch (IOException e) {
+				logger.error(e.getMessage(), e);
+			}
+ 		}
 
-        BasicTreeNode child = new BasicTreeNode("Child 1", ICON_PATH);
+        /*BasicTreeNode child = new BasicTreeNode("Child 1", ICON_PATH);
         child.setDescription("This is a child node");
         child.addChild(new BasicTreeNode("Subchild 1,1"));
         child.addChild(new BasicTreeNode("Subchild 1,2"));
@@ -151,14 +176,14 @@ public class TinyWorldPhotoTreeLayer extends RenderableLayer implements SelectLi
         child.addChild(new BasicTreeNode("Subchild 3,1"));
         child.addChild(new BasicTreeNode("Subchild 3,2"));
         child.addChild(new BasicTreeNode("Subchild 3,3"));
-        root.addChild(child);
+        root.addChild(child);*/
 
         this.photoTree.setModel(model);
 
         this.photoTree.expandPath(root.getPath());
         
         // Add tree layout not tree itself (else, in selected(SelectEvent event) method, event.getTopPickedObject().getParentLayer() will be null whereas we want to filter on our layer)
-        this.addRenderable(layout);
+        this.addRenderable(this.photoTree.getLayout());
 	}
     
 }
