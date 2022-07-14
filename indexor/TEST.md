@@ -5,9 +5,7 @@
 A test program is provided to test extraction of photo metadata: [IndexorCmd](src/main/java/asaintsever/tinyworld/indexor/IndexorCmd.java). This program instantiates and exposes a local OpenSearch cluster at `http://localhost:9200`.
 
 ```sh
-# Set indexor.cmd.clearIndex to false if you want to keep previously indexed data
-# Set indexor.cmd.allowUpdate to true if you allow updates of existing photo metadata in index
-mvn package -Dmaven.test.skip=true -Dindexor.cmd.path=<full path to root directory to index> -Dindexor.cmd.clearIndex=true -Dindexor.cmd.allowUpdate=false -P indexorCmd
+make run-indexor
 ```
 
 Once metadata extraction has been done, the program will pause to give you the opportunity to inspect the index (see procedure in next section). Press `Q + <Enter>` to exit the program.

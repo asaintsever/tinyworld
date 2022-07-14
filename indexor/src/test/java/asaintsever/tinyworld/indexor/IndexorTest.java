@@ -99,7 +99,7 @@ public class IndexorTest {
         Thread.sleep(2000);
         assertEquals(indexor.photos().count(), 1);
         
-        mtd = indexor.photos().get(id, PhotoMetadata.class);
+        mtd = indexor.photos().get(id);
         System.out.println("mtd=" + mtd.toString());
     }
     
@@ -126,7 +126,7 @@ public class IndexorTest {
         assertEquals(indexor.photos().count(), 10);
         
         // Search all photos
-        IndexPage<PhotoMetadata> mtdList = indexor.photos().search("{\"simple_query_string\": {\"query\": \"*\"}}", 0, 10, PhotoMetadata.class);
+        IndexPage<PhotoMetadata> mtdList = indexor.photos().search("{\"simple_query_string\": {\"query\": \"*\"}}", 0, 10);
         System.out.println("Total=" + mtdList.total() + ", Size=" + mtdList.size() + ", Result=" + mtdList.get().toString());
         
         // Search for photos with takenDate date before 2022
@@ -140,7 +140,7 @@ public class IndexorTest {
                 + " }\n"
                 + "}";
         
-        mtdList = indexor.photos().search(queryDSL, 0, 5, PhotoMetadata.class);
+        mtdList = indexor.photos().search(queryDSL, 0, 5);
         System.out.println("Total=" + mtdList.total() + ", Size=" + mtdList.size() + ", Result=" + mtdList.get().toString());
         
         // Search for photos in south hemisphere
@@ -154,7 +154,7 @@ public class IndexorTest {
                 + " }\n"
                 + "}";
         
-        mtdList = indexor.photos().search(queryDSL, 0, 5, PhotoMetadata.class);
+        mtdList = indexor.photos().search(queryDSL, 0, 5);
         System.out.println("Total=" + mtdList.total() + ", Size=" + mtdList.size() + ", Result=" + mtdList.get().toString());
         
         // Search for photos within given distance
@@ -166,7 +166,7 @@ public class IndexorTest {
                 + " }\n"
                 + "}";
         
-        mtdList = indexor.photos().search(queryDSL, 0, 5, PhotoMetadata.class);
+        mtdList = indexor.photos().search(queryDSL, 0, 5);
         System.out.println("Total=" + mtdList.total() + ", Size=" + mtdList.size() + ", Result=" + mtdList.get().toString());
     }
 }

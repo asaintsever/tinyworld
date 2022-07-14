@@ -46,7 +46,6 @@ import asaintsever.tinyworld.cfg.Configuration;
 import asaintsever.tinyworld.cfg.Env;
 import asaintsever.tinyworld.cfg.Loader;
 import asaintsever.tinyworld.indexor.Indexor;
-import asaintsever.tinyworld.ui.component.MainFrame;
 
 
 public class UI {

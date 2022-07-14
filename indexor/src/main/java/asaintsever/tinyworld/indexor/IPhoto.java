@@ -27,11 +27,11 @@ public interface IPhoto {
 
     String add(PhotoMetadata photo, boolean allowUpdate) throws IOException;
     
-    PhotoMetadata get(String id, Class<PhotoMetadata> docClass) throws IOException;
+    PhotoMetadata get(String id) throws IOException;
     
     long count() throws IOException;
     
-    IndexPage<PhotoMetadata> search(String query, int from, int size, Class<PhotoMetadata> docClass) throws IOException;
+    IndexPage<PhotoMetadata> search(String query, int from, int size) throws IOException;
     
-    IndexPage<PhotoMetadata> next(IndexPage<PhotoMetadata> page, Class<PhotoMetadata> docClass) throws IOException;
+    IndexPage<PhotoMetadata> next(IndexPage<PhotoMetadata> page) throws IOException;
 }

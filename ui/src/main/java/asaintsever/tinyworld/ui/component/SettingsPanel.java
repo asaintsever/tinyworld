@@ -38,6 +38,7 @@ import javax.swing.event.ChangeEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import asaintsever.tinyworld.ui.MainFrame;
 import asaintsever.tinyworld.ui.UIStrings;
 import asaintsever.tinyworld.ui.layer.TinyWorldMenuLayer;
 import gov.nasa.worldwind.WorldWind;
@@ -66,7 +67,7 @@ public class SettingsPanel extends JPanel {
         }
         
         // Find TinyWorldMenuLayer layer and keep reference to it
-        for (Layer layer : frame.getWwd().getModel().getLayers()) {
+        for (Layer layer : frame.getLayers()) {
             if (layer instanceof TinyWorldMenuLayer) {
                 this.twMenuLayer = (TinyWorldMenuLayer) layer;
             }
@@ -80,7 +81,7 @@ public class SettingsPanel extends JPanel {
         
         JPanel layersPanel = new JPanel();
         layersPanel.setLayout(new BorderLayout(10, 10));
-        layersPanel.add(this.createFlatWorldPanel(frame.getWwd()), BorderLayout.NORTH);
+        layersPanel.add(this.createGlobeSettingsPanel(frame.getWwd()), BorderLayout.NORTH);
         layersPanel.add(new LayersManagerPanel(frame), BorderLayout.CENTER);
         
         this.add(this.createTWMenuPanel(frame.getWwd()), BorderLayout.NORTH);
@@ -145,11 +146,11 @@ public class SettingsPanel extends JPanel {
         return twMenuPanel;
     }
     
-    protected JPanel createFlatWorldPanel(final WorldWindow wwd) {
+    protected JPanel createGlobeSettingsPanel(final WorldWindow wwd) {
         FlatWorldPanel flatWorldPanel = new FlatWorldPanel(wwd);
 
-        JCheckBox onlineGlodeSwitch = new JCheckBox(UIStrings.NETWORK_CHECKBOX_LABEL);
-        onlineGlodeSwitch.addActionListener((ActionEvent actionEvent) -> {
+        JCheckBox onlineGlobeSwitch = new JCheckBox(UIStrings.NETWORK_CHECKBOX_LABEL);
+        onlineGlobeSwitch.addActionListener((ActionEvent actionEvent) -> {
             // Get the current status
             boolean offline = WorldWind.getNetworkStatus().isOfflineMode();
 
@@ -162,9 +163,9 @@ public class SettingsPanel extends JPanel {
                 wwd.redraw();
         });
         
-        onlineGlodeSwitch.setSelected(true); // WW starts out online
+        onlineGlobeSwitch.setSelected(true); // WW starts out online
         
-        flatWorldPanel.add(onlineGlodeSwitch);
+        flatWorldPanel.add(onlineGlobeSwitch);
         return flatWorldPanel;
     }
 }

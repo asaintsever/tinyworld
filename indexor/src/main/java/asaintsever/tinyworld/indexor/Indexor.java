@@ -281,8 +281,8 @@ public class Indexor implements Closeable {
         }
         
         @Override
-        public PhotoMetadata get(String id, Class<PhotoMetadata> docClass) throws IOException {
-            return this.document.get(id, docClass);
+        public PhotoMetadata get(String id) throws IOException {
+            return this.document.get(id, PhotoMetadata.class);
         }
 
         @Override
@@ -291,13 +291,13 @@ public class Indexor implements Closeable {
         }
 
         @Override
-        public IndexPage<PhotoMetadata> search(String query, int from, int size, Class<PhotoMetadata> docClass) throws IOException {
-            return this.document.search(query, from, size, docClass);
+        public IndexPage<PhotoMetadata> search(String query, int from, int size) throws IOException {
+            return this.document.search(query, from, size, PhotoMetadata.class);
         }
 
         @Override
-        public IndexPage<PhotoMetadata> next(IndexPage<PhotoMetadata> page, Class<PhotoMetadata> docClass) throws IOException {
-            return this.document.next(page, docClass);
+        public IndexPage<PhotoMetadata> next(IndexPage<PhotoMetadata> page) throws IOException {
+            return this.document.next(page, PhotoMetadata.class);
         }
 
         @Override
