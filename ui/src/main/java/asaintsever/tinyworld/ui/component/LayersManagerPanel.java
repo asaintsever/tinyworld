@@ -51,6 +51,11 @@ import gov.nasa.worldwind.layers.LayerList;
 import gov.nasa.worldwind.layers.TiledImageLayer;
 
 
+/**
+ *
+ *
+ */
+@SuppressWarnings("serial")
 public class LayersManagerPanel extends JPanel {
     
     protected JPanel layerNamesPanel;

@@ -48,6 +48,11 @@ import gov.nasa.worldwind.layers.WorldMapLayer;
 import gov.nasa.worldwind.util.WWUtil;
 
 
+/**
+ *
+ *
+ */
+@SuppressWarnings("serial")
 public class MainFrame extends JFrame {
     
     protected final static String APP_ICON = "/icon/tinyworldicon.jpg";
@@ -68,7 +73,7 @@ public class MainFrame extends JFrame {
     public void setIndexor(Indexor indexor) {
         this.indexor = indexor;
         
-        // Notify all Indexor listeners
+        // Notify all listeners with Indexor
         for(IndexorListener listener : this.indexorListeners)
         	if (listener != null)
         		listener.created(indexor);
@@ -76,6 +81,10 @@ public class MainFrame extends JFrame {
 
     public WorldWindow getWwd() {
         return this.globePanel.getWwd();
+    }
+    
+    public GlobePanel getGlobe() {
+    	return this.globePanel;
     }
 
     public SettingsPanel getSettingsPanel() {
@@ -92,7 +101,7 @@ public class MainFrame extends JFrame {
     
     @Override
     public void dispose() {
-    	// Notify all Swing Workers
+    	// Cancel all running Swing Workers
     	for(SwingWorkerListener worker : this.workers)
             if (worker != null)
                 worker.cancelWorkers();
@@ -120,7 +129,7 @@ public class MainFrame extends JFrame {
         });
         
         TinyWorldMenuLayer twMenuLayer = new TinyWorldMenuLayer(this);
-        TinyWorldPhotoTreeLayer twPhotoTreeLayer = new TinyWorldPhotoTreeLayer();
+        TinyWorldPhotoTreeLayer twPhotoTreeLayer = new TinyWorldPhotoTreeLayer(this);
         
         this.globePanel.addLayer(twMenuLayer);
         this.globePanel.addLayer(twPhotoTreeLayer);

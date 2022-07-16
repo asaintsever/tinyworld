@@ -69,7 +69,8 @@ public class ClusterClientTest {
         public String latlong;
     }   
     
-    @BeforeAll
+    @SuppressWarnings("resource")
+	@BeforeAll
     public static void setup() throws ClusterNodeException {
         // Create single node cluster on special port
         cluster = new Cluster().setHttpPort(9299).setPathHome("target/index").create(true);

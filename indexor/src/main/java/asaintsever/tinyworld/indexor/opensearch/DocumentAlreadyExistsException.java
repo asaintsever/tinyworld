@@ -23,7 +23,8 @@ import java.io.IOException;
 
 public class DocumentAlreadyExistsException extends IOException {
     
-    private final String docId;
+    private static final long serialVersionUID = 1L;
+	private final String docId;
     
     public DocumentAlreadyExistsException(String id, IOException ex) {
         super(ex);

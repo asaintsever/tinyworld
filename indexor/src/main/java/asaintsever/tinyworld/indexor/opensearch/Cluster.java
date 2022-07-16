@@ -43,7 +43,9 @@ public class Cluster implements Closeable {
     }
     
     public class ClusterNodeException extends Exception {
-        public ClusterNodeException(Exception e) {
+        private static final long serialVersionUID = 1L;
+
+		public ClusterNodeException(Exception e) {
             super(e);
         }
     }

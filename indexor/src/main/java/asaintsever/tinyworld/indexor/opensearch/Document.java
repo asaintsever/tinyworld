@@ -121,7 +121,8 @@ public class Document<T> implements Closeable {
         return this.search(queryDSL, 0, 10, docClass);
     }
     
-    public IndexPage<T> search(String queryDSL, int from, int size, Class<T> docClass) throws IOException {
+    @SuppressWarnings("unchecked")
+	public IndexPage<T> search(String queryDSL, int from, int size, Class<T> docClass) throws IOException {
         QueryBuilder searchQuery = QueryBuilders.wrapperQuery(queryDSL);
         
         SearchRequest searchRequest = new SearchRequest(this.index);

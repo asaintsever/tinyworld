@@ -44,12 +44,17 @@ import gov.nasa.worldwindx.examples.util.FileStoreDataSet;
 import gov.nasa.worldwindx.examples.util.cachecleaner.CacheTable;
 
 
+/**
+ *
+ *
+ */
+@SuppressWarnings("serial")
 public class LayersCachePanel extends JPanel {
 
     protected CacheTable table;
     protected JButton delBtn;
     protected JSpinner ageSpinner;
-    protected JComboBox ageUnit;
+    protected JComboBox<String> ageUnit;
     protected JLabel deleteSizeLabel;
     
     
@@ -72,7 +77,7 @@ public class LayersCachePanel extends JPanel {
         JPanel pas = new JPanel();
         pas.add(this.ageSpinner);
         pa.add(pas, BorderLayout.CENTER);
-        this.ageUnit = new JComboBox(new String[] {"Hours", "Days", "Weeks", "Months", "Years"});
+        this.ageUnit = new JComboBox<String>(new String[] {"Hours", "Days", "Weeks", "Months", "Years"});
         this.ageUnit.setSelectedItem("Months");
         this.ageUnit.setEditable(false);
         pa.add(this.ageUnit, BorderLayout.EAST);
@@ -156,10 +161,11 @@ public class LayersCachePanel extends JPanel {
             totalSize += ds.getOutOfScopeSize(unit, age);
         }
 
-        Formatter formatter = new Formatter();
-        formatter.format("%5.1f", ((float) totalSize) / 1e6);
-        this.deleteSizeLabel.setText(UIStrings.LAYERS_CACHE_SIZE_PANEL_LABEL + formatter.toString() + " MB");
-
+        try (Formatter formatter = new Formatter()) {
+			formatter.format("%5.1f", ((float) totalSize) / 1e6);
+			this.deleteSizeLabel.setText(UIStrings.LAYERS_CACHE_SIZE_PANEL_LABEL + formatter.toString() + " MB");
+		}
+        
         this.delBtn.setEnabled(true);
     }
 

@@ -151,7 +151,8 @@ public class Indexor implements Closeable {
         this.indexorCfg = indexorCfg;
     }
     
-    public Indexor(String host, int port, String index, boolean useEmbeddedCluster, boolean exposeEmbeddedCluster) throws Exception {
+    @SuppressWarnings("resource")
+	public Indexor(String host, int port, String index, boolean useEmbeddedCluster, boolean exposeEmbeddedCluster) throws Exception {
         this.host = host;
         this.port = port;
         this.index = index; 
