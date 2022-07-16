@@ -25,8 +25,6 @@ import java.awt.Dimension;
 
 import javax.swing.JPanel;
 
-//import com.jogamp.opengl.awt.GLCanvas;
-
 import asaintsever.tinyworld.cfg.Configuration;
 import gov.nasa.worldwind.Model;
 import gov.nasa.worldwind.WorldWind;
@@ -43,6 +41,11 @@ import gov.nasa.worldwindx.examples.util.HotSpotController;
 import gov.nasa.worldwindx.examples.util.ToolTipController;
 
 
+/**
+ *
+ *
+ */
+@SuppressWarnings("serial")
 public class GlobePanel extends JPanel {
 
     protected WorldWindow wwd;
@@ -86,9 +89,9 @@ public class GlobePanel extends JPanel {
     }
     
     
-    /*public GLCanvas getGLCanvas() {
-    	return (GLCanvas)this.wwd;
-    }*/
+    public GlobeGLCanvas getGLCanvas() {
+    	return (GlobeGLCanvas)this.wwd;
+    }
 
     public WorldWindow getWwd() {
         return this.wwd;

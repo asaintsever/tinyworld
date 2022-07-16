@@ -26,12 +26,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import asaintsever.tinyworld.indexor.Indexor;
+import asaintsever.tinyworld.ui.MainFrame;
 import asaintsever.tinyworld.ui.event.IndexorListener;
 import gov.nasa.worldwind.avlist.AVKey;
 import gov.nasa.worldwind.event.SelectEvent;
 import gov.nasa.worldwind.event.SelectListener;
 import gov.nasa.worldwind.layers.RenderableLayer;
 import gov.nasa.worldwind.render.Size;
+import gov.nasa.worldwind.util.Logging;
 import gov.nasa.worldwind.util.tree.BasicFrameAttributes;
 import gov.nasa.worldwind.util.tree.BasicTree;
 import gov.nasa.worldwind.util.tree.BasicTreeAttributes;
@@ -50,11 +52,20 @@ public class TinyWorldPhotoTreeLayer extends RenderableLayer implements SelectLi
     protected final static String LAYER_NAME = "TinyWorld Photo Tree";
     protected final static String ICON_PATH = "icon/tinyworldicon.jpg";
     
+    protected MainFrame frame;
     protected BasicTree photoTree;
     protected Indexor indexor;
         
     
-    public TinyWorldPhotoTreeLayer() {
+    public TinyWorldPhotoTreeLayer(final MainFrame frame) {
+    	if (frame == null || frame.getWwd() == null) {
+            String msg = Logging.getMessage("nullValue.WorldWindow");
+            logger.error(msg);
+            throw new IllegalArgumentException(msg);
+        }
+        
+        this.frame = frame;
+        
     	// Mark the layer as hidden to prevent it being included in the layer tree's model
         this.setValue(AVKey.HIDDEN, true);
     }
@@ -120,7 +131,11 @@ public class TinyWorldPhotoTreeLayer extends RenderableLayer implements SelectLi
 		
         BasicTreeLayout layout = new BasicTreeLayout(this.photoTree, 40, 140);
         layout.getFrame().setFrameTitle("Photos");
-        layout.getFrame().setSize(Size.fromPixels(300, 600));	// TODO depending on screen resolution
+        layout.getFrame().setSize(
+        		Size.fromPixels(
+        				(int)(this.frame.getGlobe().getGLCanvas().getWidth()*0.18), 
+        				(int)(this.frame.getGlobe().getGLCanvas().getHeight()*0.7))
+        		);	// Depending on width/height of Globe GL canvas
         
         BasicTreeAttributes attributes = new BasicTreeAttributes();
         attributes.setRootVisible(false);	// Do not display root node
@@ -128,8 +143,8 @@ public class TinyWorldPhotoTreeLayer extends RenderableLayer implements SelectLi
         
         BasicFrameAttributes frameAttributes = new BasicFrameAttributes();
         frameAttributes.setBackgroundOpacity(0.8);
-        frameAttributes.setTitleBarColor(new Color(29, 78, 169), new Color(93, 158, 223));	// TODO
-        frameAttributes.setMinimizeButtonColor(new Color(0xEB9BA4));	// TODO
+        frameAttributes.setTitleBarColor(new Color(51, 51, 77), new Color(194, 194, 214));
+        frameAttributes.setMinimizeButtonColor(new Color(102, 163, 255));
         layout.getFrame().setAttributes(frameAttributes);
         
         BasicTreeAttributes highlightAttributes = new BasicTreeAttributes(attributes);
@@ -144,7 +159,7 @@ public class TinyWorldPhotoTreeLayer extends RenderableLayer implements SelectLi
 
         BasicTreeModel model = new BasicTreeModel();
 
-        BasicTreeNode root = new BasicTreeNode("Root", ICON_PATH);
+        BasicTreeNode root = new BasicTreeNode("Root");
         model.setRoot(root);
         
  		if (this.indexor.isConnected()) {

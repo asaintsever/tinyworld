@@ -49,6 +49,11 @@ import gov.nasa.worldwind.util.Logging;
 import gov.nasa.worldwindx.examples.FlatWorldPanel;
 
 
+/**
+ *
+ *
+ */
+@SuppressWarnings("serial")
 public class SettingsPanel extends JPanel {
     
     protected static Logger logger = LoggerFactory.getLogger(SettingsPanel.class);

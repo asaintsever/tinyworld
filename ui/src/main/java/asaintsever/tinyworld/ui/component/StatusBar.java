@@ -22,6 +22,11 @@ package asaintsever.tinyworld.ui.component;
 import asaintsever.tinyworld.cfg.Configuration;
 
 
+/**
+ *
+ *
+ */
+@SuppressWarnings("serial")
 public class StatusBar extends gov.nasa.worldwind.util.StatusBar {
 
     protected IndexorStatusPanel indexorStatusPanel;

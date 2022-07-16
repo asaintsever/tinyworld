@@ -24,7 +24,8 @@ import java.util.List;
 
 public class IndexPage<T> {
     
-    public static final IndexPage EMPTY = new IndexPage<>(Collections.emptyList(), null, 0, 0, 0);
+    @SuppressWarnings("rawtypes")
+	public static final IndexPage EMPTY = new IndexPage<>(Collections.emptyList(), null, 0, 0, 0);
 
     private final List<T> documents;
     private final String query;

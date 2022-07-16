@@ -35,6 +35,11 @@ import asaintsever.tinyworld.ui.event.IndexorListener;
 import asaintsever.tinyworld.ui.event.SwingWorkerListener;
 
 
+/**
+ *
+ *
+ */
+@SuppressWarnings("serial")
 public class IndexorStatusPanel extends JPanel implements IndexorListener, SwingWorkerListener {
 
     protected static final ImageIcon CONNECTING = new ImageIcon(IndexorStatusPanel.class.getResource("/images/tw-indexor-plug-16x16.png"));

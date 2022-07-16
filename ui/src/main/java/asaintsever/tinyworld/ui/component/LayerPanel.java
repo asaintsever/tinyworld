@@ -31,6 +31,11 @@ import gov.nasa.worldwind.WorldWindow;
 import gov.nasa.worldwind.layers.Layer;
 
 
+/**
+ *
+ *
+ */
+@SuppressWarnings("serial")
 public class LayerPanel extends JPanel {
 
     protected Layer layer; // the layer represented by this instance

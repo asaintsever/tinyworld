@@ -27,6 +27,11 @@ import java.awt.geom.AffineTransform;
 
 import gov.nasa.worldwind.awt.WorldWindowGLCanvas;
 
+/**
+ *
+ *
+ */
+@SuppressWarnings("serial")
 public class GlobeGLCanvas extends WorldWindowGLCanvas {
 
 	@Override
