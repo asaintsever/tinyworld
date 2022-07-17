@@ -58,56 +58,56 @@ public class PhotoObject {
     protected static Logger logger = LoggerFactory.getLogger(PhotoObject.class);
     private static ObjectMapper mapper;
     private PhotoMetadata metadata;
-    
-    static {	
+
+    static {
         mapper = new ObjectMapper();
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
     }
-    
+
     public PhotoObject() {
         this(null);
     }
-    
+
     /**
      * Constructor to set default metadata values for attributes not found in photo
      */
     public PhotoObject(PhotoMetadata defaultMetadata) {
         this.metadata = new PhotoMetadata().from(defaultMetadata);
     }
-    
-    
+
     public PhotoMetadata getMetadata() {
         return this.metadata;
     }
-    
+
     public String getMetadataAsJson() throws JsonProcessingException {
         return mapper.writeValueAsString(this.metadata);
     }
-    
-    public PhotoObject extractMetadata(URI uri, FileType fileType, Metadata metadata) throws ParseException, IOException {
+
+    public PhotoObject extractMetadata(URI uri, FileType fileType, Metadata metadata)
+            throws ParseException, IOException {
         logger.info("Extracting metadata from " + uri);
-        
+
         this.metadata.setPath(uri.toURL());
-        
+
         ExifSubIFDDirectory exfSubDir = metadata.getFirstDirectoryOfType(ExifSubIFDDirectory.class);
         if (exfSubDir != null) {
             ExifSubIFDDescriptor exfSubDesc = new ExifSubIFDDescriptor(exfSubDir);
-            
+
             logger.debug("taken Date: " + exfSubDesc.getDescription(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL));
-            
+
             SimpleDateFormat df = new SimpleDateFormat(PhotoMetadata.EXIF_DATE_PATTERN);
             df.setTimeZone(TimeZone.getTimeZone("UTC"));
             df.setLenient(false);
-            this.metadata
-                    .setTakenDate(df.parse(exfSubDesc.getDescription(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL)))
+            this.metadata.setTakenDate(df.parse(exfSubDesc.getDescription(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL)))
                     .setTimeZoneOffset(exfSubDesc.getDescription(ExifSubIFDDirectory.TAG_TIME_ZONE_OFFSET_TIFF_EP));
-            
+
             // Get width and height from TAG_EXIF_IMAGE_WIDTH and TAG_EXIF_IMAGE_HEIGHT
-            // If no values in EXIF: get from TAG_IMAGE_WIDTH and TAG_IMAGE_HEIGHT (in JpegDirectory or PngDirectory depending on file type)
+            // If no values in EXIF: get from TAG_IMAGE_WIDTH and TAG_IMAGE_HEIGHT (in JpegDirectory or
+            // PngDirectory depending on file type)
             Integer imgWidth = exfSubDir.getInteger(ExifSubIFDDirectory.TAG_EXIF_IMAGE_WIDTH);
             Integer imgHeight = exfSubDir.getInteger(ExifSubIFDDirectory.TAG_EXIF_IMAGE_HEIGHT);
             if (imgWidth == null || imgHeight == null) {
-                switch(fileType) {
+                switch (fileType) {
                 case Jpeg:
                     JpegDirectory jpegDir = metadata.getFirstDirectoryOfType(JpegDirectory.class);
                     imgWidth = jpegDir.getInteger(JpegDirectory.TAG_IMAGE_WIDTH);
@@ -122,101 +122,105 @@ public class PhotoObject {
                     break;
                 }
             }
-            
+
             this.metadata.setPixelRes(imgWidth + "x" + imgHeight);
         }
-        
+
         IptcDirectory iptcDir = metadata.getFirstDirectoryOfType(IptcDirectory.class);
         if (iptcDir != null) {
             IptcDescriptor iptcDesc = new IptcDescriptor(iptcDir);
-            this.metadata
-                    .setCountryCode(iptcDesc.getDescription(IptcDirectory.TAG_COUNTRY_OR_PRIMARY_LOCATION_CODE))
+            this.metadata.setCountryCode(iptcDesc.getDescription(IptcDirectory.TAG_COUNTRY_OR_PRIMARY_LOCATION_CODE))
                     .setCountry(iptcDesc.getCountryOrPrimaryLocationDescription())
-                    .setStateOrProvince(iptcDesc.getProvinceOrStateDescription())
-                    .setCity(iptcDesc.getCityDescription())
+                    .setStateOrProvince(iptcDesc.getProvinceOrStateDescription()).setCity(iptcDesc.getCityDescription())
                     .setSublocation(iptcDesc.getDescription(IptcDirectory.TAG_SUB_LOCATION))
-                    .setCaption(iptcDesc.getCaptionDescription())
-                    .setTitle(iptcDesc.getObjectNameDescription())
+                    .setCaption(iptcDesc.getCaptionDescription()).setTitle(iptcDesc.getObjectNameDescription())
                     .setHeadline(iptcDesc.getHeadlineDescription());
         }
-    
+
         GpsDirectory gpsDir = metadata.getFirstDirectoryOfType(GpsDirectory.class);
         if (gpsDir != null) {
-            this.metadata.setGpsLatLong(gpsDir.getGeoLocation() != null ? gpsDir.getGeoLocation().getLatitude() + "," + gpsDir.getGeoLocation().getLongitude() : null);
-            
+            this.metadata.setGpsLatLong(gpsDir.getGeoLocation() != null
+                    ? gpsDir.getGeoLocation().getLatitude() + "," + gpsDir.getGeoLocation().getLongitude()
+                    : null);
+
             GpsDescriptor gpsDesc = new GpsDescriptor(gpsDir);
             this.metadata.setGpsDatum(gpsDesc.getDescription(GpsDirectory.TAG_MAP_DATUM));
         }
-        
+
         FileSystemDirectory fsDir = metadata.getFirstDirectoryOfType(FileSystemDirectory.class);
         if (fsDir != null) {
             Long photoSize = fsDir.getLongObject(FileSystemDirectory.TAG_FILE_SIZE);
-            this.metadata.setSizeMb(photoSize != null ? photoSize/(1024.0f*1024.0f) : null);
-            
+            this.metadata.setSizeMb(photoSize != null ? photoSize / (1024.0f * 1024.0f) : null);
+
             FileSystemDescriptor fsDesc = new FileSystemDescriptor(fsDir);
             this.metadata.setFileName(fsDesc.getDescription(FileSystemDirectory.TAG_FILE_NAME));
         }
-        
+
         ExifIFD0Directory exfDir = metadata.getFirstDirectoryOfType(ExifIFD0Directory.class);
         if (exfDir != null) {
             ExifIFD0Descriptor exfDesc = new ExifIFD0Descriptor(exfDir);
-            this.metadata.setCamModelMake(exfDesc.getDescription(ExifIFD0Directory.TAG_MODEL) + " (" + exfDesc.getDescription(ExifIFD0Directory.TAG_MAKE) + ")");
+            this.metadata.setCamModelMake(exfDesc.getDescription(ExifIFD0Directory.TAG_MODEL) + " ("
+                    + exfDesc.getDescription(ExifIFD0Directory.TAG_MAKE) + ")");
         }
-        
+
         // Get thumbnail
         this.extractThumbnail(uri, fileType, metadata);
-        
+
         return this;
     }
-    
-    public PhotoObject extractThumbnail(URI uri, FileType fileType, Metadata metadata) throws MalformedURLException, IOException {
+
+    public PhotoObject extractThumbnail(URI uri, FileType fileType, Metadata metadata)
+            throws MalformedURLException, IOException {
         return this.extractThumbnail(uri, fileType, metadata, null);
     }
 
-    public PhotoObject extractThumbnail(URI uri, FileType fileType, Metadata metadata, String dumpPath) throws MalformedURLException, IOException {
+    public PhotoObject extractThumbnail(URI uri, FileType fileType, Metadata metadata, String dumpPath)
+            throws MalformedURLException, IOException {
         String filename = "";
-        
+
         if (dumpPath != null) {
             logger.info("Extracting thumbnail from " + uri);
-            
+
             FileSystemDirectory fsDir = metadata.getFirstDirectoryOfType(FileSystemDirectory.class);
             if (fsDir != null) {
                 FileSystemDescriptor fsDesc = new FileSystemDescriptor(fsDir);
                 filename = fsDesc.getDescription(FileSystemDirectory.TAG_FILE_NAME);
             }
         }
-        
+
         byte[] data = null;
         ExifThumbnailDirectory exfThumbDir = metadata.getFirstDirectoryOfType(ExifThumbnailDirectory.class);
-        if (exfThumbDir != null) data = (byte[]) exfThumbDir.getObject(Extract.TAG_THUMBNAIL_DATA);
-        	
-        if(data != null && data.length > 0) {
+        if (exfThumbDir != null)
+            data = (byte[]) exfThumbDir.getObject(Extract.TAG_THUMBNAIL_DATA);
+
+        if (data != null && data.length > 0) {
             // Base64-encoded thumbnail
             this.metadata.setThumbnail(Base64.getEncoder().encodeToString(data));
-            
+
             if (dumpPath != null) {
-                File outputFile = new File(dumpPath + File.separator + filename + "_thumbnail." + fileType.getCommonExtension());
+                File outputFile = new File(
+                        dumpPath + File.separator + filename + "_thumbnail." + fileType.getCommonExtension());
                 Files.write(outputFile.toPath(), data);
             }
         } else {
             logger.warn("No thumbnail found in metadata for " + uri + " -> generating thumbnail from photo");
-            
+
             try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-                // Create thumbnail from photo, resized to a maximum dimension of 160 x 160, maintaining the aspect ratio of the original image
-                Thumbnails.of(uri.toURL())
-                    .size(160, 160)
-                    .toOutputStream(baos);
-                
+                // Create thumbnail from photo, resized to a maximum dimension of 160 x 160, maintaining the aspect
+                // ratio of the original image
+                Thumbnails.of(uri.toURL()).size(160, 160).toOutputStream(baos);
+
                 // Base64-encoded thumbnail
                 this.metadata.setThumbnail(Base64.getEncoder().encodeToString(baos.toByteArray()));
-                
+
                 if (dumpPath != null) {
-                    Files.write(new File(dumpPath + File.separator + filename + "_thumbnail.jpg").toPath(), baos.toByteArray());
+                    Files.write(new File(dumpPath + File.separator + filename + "_thumbnail.jpg").toPath(),
+                            baos.toByteArray());
                 }
             }
         }
-        
+
         return this;
     }
-    
+
 }

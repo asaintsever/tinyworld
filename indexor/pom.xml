@@ -79,6 +79,24 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+  
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>net.revelc.code.formatter</groupId>
+          <artifactId>formatter-maven-plugin</artifactId>
+          <dependencies>
+            <dependency>
+              <groupId>asaintsever.tinyworld</groupId>
+              <artifactId>build-tools</artifactId>
+              <version>${project.version}</version>
+            </dependency>
+          </dependencies>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
 
   <profiles>
     <!-- To test via 'mvn package -Dmaven.test.skip=true -Dindexor.cmd.path=<ingestion path> -Dindexor.cmd.clearIndex=<true|false> -Dindexor.cmd.allowUpdate=<true|false> -P indexorCmd' -->

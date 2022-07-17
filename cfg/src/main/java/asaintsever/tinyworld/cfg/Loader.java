@@ -39,49 +39,52 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
 public class Loader {
     protected static Logger logger = LoggerFactory.getLogger(Loader.class);
-    
-    private static Path TINYWORLD_CONFIG_FILE_PATH = Paths.get(Env.TINYWORLD_CONFIG_HOME_PATH.toString(), Env.TINYWORLD_CONFIG_FILE);
+
+    private static Path TINYWORLD_CONFIG_FILE_PATH = Paths.get(Env.TINYWORLD_CONFIG_HOME_PATH.toString(),
+            Env.TINYWORLD_CONFIG_FILE);
     private static ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-    private static StringSubstitutor stringSubstitutor = new StringSubstitutor(StringLookupFactory.INSTANCE.environmentVariableStringLookup());
+    private static StringSubstitutor stringSubstitutor = new StringSubstitutor(
+            StringLookupFactory.INSTANCE.environmentVariableStringLookup());
 
     public static void setPathToConfigFile(String pathCfg) {
         TINYWORLD_CONFIG_FILE_PATH = Paths.get(pathCfg);
     }
-    
+
     public static Configuration getConfig() {
         return getConfig(true);
     }
-    
+
     public static Configuration getConfig(boolean writeDefaultCfgIfNotFound) {
         Configuration cfg = null;
         boolean internalCfg = false;
-        
+
         // Try reading config from external file first (in current user's home directory)
         try {
             if (logger.isDebugEnabled()) {
                 logger.debug("Try reading config from: " + TINYWORLD_CONFIG_FILE_PATH);
             }
-            
+
             cfg = unserialize(TINYWORLD_CONFIG_FILE_PATH);
         } catch (Exception e) {
-            logger.warn("Fail to load configuration from external file [" + e.getMessage() + "]. Default to internal configuration.");
+            logger.warn("Fail to load configuration from external file [" + e.getMessage()
+                    + "]. Default to internal configuration.");
             internalCfg = true;
         }
-        
+
         // As a fallback: get default config from file embedded in jar
         if (internalCfg) {
             try {
                 ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
                 URL resource = classLoader.getResource(Env.TINYWORLD_CONFIG_HOME + "/" + Env.TINYWORLD_CONFIG_FILE);
-                
+
                 if (logger.isDebugEnabled()) {
                     logger.debug("Loading internal configuration from: " + resource.toString());
                 }
-                
+
                 try (FileSystem fs = initFileSystem(resource.toURI())) {
                     Path cfgFile = Paths.get(resource.toURI());
                     cfg = unserialize(cfgFile);
-                    
+
                     if (writeDefaultCfgIfNotFound) {
                         // Write config in current user's home directory
                         try {
@@ -91,27 +94,30 @@ public class Loader {
                             logger.error("Fail to write default configuration", e);
                         }
                     }
-                } catch (UnsupportedOperationException e) {}
+                } catch (UnsupportedOperationException e) {
+                }
             } catch (Exception e) {
                 logger.error("Fail to load internal configuration", e);
             }
         }
-        
+
         return cfg;
     }
-    
-    private static Configuration unserialize(Path cfgFilePath) throws IOException {       
+
+    private static Configuration unserialize(Path cfgFilePath) throws IOException {
         String cfgFileContent = stringSubstitutor.replace(new String(Files.readAllBytes(cfgFilePath)));
         Configuration cfg = mapper.readValue(cfgFileContent, Configuration.class);
         return cfg;
     }
-    
-    // Create filesystem (see doc https://docs.oracle.com/javase/7/docs/technotes/guides/io/fsp/zipfilesystemprovider.html)
-    // See https://stackoverflow.com/questions/25032716/getting-filesystemnotfoundexception-from-zipfilesystemprovider-when-creating-a-p
+
+    // Create filesystem (see doc
+    // https://docs.oracle.com/javase/7/docs/technotes/guides/io/fsp/zipfilesystemprovider.html)
+    // See
+    // https://stackoverflow.com/questions/25032716/getting-filesystemnotfoundexception-from-zipfilesystemprovider-when-creating-a-p
     private static FileSystem initFileSystem(URI uri) throws IOException {
         try {
             return FileSystems.newFileSystem(uri, Collections.emptyMap());
-        }catch(IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             return FileSystems.getDefault();
         }
     }

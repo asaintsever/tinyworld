@@ -27,7 +27,7 @@ import org.junit.jupiter.api.Test;
 import org.junitpioneer.jupiter.SetEnvironmentVariable;
 
 public class LoaderTest {
-    
+
     @BeforeEach
     void teardown() {
         Loader.setPathToConfigFile("target/newconfig.yml");
@@ -37,47 +37,49 @@ public class LoaderTest {
     void loadDefaultInternalConfig() {
         Configuration cfg = Loader.getConfig(false);
         assertNotNull(cfg);
-        
+
         System.out.println(cfg.toString());
-        
+
         assertEquals(cfg.indexor.cluster.embedded.enabled, true);
         assertEquals(cfg.indexor.cluster.embedded.expose, false);
         assertEquals(cfg.indexor.cluster.address, "localhost");
         assertEquals(cfg.indexor.cluster.port, 9200);
         assertEquals(cfg.indexor.cluster.index, "photos");
     }
-    
+
     @Test
     // Override some defaults using env vars
-    // If error, see https://junit-pioneer.org/docs/environment-variables/#warnings-for-reflective-access
-    // Must add JVM args: --add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/java.util=ALL-UNNAMED
-    @SetEnvironmentVariable(key="TW_IDX_CLUSTER_EMBEDDED", value="false")
-    @SetEnvironmentVariable(key="TW_IDX_CLUSTER_EMBEDDED_EXPOSE", value="true")
-    @SetEnvironmentVariable(key="TW_IDX_CLUSTER_ADDRESS", value="127.0.0.1")
-    @SetEnvironmentVariable(key="TW_IDX_CLUSTER_PORT", value="9210")
-    @SetEnvironmentVariable(key="TW_IDX_CLUSTER_INDEX", value="test")
+    // If error, see
+    // https://junit-pioneer.org/docs/environment-variables/#warnings-for-reflective-access
+    // Must add JVM args: --add-opens java.base/java.lang=ALL-UNNAMED --add-opens
+    // java.base/java.util=ALL-UNNAMED
+    @SetEnvironmentVariable(key = "TW_IDX_CLUSTER_EMBEDDED", value = "false")
+    @SetEnvironmentVariable(key = "TW_IDX_CLUSTER_EMBEDDED_EXPOSE", value = "true")
+    @SetEnvironmentVariable(key = "TW_IDX_CLUSTER_ADDRESS", value = "127.0.0.1")
+    @SetEnvironmentVariable(key = "TW_IDX_CLUSTER_PORT", value = "9210")
+    @SetEnvironmentVariable(key = "TW_IDX_CLUSTER_INDEX", value = "test")
     void loadDefaultInternalConfigOverrideWithEnv() {
         Configuration cfg = Loader.getConfig(false);
         assertNotNull(cfg);
-        
+
         System.out.println(cfg.toString());
-        
+
         assertEquals(cfg.indexor.cluster.embedded.enabled, false);
         assertEquals(cfg.indexor.cluster.embedded.expose, true);
         assertEquals(cfg.indexor.cluster.address, "127.0.0.1");
         assertEquals(cfg.indexor.cluster.port, 9210);
         assertEquals(cfg.indexor.cluster.index, "test");
     }
-    
+
     @Test
     void loadCustomConfig() {
         Loader.setPathToConfigFile("src/test/resources/cfg_test1.yml");
-        
+
         Configuration cfg = Loader.getConfig(false);
         assertNotNull(cfg);
-        
+
         System.out.println(cfg.toString());
-        
+
         assertEquals(cfg.indexor.cluster.embedded.enabled, true);
         assertEquals(cfg.indexor.cluster.embedded.expose, true);
         assertEquals(cfg.indexor.cluster.address, "localhost");

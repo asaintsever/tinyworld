@@ -23,8 +23,7 @@ import java.util.EventListener;
 
 import asaintsever.tinyworld.indexor.Indexor;
 
-
 public interface IndexorListener extends EventListener {
 
-	void created(Indexor indexor);
+    void created(Indexor indexor);
 }

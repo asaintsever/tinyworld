@@ -50,30 +50,29 @@ import gov.nasa.worldwind.layers.Layer;
 import gov.nasa.worldwind.layers.LayerList;
 import gov.nasa.worldwind.layers.TiledImageLayer;
 
-
 /**
  *
  *
  */
 @SuppressWarnings("serial")
 public class LayersManagerPanel extends JPanel {
-    
+
     protected JPanel layerNamesPanel;
     protected List<LayerPanel> layerPanels = new ArrayList<LayerPanel>();
     protected Font plainFont;
     protected Font boldFont;
 
-    
     public LayersManagerPanel(final MainFrame frame) {
         super(new BorderLayout(10, 10));
 
         this.layerNamesPanel = new JPanel(new GridLayout(0, 1, 0, 5));
         this.layerNamesPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-        // Must put the layer grid in a container to prevent the scroll pane from stretching vertical spacing.
+        // Must put the layer grid in a container to prevent the scroll pane from stretching vertical
+        // spacing.
         JPanel dummyPanel = new JPanel(new BorderLayout());
         dummyPanel.add(this.layerNamesPanel, BorderLayout.NORTH);
-        
+
         // Add layers cache management button to panel
         JButton layersCache = new JButton(UIStrings.LAYERS_CACHE_MGMT_LABEL);
         layersCache.addActionListener((ActionEvent actionEvent) -> {
@@ -99,7 +98,7 @@ public class LayersManagerPanel extends JPanel {
                 layersCacheDialog.setVisible(true);
             });
         });
-        
+
         dummyPanel.add(layersCache, BorderLayout.SOUTH);
 
         // Put the layers panel in a scroll pane.
@@ -110,12 +109,13 @@ public class LayersManagerPanel extends JPanel {
 
         // Add the scroll pane to a titled panel that will resize with the main window.
         JPanel titlePanel = new JPanel(new GridLayout(0, 1, 0, 10));
-        titlePanel.setBorder(new CompoundBorder(BorderFactory.createEmptyBorder(9, 9, 9, 9), new TitledBorder(UIStrings.LAYERS_LABEL)));
+        titlePanel.setBorder(new CompoundBorder(BorderFactory.createEmptyBorder(9, 9, 9, 9),
+                new TitledBorder(UIStrings.LAYERS_LABEL)));
         titlePanel.setToolTipText(UIStrings.LAYERS_TOOLTIP);
         titlePanel.add(scrollPane);
         titlePanel.setPreferredSize(new Dimension(200, 500));
         this.add(titlePanel, BorderLayout.CENTER);
-        
+
         this.fill(frame.getWwd());
 
         this.plainFont = this.getFont().deriveFont(Font.PLAIN);
@@ -126,7 +126,8 @@ public class LayersManagerPanel extends JPanel {
             updateLayerActivity(frame.getWwd());
         });
 
-        // Add a property change listener that causes this layer panel to be updated whenever the layer list changes.
+        // Add a property change listener that causes this layer panel to be updated whenever the layer list
+        // changes.
         frame.getWwd().getModel().getLayers().addPropertyChangeListener((PropertyChangeEvent propertyChangeEvent) -> {
             if (propertyChangeEvent.getPropertyName().equals(AVKey.LAYERS))
                 SwingUtilities.invokeLater(() -> {
@@ -164,7 +165,8 @@ public class LayersManagerPanel extends JPanel {
     }
 
     protected boolean isUpToDate(WorldWindow wwd) {
-        // Determines whether this layer manager's layer list is consistent with the specified WorldWindow's. Knowing
+        // Determines whether this layer manager's layer list is consistent with the specified
+        // WorldWindow's. Knowing
         // this prevents redundant updates.
 
         LayerList layerList = wwd.getModel().getLayers();
@@ -181,15 +183,18 @@ public class LayersManagerPanel extends JPanel {
     }
 
     /**
-     * Loops through this layer panel's layer/checkbox list and updates the checkbox font to indicate whether the
-     * corresponding layer was just rendered. This method is called by a rendering listener -- see comment below.
+     * Loops through this layer panel's layer/checkbox list and updates the checkbox font to indicate
+     * whether the corresponding layer was just rendered. This method is called by a rendering listener
+     * -- see comment below.
      *
      * @param wwd the WorldWindow.
      */
     protected void updateLayerActivity(WorldWindow wwd) {
         for (LayerPanel layerPanel : this.layerPanels) {
-            // The frame timestamp from the layer indicates the last frame in which it rendered something. If that
-            // timestamp matches the current timestamp of the scene controller, then the layer rendered something
+            // The frame timestamp from the layer indicates the last frame in which it rendered something. If
+            // that
+            // timestamp matches the current timestamp of the scene controller, then the layer rendered
+            // something
             // during the most recent frame. Note that this frame timestamp protocol is only in place by default
             // for TiledImageLayer and its subclasses. Applications could, however, implement it for the layers
             // they design.
@@ -198,19 +203,16 @@ public class LayersManagerPanel extends JPanel {
             Long frameTimeStamp = (Long) wwd.getSceneController().getValue(AVKey.FRAME_TIMESTAMP);
 
             if (layerTimeStamp != null && frameTimeStamp != null
-                && layerTimeStamp.longValue() == frameTimeStamp.longValue()) {
+                    && layerTimeStamp.longValue() == frameTimeStamp.longValue()) {
                 // Set the font to bold if the layer was just rendered.
                 layerPanel.setLayerNameFont(this.boldFont);
-            }
-            else if (layerPanel.getLayer() instanceof TiledImageLayer) {
+            } else if (layerPanel.getLayer() instanceof TiledImageLayer) {
                 // Set the font to plain if the layer was not just rendered.
                 layerPanel.setLayerNameFont(this.plainFont);
-            }
-            else if (layerPanel.getLayer().isEnabled()) {
+            } else if (layerPanel.getLayer().isEnabled()) {
                 // Set enabled layer types other than TiledImageLayer to bold.
                 layerPanel.setLayerNameFont(this.boldFont);
-            }
-            else if (!layerPanel.getLayer().isEnabled()) {
+            } else if (!layerPanel.getLayer().isEnabled()) {
                 // Set disabled layer types other than TiledImageLayer to plain.
                 layerPanel.setLayerNameFont(this.plainFont);
             }

@@ -67,6 +67,22 @@
       </resource>
     </resources>
     
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>net.revelc.code.formatter</groupId>
+          <artifactId>formatter-maven-plugin</artifactId>
+          <dependencies>
+            <dependency>
+              <groupId>asaintsever.tinyworld</groupId>
+              <artifactId>build-tools</artifactId>
+              <version>${project.version}</version>
+            </dependency>
+          </dependencies>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+    
     <plugins>
       <!-- run mvn validate once to copy provided WWJ jar into local M2 repository -->
       <plugin>

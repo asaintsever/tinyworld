@@ -23,9 +23,9 @@ import java.util.Collections;
 import java.util.List;
 
 public class IndexPage<T> {
-    
+
     @SuppressWarnings("rawtypes")
-	public static final IndexPage EMPTY = new IndexPage<>(Collections.emptyList(), null, 0, 0, 0);
+    public static final IndexPage EMPTY = new IndexPage<>(Collections.emptyList(), null, 0, 0, 0);
 
     private final List<T> documents;
     private final String query;
@@ -48,7 +48,7 @@ public class IndexPage<T> {
     public String query() {
         return this.query;
     }
-    
+
     public long total() {
         return this.total;
     }

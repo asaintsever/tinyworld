@@ -51,34 +51,31 @@ import com.fasterxml.jackson.datatype.jsonp.JSONPModule;
 
 import asaintsever.tinyworld.indexor.opensearch.jackson.JacksonJsonpMapper; // Cherry pick https://github.com/opensearch-project/opensearch-java/pull/61
 
-
 public class ClusterClient implements Closeable {
-    
+
     protected static Logger logger = LoggerFactory.getLogger(ClusterClient.class);
-    
+
     private RestClient restClient;
     private RestClientBuilder restClientBuilder;
     private OpenSearchClient osClient;
     private ObjectMapper mapper;
-    
 
     public ClusterClient(String host, int port) {
         this.restClientBuilder = RestClient.builder(new HttpHost(host, port));
         this.restClient = this.restClientBuilder.build();
-        
-        // See https://github.com/opensearch-project/opensearch-java/issues/60 and https://github.com/opensearch-project/opensearch-java/pull/61
-        this.mapper = JsonMapper.builder()
-                                .addModule(new JSONPModule())
-                                .build();
+
+        // See https://github.com/opensearch-project/opensearch-java/issues/60 and
+        // https://github.com/opensearch-project/opensearch-java/pull/61
+        this.mapper = JsonMapper.builder().addModule(new JSONPModule()).build();
         this.mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-        
+
         JsonFactory jsonFactory = new MappingJsonFactory(this.mapper);
-        
-        Transport transport = new RestClientTransport(this.restClient, new JacksonJsonpMapper(this.mapper, jsonFactory));
-        
+
+        Transport transport = new RestClientTransport(this.restClient,
+                new JacksonJsonpMapper(this.mapper, jsonFactory));
+
         this.osClient = new OpenSearchClient(transport);
     }
-    
 
     public Boolean isConnected() {
         if (this.restClient != null && this.restClient.isRunning() && this.osClient != null) {
@@ -89,53 +86,53 @@ public class ClusterClient implements Closeable {
                 logger.warn("Fail to ping cluster: " + e.getMessage());
             }
         }
-        
+
         return false;
     }
-    
+
     public OpenSearchClient getClient() {
         return this.osClient;
     }
-    
+
     public RestClientBuilder getClientBuilder() {
         return this.restClientBuilder;
     }
-    
+
     public ObjectMapper getMapper() {
         return this.mapper;
     }
-    
 
     public Boolean createIndex(String index, String mapping) throws IOException {
         JsonValue mappingJson = null;
-        
-        if(mapping != null && !mapping.isEmpty()) {
+
+        if (mapping != null && !mapping.isEmpty()) {
             StringReader mappingStr = new StringReader(mapping);
-            try(JsonReader jsonreader = Json.createReader(mappingStr)) {
+            try (JsonReader jsonreader = Json.createReader(mappingStr)) {
                 mappingJson = jsonreader.readValue();
             }
         }
-        
+
         CreateRequest createIndexRequest = new CreateRequest.Builder().index(index).mappings(mappingJson).build();
         CreateResponse createIndexResponse = this.osClient.indices().create(createIndexRequest);
         return createIndexResponse.acknowledged();
     }
-    
-    public Boolean isIndexExists(String index) throws IOException {       
+
+    public Boolean isIndexExists(String index) throws IOException {
         ExistsRequest existsIndexRequest = new ExistsRequest.Builder().addIndex(index).build();
         BooleanResponse boolResponse = this.osClient.indices().exists(existsIndexRequest);
         return boolResponse.value();
     }
-    
-    public Boolean deleteIndex(String index) throws IOException {       
+
+    public Boolean deleteIndex(String index) throws IOException {
         DeleteRequest deleteRequest = new DeleteRequest.Builder().index(index).build();
         DeleteResponse deleteResponse = this.osClient.indices().delete(deleteRequest);
         return deleteResponse.acknowledged();
     }
-    
+
     @Override
     public void close() throws IOException {
-        if (this.restClient != null) this.restClient.close();
+        if (this.restClient != null)
+            this.restClient.close();
         this.restClient = null;
         this.osClient = null;
     }

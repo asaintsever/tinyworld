@@ -34,57 +34,60 @@ import gov.nasa.worldwind.awt.WorldWindowGLCanvas;
 @SuppressWarnings("serial")
 public class GlobeGLCanvas extends WorldWindowGLCanvas {
 
-	@Override
-	public int getWidth() {
-		return (int)(super.getWidth() * this.getPixelScaleX());
-	}
-	
-	@Override
-	public int getHeight() {
-		return (int)(super.getHeight() * this.getPixelScaleY());
-	}
-	
-	@Override
-	protected void processMouseEvent(MouseEvent e) {
-		int x = (int) (e.getPoint().x * this.getPixelScaleX());
-		int y = (int) (e.getPoint().y * this.getPixelScaleY());
-		
-		MouseEvent scaledEvent = new MouseEvent((Component)e.getSource(), e.getID(), e.getWhen(), e.getModifiersEx(), 
-										x, y, e.getXOnScreen(), e.getYOnScreen(), e.getClickCount(), e.isPopupTrigger(),e.getButton());
-		super.processMouseEvent(scaledEvent);
-	}
-	
-	@Override
-	protected void processMouseMotionEvent(MouseEvent e) {
-		int x = (int) (e.getPoint().x * this.getPixelScaleX());
-		int y = (int) (e.getPoint().y * this.getPixelScaleY());
-		
-		MouseEvent scaledEvent = new MouseEvent((Component) e.getSource(), e.getID(), e.getWhen(), e.getModifiersEx(),
-										x, y, e.getXOnScreen(), e.getYOnScreen(), e.getClickCount(), e.isPopupTrigger(), e.getButton());
-		super.processMouseMotionEvent(scaledEvent);
-	}
-	
-	@Override
-	protected void processMouseWheelEvent(MouseWheelEvent e) {
-		int x = (int) (e.getPoint().x * this.getPixelScaleX());
-		int y = (int) (e.getPoint().y * this.getPixelScaleY());
-		
-		MouseWheelEvent scaledEvent = new MouseWheelEvent((Component) e.getSource(), e.getID(), e.getWhen(), e.getModifiersEx(), 
-										x, y, e.getXOnScreen(), e.getYOnScreen(), e.getClickCount(), e.isPopupTrigger(), e.getScrollType(),e.getScrollAmount(),e.getWheelRotation());
-		super.processMouseWheelEvent(scaledEvent);
-	}
-	
-	protected double getPixelScaleX() {
-		// Must get scale of *current* screen device, not default one as our app may be displayed on another screen (on multi-screens config)
-		Graphics2D g2d = (Graphics2D)getGraphics();
-		AffineTransform globalTransform = g2d.getTransform();
-		return globalTransform.getScaleX();
-	}
-	
-	protected double getPixelScaleY() {
-		// Must get scale of *current* screen device, not default one as our app may be displayed on another screen (on multi-screens config)
-		Graphics2D g2d = (Graphics2D)getGraphics();
-		AffineTransform globalTransform = g2d.getTransform();
-		return globalTransform.getScaleY();
-	}
+    @Override
+    public int getWidth() {
+        return (int) (super.getWidth() * this.getPixelScaleX());
+    }
+
+    @Override
+    public int getHeight() {
+        return (int) (super.getHeight() * this.getPixelScaleY());
+    }
+
+    @Override
+    protected void processMouseEvent(MouseEvent e) {
+        int x = (int) (e.getPoint().x * this.getPixelScaleX());
+        int y = (int) (e.getPoint().y * this.getPixelScaleY());
+
+        MouseEvent scaledEvent = new MouseEvent((Component) e.getSource(), e.getID(), e.getWhen(), e.getModifiersEx(),
+                x, y, e.getXOnScreen(), e.getYOnScreen(), e.getClickCount(), e.isPopupTrigger(), e.getButton());
+        super.processMouseEvent(scaledEvent);
+    }
+
+    @Override
+    protected void processMouseMotionEvent(MouseEvent e) {
+        int x = (int) (e.getPoint().x * this.getPixelScaleX());
+        int y = (int) (e.getPoint().y * this.getPixelScaleY());
+
+        MouseEvent scaledEvent = new MouseEvent((Component) e.getSource(), e.getID(), e.getWhen(), e.getModifiersEx(),
+                x, y, e.getXOnScreen(), e.getYOnScreen(), e.getClickCount(), e.isPopupTrigger(), e.getButton());
+        super.processMouseMotionEvent(scaledEvent);
+    }
+
+    @Override
+    protected void processMouseWheelEvent(MouseWheelEvent e) {
+        int x = (int) (e.getPoint().x * this.getPixelScaleX());
+        int y = (int) (e.getPoint().y * this.getPixelScaleY());
+
+        MouseWheelEvent scaledEvent = new MouseWheelEvent((Component) e.getSource(), e.getID(), e.getWhen(),
+                e.getModifiersEx(), x, y, e.getXOnScreen(), e.getYOnScreen(), e.getClickCount(), e.isPopupTrigger(),
+                e.getScrollType(), e.getScrollAmount(), e.getWheelRotation());
+        super.processMouseWheelEvent(scaledEvent);
+    }
+
+    protected double getPixelScaleX() {
+        // Must get scale of *current* screen device, not default one as our app may be displayed on another
+        // screen (on multi-screens config)
+        Graphics2D g2d = (Graphics2D) getGraphics();
+        AffineTransform globalTransform = g2d.getTransform();
+        return globalTransform.getScaleX();
+    }
+
+    protected double getPixelScaleY() {
+        // Must get scale of *current* screen device, not default one as our app may be displayed on another
+        // screen (on multi-screens config)
+        Graphics2D g2d = (Graphics2D) getGraphics();
+        AffineTransform globalTransform = g2d.getTransform();
+        return globalTransform.getScaleY();
+    }
 }

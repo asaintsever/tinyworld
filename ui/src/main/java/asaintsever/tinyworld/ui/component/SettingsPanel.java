@@ -48,61 +48,59 @@ import gov.nasa.worldwind.layers.Layer;
 import gov.nasa.worldwind.util.Logging;
 import gov.nasa.worldwindx.examples.FlatWorldPanel;
 
-
 /**
  *
  *
  */
 @SuppressWarnings("serial")
 public class SettingsPanel extends JPanel {
-    
+
     protected static Logger logger = LoggerFactory.getLogger(SettingsPanel.class);
-    
+
     protected TinyWorldMenuLayer twMenuLayer;
     protected JCheckBox twMenuTooltipSwitch;
-    
 
     public SettingsPanel(final MainFrame frame) {
         super(new BorderLayout(10, 10));
-        
+
         if (frame == null || frame.getWwd() == null) {
             String msg = Logging.getMessage("nullValue.WorldWindow");
             logger.error(msg);
             throw new IllegalArgumentException(msg);
         }
-        
+
         // Find TinyWorldMenuLayer layer and keep reference to it
         for (Layer layer : frame.getWwd().getModel().getLayers()) {
             if (layer instanceof TinyWorldMenuLayer) {
                 this.twMenuLayer = (TinyWorldMenuLayer) layer;
             }
         }
-        
+
         if (this.twMenuLayer == null) {
             String msg = "TinyWorldMenuLayer layer not found. Make sure it has been set before SettingsPanel creation.";
             logger.error(msg);
             throw new NullPointerException(msg);
         }
-        
+
         JPanel layersPanel = new JPanel();
         layersPanel.setLayout(new BorderLayout(10, 10));
         layersPanel.add(this.createGlobeSettingsPanel(frame.getWwd()), BorderLayout.NORTH);
         layersPanel.add(new LayersManagerPanel(frame), BorderLayout.CENTER);
-        
+
         this.add(this.createTWMenuPanel(frame.getWwd()), BorderLayout.NORTH);
         this.add(layersPanel, BorderLayout.CENTER);
     }
-    
-    
+
     public boolean isMenuTooltipEnabled() {
         return this.twMenuTooltipSwitch != null ? this.twMenuTooltipSwitch.isSelected() : false;
     }
-    
+
     protected JPanel createTWMenuPanel(final WorldWindow wwd) {
         JPanel twMenuPanel = new JPanel();
         twMenuPanel.setLayout(new BoxLayout(twMenuPanel, BoxLayout.Y_AXIS));
-        twMenuPanel.setBorder(new CompoundBorder(BorderFactory.createEmptyBorder(9, 9, 9, 9), new TitledBorder(UIStrings.MENU_LABEL)));
-        
+        twMenuPanel.setBorder(new CompoundBorder(BorderFactory.createEmptyBorder(9, 9, 9, 9),
+                new TitledBorder(UIStrings.MENU_LABEL)));
+
         // Radio buttons - layout
         JPanel layoutPanel = new JPanel(new GridLayout(0, 3, 0, 0));
         layoutPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
@@ -122,7 +120,7 @@ public class SettingsPanel extends JPanel {
             wwd.redraw();
         });
         layoutPanel.add(button);
-        
+
         // Tooltip on/off
         JPanel tooltipPanel = new JPanel(new GridLayout(0, 1, 0, 0));
         tooltipPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
@@ -130,7 +128,7 @@ public class SettingsPanel extends JPanel {
         this.twMenuTooltipSwitch.addActionListener((ActionEvent actionEvent) -> {
             this.twMenuLayer.setToolTips(this.twMenuTooltipSwitch.isSelected());
         });
-        this.twMenuTooltipSwitch.setSelected(true);  // on by default
+        this.twMenuTooltipSwitch.setSelected(true); // on by default
         tooltipPanel.add(this.twMenuTooltipSwitch);
 
         // Scale slider
@@ -143,14 +141,14 @@ public class SettingsPanel extends JPanel {
             wwd.redraw();
         });
         scalePanel.add(scaleSlider);
-        
+
         twMenuPanel.add(layoutPanel);
         twMenuPanel.add(tooltipPanel);
         twMenuPanel.add(scalePanel);
-        
+
         return twMenuPanel;
     }
-    
+
     protected JPanel createGlobeSettingsPanel(final WorldWindow wwd) {
         FlatWorldPanel flatWorldPanel = new FlatWorldPanel(wwd);
 
@@ -167,9 +165,9 @@ public class SettingsPanel extends JPanel {
             if (!offline)
                 wwd.redraw();
         });
-        
+
         onlineGlobeSwitch.setSelected(true); // WW starts out online
-        
+
         flatWorldPanel.add(onlineGlobeSwitch);
         return flatWorldPanel;
     }

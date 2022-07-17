@@ -30,7 +30,6 @@ import javax.swing.JPanel;
 import gov.nasa.worldwind.WorldWindow;
 import gov.nasa.worldwind.layers.Layer;
 
-
 /**
  *
  *
@@ -40,7 +39,6 @@ public class LayerPanel extends JPanel {
 
     protected Layer layer; // the layer represented by this instance
     protected JCheckBox checkBox; // the checkbox of this instance
-
 
     public LayerPanel(final WorldWindow wwd, final Layer layer) {
         super(new BorderLayout(10, 10));
@@ -53,7 +51,6 @@ public class LayerPanel extends JPanel {
         this.add(this.checkBox, BorderLayout.CENTER);
     }
 
-    
     public Layer getLayer() {
         return this.layer;
     }
@@ -65,7 +62,6 @@ public class LayerPanel extends JPanel {
     public void setLayerNameFont(Font font) {
         this.checkBox.setFont(font);
     }
-
 
     protected static class SelectLayerAction extends AbstractAction {
         // This action handles layer selection and de-selection.
