@@ -40,7 +40,6 @@ import gov.nasa.worldwindx.examples.util.HighlightController;
 import gov.nasa.worldwindx.examples.util.HotSpotController;
 import gov.nasa.worldwindx.examples.util.ToolTipController;
 
-
 /**
  *
  *
@@ -54,17 +53,16 @@ public class GlobePanel extends JPanel {
     protected HighlightController highlightController;
     protected HotSpotController hotSpotController;
 
-    
     public GlobePanel(Configuration cfg, Dimension canvasSize) {
         super(new BorderLayout());
 
         this.wwd = new GlobeGLCanvas();
         ((Component) this.wwd).setPreferredSize(canvasSize);
-        
+
         // To work around a Swing bug the WorldWindow must be placed within a JPanel and
         // that JPanel's minimum preferred size must be set to zero (both width and height)
         this.setMinimumSize(new Dimension(0, 0));
-        
+
         // Create the default model as described in the current worldwind properties.
         Model m = (Model) WorldWind.createConfigurationComponent(AVKey.MODEL_CLASS_NAME);
         this.wwd.setModel(m);
@@ -77,7 +75,7 @@ public class GlobePanel extends JPanel {
         this.statusBar = new StatusBar(cfg);
         this.add(statusBar, BorderLayout.PAGE_END);
         this.statusBar.setEventSource(this.wwd);
-        
+
         // Eliminate elevations by simply setting the globe's elevation model to ZeroElevationModel.
         // Elevation info have also been removed from status bar (see custom StatusBar class)
         this.wwd.getModel().getGlobe().setElevationModel(new ZeroElevationModel());
@@ -87,10 +85,9 @@ public class GlobePanel extends JPanel {
         this.highlightController = new HighlightController(this.wwd, SelectEvent.ROLLOVER);
         this.hotSpotController = new HotSpotController(this.wwd);
     }
-    
-    
+
     public GlobeGLCanvas getGLCanvas() {
-    	return (GlobeGLCanvas)this.wwd;
+        return (GlobeGLCanvas) this.wwd;
     }
 
     public WorldWindow getWwd() {
@@ -100,11 +97,11 @@ public class GlobePanel extends JPanel {
     public StatusBar getStatusBar() {
         return this.statusBar;
     }
-    
+
     public LayerList getLayers() {
-    	return this.wwd.getModel().getLayers();
+        return this.wwd.getModel().getLayers();
     }
-    
+
     public void addLayer(Layer layer) {
         // Insert the layer at the end of the layers' list
         this.getLayers().add(layer);
@@ -114,14 +111,14 @@ public class GlobePanel extends JPanel {
         // Insert the layer into the layer list just before the target layer.
         int targetPosition = 0;
         LayerList layers = this.getLayers();
-        
+
         for (Layer l : layers) {
             if (l.getName().contains(targetName)) {
                 targetPosition = layers.indexOf(l);
                 break;
             }
         }
-        
+
         layers.add(targetPosition, layer);
     }
 }

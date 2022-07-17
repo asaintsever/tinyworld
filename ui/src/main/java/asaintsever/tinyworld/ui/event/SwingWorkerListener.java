@@ -21,8 +21,7 @@ package asaintsever.tinyworld.ui.event;
 
 import java.util.EventListener;
 
-
 public interface SwingWorkerListener extends EventListener {
 
-	void cancelWorkers();
+    void cancelWorkers();
 }

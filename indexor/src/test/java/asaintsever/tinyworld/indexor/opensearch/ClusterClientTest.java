@@ -48,13 +48,12 @@ import asaintsever.tinyworld.metadata.extractor.CustomDateSerializer;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
-
 public class ClusterClientTest {
-    
+
     private static Cluster cluster;
     private static ClusterClient client;
     private static long seed;
-    
+
     @ToString
     @EqualsAndHashCode
     static class DocObject {
@@ -62,182 +61,157 @@ public class ClusterClientTest {
         public String attr2;
         public Float attr3;
         public URL attr4;
-        
+
         @JsonSerialize(using = CustomDateSerializer.class)
         public Date creationDate;
-        
+
         public String latlong;
-    }   
-    
+    }
+
     @SuppressWarnings("resource")
-	@BeforeAll
+    @BeforeAll
     public static void setup() throws ClusterNodeException {
         // Create single node cluster on special port
         cluster = new Cluster().setHttpPort(9299).setPathHome("target/index").create(true);
-        
+
         // Create client, connect on local cluster
         client = new ClusterClient("localhost", 9299);
     }
-    
+
     @AfterAll
     public static void teardown() throws IOException {
         client.close();
         cluster.close();
     }
-    
+
     @BeforeEach
     void setupTest() {
         // Get new random seed to init our EasyRandom instance
         seed = new Random().nextLong();
     }
-    
+
     @AfterEach
     void teardownTest() throws IOException {
         client.deleteIndex("*");
     }
-    
-    
+
     @Test
     void createThenDeleteIndex() throws IOException {
         assertTrue(client.createIndex("test.index", null));
         assertTrue(client.isIndexExists("test.index"));
-        
+
         assertTrue(client.deleteIndex("test.index"));
         assertFalse(client.isIndexExists("test.index"));
     }
-    
+
     @Test
     void createIndexTwice() throws IOException {
         assertTrue(client.createIndex("test.index", null));
         assertTrue(client.isIndexExists("test.index"));
-        
-        assertEquals(
-                assertThrows(ResponseException.class, () -> {
-                    client.createIndex("test.index", null);
-                })
-                .getResponse().getStatusLine().getStatusCode(), 
-                RestStatus.BAD_REQUEST.getStatus());
+
+        assertEquals(assertThrows(ResponseException.class, () -> {
+            client.createIndex("test.index", null);
+        }).getResponse().getStatusLine().getStatusCode(), RestStatus.BAD_REQUEST.getStatus());
     }
-    
+
     @Test
-    void deleteUnknownIndex() {       
-        assertEquals(
-                assertThrows(ResponseException.class, () -> {
-                    client.deleteIndex("test2");
-                })
-                .getResponse().getStatusLine().getStatusCode(), 
-                RestStatus.NOT_FOUND.getStatus());
+    void deleteUnknownIndex() {
+        assertEquals(assertThrows(ResponseException.class, () -> {
+            client.deleteIndex("test2");
+        }).getResponse().getStatusLine().getStatusCode(), RestStatus.NOT_FOUND.getStatus());
     }
-    
+
     @Test
     void insertCountAndGetDocument() throws IOException, InterruptedException {
         assertFalse(client.isIndexExists("test.index"));
-                       
-        try(Document<DocObject> doc = new Document<>(client)) {
+
+        try (Document<DocObject> doc = new Document<>(client)) {
             doc.setIndex("test.index").getMapper().setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
-            
+
             // No mapping provided: creationDate and latlong fields will be stored using text type
             String id = doc.add(new EasyRandom(new EasyRandomParameters().seed(seed)).nextObject(DocObject.class));
             assertTrue((id != null) && !id.isEmpty());
-            
+
             // Index is created automatically if not exist when inserting documents
             assertTrue(client.isIndexExists("test.index"));
-            
+
             // Pause before asking # of doc in index
             Thread.sleep(2000);
             assertEquals(doc.count(), 1);
-            
+
             DocObject docObj = doc.get(id, DocObject.class);
             System.out.println("Document=" + docObj.toString());
         }
     }
-    
+
     @Test
     void insertDocumentWithSameId() throws IOException, InterruptedException {
         assertFalse(client.isIndexExists("test.index"));
-        
-        try(Document<DocObject> doc = new Document<>(client)) {
+
+        try (Document<DocObject> doc = new Document<>(client)) {
             doc.setIndex("test.index").getMapper().setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
-            
+
             EasyRandomParameters parameters = new EasyRandomParameters().seed(seed);
             EasyRandom easyRandom = new EasyRandom(parameters);
-            
+
             final String id = doc.add(easyRandom.nextObject(DocObject.class));
             assertTrue((id != null) && !id.isEmpty());
-            
+
             // Index is created automatically if not exist when inserting documents
             assertTrue(client.isIndexExists("test.index"));
-            
+
             DocObject docObj = doc.get(id, DocObject.class);
             System.out.println("Document[id:" + id + "]=" + docObj.toString());
-            
+
             // Pause before adding another doc
             Thread.sleep(2000);
-            
+
             // Try to update previously inserted doc => use same id and set boolean flag to 'true'
             String id2 = doc.add(id, easyRandom.nextObject(DocObject.class), true);
             assertTrue((id2 != null) && !id2.isEmpty() && id2.equals(id));
-            
+
             DocObject docObj2 = doc.get(id2, DocObject.class);
             System.out.println("Document[id:" + id2 + "]=" + docObj2.toString());
-            
+
             Thread.sleep(2000);
             // We still should have 1 doc as we did an update
             assertEquals(doc.count(), 1);
-            
+
             // Pause before adding another doc
             Thread.sleep(2000);
-            
-            // Try to add another doc still using same Id but this time with boolean flag to 'false' => must fail with error
+
+            // Try to add another doc still using same Id but this time with boolean flag to 'false' => must
+            // fail with error
             assertThrows(DocumentAlreadyExistsException.class, () -> {
                 doc.add(id, easyRandom.nextObject(DocObject.class), false);
             });
         }
     }
-    
+
     @Test
     void insertThenSearchDocuments() throws IOException, InterruptedException {
         assertFalse(client.isIndexExists("test.index"));
-        
+
         // Set explicit mapping so that dates and coordinates are handled the way we want
-        String mapping = ""
-                + "{\n"
-                + " \"properties\": {\n"
-                + "   \"attr1\": {\n"
-                + "     \"type\": \"text\"\n"
-                + "   },\n"
-                + "   \"attr2\": {\n"
-                + "     \"type\": \"text\"\n"
-                + "   },\n"
-                + "   \"attr3\": {\n"
-                + "     \"type\": \"float\"\n"
-                + "   },\n"
-                + "   \"attr4\": {\n"
-                + "     \"type\": \"text\"\n"
-                + "   },\n"
-                + "   \"creationDate\": {\n"
-                + "     \"type\": \"date\",\n"
-                + "     \"format\": \"yyyy-MM-dd HH:mm:ss\"\n"
-                + "   },\n"
-                + "   \"latlong\": {\n"
-                + "     \"type\": \"geo_point\"\n"
-                + "   }\n"
-                + " }\n"
-                + "}";
-        
+        String mapping = "" + "{\n" + " \"properties\": {\n" + "   \"attr1\": {\n" + "     \"type\": \"text\"\n"
+                + "   },\n" + "   \"attr2\": {\n" + "     \"type\": \"text\"\n" + "   },\n" + "   \"attr3\": {\n"
+                + "     \"type\": \"float\"\n" + "   },\n" + "   \"attr4\": {\n" + "     \"type\": \"text\"\n"
+                + "   },\n" + "   \"creationDate\": {\n" + "     \"type\": \"date\",\n"
+                + "     \"format\": \"yyyy-MM-dd HH:mm:ss\"\n" + "   },\n" + "   \"latlong\": {\n"
+                + "     \"type\": \"geo_point\"\n" + "   }\n" + " }\n" + "}";
+
         assertTrue(client.createIndex("test.index", mapping));
-        
-        try(Document<DocObject> doc = new Document<>(client)) {
+
+        try (Document<DocObject> doc = new Document<>(client)) {
             // Set date format for your Document mapper to match defined format for DocObject
             doc.setIndex("test.index").getMapper().setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
-            
-            EasyRandomParameters parameters = new EasyRandomParameters()
-                                                    .seed(seed)
-                                                    .dateRange(LocalDate.of(2021, 12, 1), LocalDate.of(2022, 1, 10))
-                                                    .randomize(FieldPredicates.named("latlong"), new LatLongGenerator());
+
+            EasyRandomParameters parameters = new EasyRandomParameters().seed(seed)
+                    .dateRange(LocalDate.of(2021, 12, 1), LocalDate.of(2022, 1, 10))
+                    .randomize(FieldPredicates.named("latlong"), new LatLongGenerator());
             EasyRandom easyRandom = new EasyRandom(parameters);
-            
-            for(int i=0;i<10;i++) {
+
+            for (int i = 0; i < 10; i++) {
                 assertTrue(() -> {
                     try {
                         // Insert documents
@@ -248,54 +222,42 @@ public class ClusterClientTest {
                     }
                 });
             }
-            
+
             // Pause before asking # of doc in index
             Thread.sleep(2000);
             assertEquals(doc.count(), 10);
-            
+
             // Search all documents
-            IndexPage<DocObject> docObjList = doc.search("{\"simple_query_string\": {\"query\": \"*\"}}", DocObject.class);
-            System.out.println("Total=" + docObjList.total() + ", Size=" + docObjList.size() + ", Result=" + docObjList.get().toString());
-            
+            IndexPage<DocObject> docObjList = doc.search("{\"simple_query_string\": {\"query\": \"*\"}}",
+                    DocObject.class);
+            System.out.println("Total=" + docObjList.total() + ", Size=" + docObjList.size() + ", Result="
+                    + docObjList.get().toString());
+
             // Search for documents with creationDate date before 2022
-            String queryDSL = ""
-                    + "{\n"
-                    + " \"range\": {\n"
-                    + "   \"creationDate\": {\n"
-                    + "      \"lt\": \"2022-01-01\",\n"
-                    + "      \"format\": \"yyyy-MM-dd\"\n"
-                    + "   }\n"
-                    + " }\n"
+            String queryDSL = "" + "{\n" + " \"range\": {\n" + "   \"creationDate\": {\n"
+                    + "      \"lt\": \"2022-01-01\",\n" + "      \"format\": \"yyyy-MM-dd\"\n" + "   }\n" + " }\n"
                     + "}";
-            
+
             docObjList = doc.search(queryDSL, 0, 5, DocObject.class);
-            System.out.println("Total=" + docObjList.total() + ", Size=" + docObjList.size() + ", Result=" + docObjList.get().toString());
-            
+            System.out.println("Total=" + docObjList.total() + ", Size=" + docObjList.size() + ", Result="
+                    + docObjList.get().toString());
+
             // Search for documents in south hemisphere
-            queryDSL = ""
-                    + "{\n"
-                    + " \"geo_bounding_box\": {\n"
-                    + "   \"latlong\": {\n"
-                    + "      \"top_left\": \"0,-180\",\n"
-                    + "      \"bottom_right\": \"-90,180\"\n"
-                    + "   }\n"
-                    + " }\n"
+            queryDSL = "" + "{\n" + " \"geo_bounding_box\": {\n" + "   \"latlong\": {\n"
+                    + "      \"top_left\": \"0,-180\",\n" + "      \"bottom_right\": \"-90,180\"\n" + "   }\n" + " }\n"
                     + "}";
-            
+
             docObjList = doc.search(queryDSL, 0, 5, DocObject.class);
-            System.out.println("Total=" + docObjList.total() + ", Size=" + docObjList.size() + ", Result=" + docObjList.get().toString());
-            
+            System.out.println("Total=" + docObjList.total() + ", Size=" + docObjList.size() + ", Result="
+                    + docObjList.get().toString());
+
             // Search for documents within given distance
-            queryDSL = ""
-                    + "{\n"
-                    + " \"geo_distance\": {\n"
-                    + "   \"distance\": \"5000km\",\n"
-                    + "   \"latlong\": \"48.85,2.35\""
-                    + " }\n"
-                    + "}";
-            
+            queryDSL = "" + "{\n" + " \"geo_distance\": {\n" + "   \"distance\": \"5000km\",\n"
+                    + "   \"latlong\": \"48.85,2.35\"" + " }\n" + "}";
+
             docObjList = doc.search(queryDSL, 0, 5, DocObject.class);
-            System.out.println("Total=" + docObjList.total() + ", Size=" + docObjList.size() + ", Result=" + docObjList.get().toString());
+            System.out.println("Total=" + docObjList.total() + ", Size=" + docObjList.size() + ", Result="
+                    + docObjList.get().toString());
         }
     }
 }

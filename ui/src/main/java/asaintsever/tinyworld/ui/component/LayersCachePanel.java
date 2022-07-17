@@ -43,7 +43,6 @@ import asaintsever.tinyworld.ui.UIStrings;
 import gov.nasa.worldwindx.examples.util.FileStoreDataSet;
 import gov.nasa.worldwindx.examples.util.cachecleaner.CacheTable;
 
-
 /**
  *
  *
@@ -56,11 +55,10 @@ public class LayersCachePanel extends JPanel {
     protected JSpinner ageSpinner;
     protected JComboBox<String> ageUnit;
     protected JLabel deleteSizeLabel;
-    
-    
+
     public LayersCachePanel(File cacheRoot) {
         super(new BorderLayout(5, 5));
-        
+
         JLabel rootLabel = new JLabel(UIStrings.LAYERS_CACHE_ROOT_LABEL + cacheRoot.getPath());
         rootLabel.setBorder(new EmptyBorder(10, 15, 10, 10));
         this.add(rootLabel, BorderLayout.NORTH);
@@ -77,7 +75,7 @@ public class LayersCachePanel extends JPanel {
         JPanel pas = new JPanel();
         pas.add(this.ageSpinner);
         pa.add(pas, BorderLayout.CENTER);
-        this.ageUnit = new JComboBox<String>(new String[] {"Hours", "Days", "Weeks", "Months", "Years"});
+        this.ageUnit = new JComboBox<String>(new String[] { "Hours", "Days", "Weeks", "Months", "Years" });
         this.ageUnit.setSelectedItem("Months");
         this.ageUnit.setEditable(false);
         pa.add(this.ageUnit, BorderLayout.EAST);
@@ -100,8 +98,7 @@ public class LayersCachePanel extends JPanel {
         ctlPanel.add(pc, BorderLayout.CENTER);
 
         this.add(ctlPanel, BorderLayout.SOUTH);
-        
-        
+
         this.ageUnit.addItemListener((ItemEvent e) -> {
             update();
         });
@@ -116,7 +113,7 @@ public class LayersCachePanel extends JPanel {
 
         this.delBtn.addActionListener((ActionEvent actionEvent) -> {
             setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-            
+
             Thread t = new Thread(() -> {
                 try {
                     List<FileStoreDataSet> dataSets = table.getSelectedDataSets();
@@ -125,7 +122,7 @@ public class LayersCachePanel extends JPanel {
 
                     for (FileStoreDataSet ds : dataSets) {
                         ds.deleteOutOfScopeFiles(unit, age, false);
-                        
+
                         if (ds.getSize() == 0) {
                             table.deleteDataSet(ds);
                             ds.delete(false);
@@ -133,17 +130,17 @@ public class LayersCachePanel extends JPanel {
                     }
                 } finally {
                     update();
-                    
+
                     SwingUtilities.invokeLater(() -> {
                         setCursor(Cursor.getDefaultCursor());
                     });
                 }
             });
-            
+
             t.start();
         });
     }
-    
+
     protected void update() {
         java.util.List<FileStoreDataSet> dataSets = this.table.getSelectedDataSets();
         int age = Integer.parseInt(this.ageSpinner.getValue().toString());
@@ -162,17 +159,17 @@ public class LayersCachePanel extends JPanel {
         }
 
         try (Formatter formatter = new Formatter()) {
-			formatter.format("%5.1f", ((float) totalSize) / 1e6);
-			this.deleteSizeLabel.setText(UIStrings.LAYERS_CACHE_SIZE_PANEL_LABEL + formatter.toString() + " MB");
-		}
-        
+            formatter.format("%5.1f", ((float) totalSize) / 1e6);
+            this.deleteSizeLabel.setText(UIStrings.LAYERS_CACHE_SIZE_PANEL_LABEL + formatter.toString() + " MB");
+        }
+
         this.delBtn.setEnabled(true);
     }
 
     protected String getUnitKey() {
         String unit = null;
         String unitString = (String) this.ageUnit.getSelectedItem();
-        
+
         if (unitString.equals("Hours"))
             unit = FileStoreDataSet.HOUR;
         else if (unitString.equals("Days"))

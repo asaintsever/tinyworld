@@ -43,27 +43,27 @@ import gov.nasa.worldwind.render.ScreenAnnotation;
 import gov.nasa.worldwind.util.Logging;
 
 /**
- * 
+ *
  *
  */
 public class TinyWorldMenuLayer extends RenderableLayer implements SelectListener {
-    
+
     protected static Logger logger = LoggerFactory.getLogger(TinyWorldMenuLayer.class);
-    
+
     protected final static String LAYER_NAME = "TinyWorld Menu";
-    
+
     protected final static String IMAGE_INDEX = "images/tw-index-48x48.png";
     protected final static String IMAGE_FILTER = "images/tw-filter-48x48.png";
     protected final static String IMAGE_SETTINGS = "images/tw-settings-48x48.png";
-    
+
     protected MainFrame frame;
-    
+
     // The annotations used to display the menu buttons.
     protected ScreenAnnotation buttonIndex;
     protected ScreenAnnotation buttonFilter;
     protected ScreenAnnotation buttonSettings;
     protected ScreenAnnotation currentButton;
-    
+
     protected String position = AVKey.NORTHWEST;
     protected String layout = AVKey.HORIZONTAL;
     protected double scale = 1;
@@ -71,40 +71,38 @@ public class TinyWorldMenuLayer extends RenderableLayer implements SelectListene
     protected int buttonSize = 48;
     protected boolean initialized = false;
     protected Rectangle referenceViewport;
-    
+
     protected ScreenAnnotation pressedButton;
     protected String pressedButtonType;
 
-    
     public TinyWorldMenuLayer(final MainFrame frame) {
         if (frame == null || frame.getWwd() == null) {
             String msg = Logging.getMessage("nullValue.WorldWindow");
             logger.error(msg);
             throw new IllegalArgumentException(msg);
         }
-        
+
         this.frame = frame;
-        
+
         // Mark the layer as hidden to prevent it being included in the layer tree's model
         this.setValue(AVKey.HIDDEN, true);
     }
-    
-    
+
     public int getBorderWidth() {
         return this.borderWidth;
     }
-    
+
     /**
      * Sets the view controls offset from the viewport border.
      *
-     * @param borderWidth the number of pixels to offset the view controls from the borders indicated by {@link
-     *                    #setPosition(String)}.
+     * @param borderWidth the number of pixels to offset the view controls from the borders indicated by
+     *                    {@link #setPosition(String)}.
      */
     public void setBorderWidth(int borderWidth) {
         this.borderWidth = borderWidth;
         this.clearControls();
     }
-    
+
     /**
      * Get the controls display scale.
      *
@@ -113,7 +111,7 @@ public class TinyWorldMenuLayer extends RenderableLayer implements SelectListene
     public double getScale() {
         return this.scale;
     }
-    
+
     /**
      * Set the controls display scale.
      *
@@ -123,7 +121,7 @@ public class TinyWorldMenuLayer extends RenderableLayer implements SelectListene
         this.scale = scale;
         this.clearControls();
     }
-    
+
     /**
      * Returns the current relative view controls position.
      *
@@ -132,11 +130,11 @@ public class TinyWorldMenuLayer extends RenderableLayer implements SelectListene
     public String getPosition() {
         return this.position;
     }
-    
+
     /**
-     * Sets the relative viewport location to display the view controls. Can be one of {@link AVKey#NORTHEAST}, {@link
-     * AVKey#NORTHWEST}, {@link AVKey#SOUTHEAST}, or {@link AVKey#SOUTHWEST}. These indicate the corner of
-     * the viewport to place view controls.
+     * Sets the relative viewport location to display the view controls. Can be one of
+     * {@link AVKey#NORTHEAST}, {@link AVKey#NORTHWEST}, {@link AVKey#SOUTHEAST}, or
+     * {@link AVKey#SOUTHWEST}. These indicate the corner of the viewport to place view controls.
      *
      * @param position the desired view controls position, in screen coordinates.
      */
@@ -146,11 +144,11 @@ public class TinyWorldMenuLayer extends RenderableLayer implements SelectListene
             logger.error(message);
             throw new IllegalArgumentException(message);
         }
-        
+
         this.position = position;
         this.clearControls();
     }
-    
+
     /**
      * Returns the current layout. Can be one of {@link AVKey#HORIZONTAL} or {@link AVKey#VERTICAL}.
      *
@@ -159,7 +157,7 @@ public class TinyWorldMenuLayer extends RenderableLayer implements SelectListene
     public String getLayout() {
         return this.layout;
     }
-    
+
     /**
      * Sets the desired layout. Can be one of {@link AVKey#HORIZONTAL} or {@link AVKey#VERTICAL}.
      *
@@ -171,16 +169,16 @@ public class TinyWorldMenuLayer extends RenderableLayer implements SelectListene
             logger.error(message);
             throw new IllegalArgumentException(message);
         }
-        
+
         if (!this.layout.equals(layout)) {
             this.layout = layout;
             this.clearControls();
         }
     }
-    
+
     /**
-     * Layer opacity is not applied to layers of this type. Opacity is controlled by the alpha values of the operation
-     * images.
+     * Layer opacity is not applied to layers of this type. Opacity is controlled by the alpha values of
+     * the operation images.
      *
      * @param opacity the current opacity value, which is ignored by this layer.
      */
@@ -188,10 +186,10 @@ public class TinyWorldMenuLayer extends RenderableLayer implements SelectListene
     public void setOpacity(double opacity) {
         super.setOpacity(opacity);
     }
-    
+
     /**
-     * Returns the layer's opacity value, which is ignored by this layer. Opacity is controlled by the alpha values of
-     * the operation images.
+     * Returns the layer's opacity value, which is ignored by this layer. Opacity is controlled by the
+     * alpha values of the operation images.
      *
      * @return The layer opacity, a value between 0 and 1.
      */
@@ -199,7 +197,7 @@ public class TinyWorldMenuLayer extends RenderableLayer implements SelectListene
     public double getOpacity() {
         return super.getOpacity();
     }
-    
+
     /**
      * Indicates the currently highlighted button, if any.
      *
@@ -208,7 +206,7 @@ public class TinyWorldMenuLayer extends RenderableLayer implements SelectListene
     public Object getHighlightedObject() {
         return this.currentButton;
     }
-    
+
     /**
      * Specifies the button to highlight. Any currently highlighted button is un-highlighted.
      *
@@ -231,7 +229,7 @@ public class TinyWorldMenuLayer extends RenderableLayer implements SelectListene
             this.currentButton.getAttributes().setImageOpacity(1);
         }
     }
-    
+
     @Override
     public void doRender(DrawContext dc) {
         if (!this.initialized)
@@ -242,33 +240,34 @@ public class TinyWorldMenuLayer extends RenderableLayer implements SelectListene
 
         super.doRender(dc);
     }
-    
+
     @Override
     public void selected(SelectEvent event) {
         if (this.getHighlightedObject() != null) {
             this.highlight(null);
             this.frame.getWwd().redraw(); // must redraw so the de-highlight can take effect
         }
-        
+
         if (event.getMouseEvent() != null && event.getMouseEvent().isConsumed())
             return;
-        
-        if (event.getTopObject() == null || event.getTopPickedObject().getParentLayer() != this || !(event.getTopObject() instanceof AVList))
+
+        if (event.getTopObject() == null || event.getTopPickedObject().getParentLayer() != this
+                || !(event.getTopObject() instanceof AVList))
             return;
-        
+
         String menuOpType = ((AVList) event.getTopObject()).getStringValue(TWLayerOperations.MENU_OPERATION);
         if (menuOpType == null)
             return;
 
         ScreenAnnotation selectedObject = (ScreenAnnotation) event.getTopObject();
-        
-        /*if (logger.isDebugEnabled()) {
-        	logger.debug("SelectEvent: " + event.toString());
-        	logger.debug("PickPoint: " + event.getPickPoint() != null ? event.getPickPoint().toString() : "");
-        	logger.debug("EventAction: " + event.getEventAction());
-        }*/
-        
-        switch(event.getEventAction()) {
+
+        /*
+         * if (logger.isDebugEnabled()) { logger.debug("SelectEvent: " + event.toString());
+         * logger.debug("PickPoint: " + event.getPickPoint() != null ? event.getPickPoint().toString() :
+         * ""); logger.debug("EventAction: " + event.getEventAction()); }
+         */
+
+        switch (event.getEventAction()) {
         case SelectEvent.ROLLOVER:
         case SelectEvent.HOVER:
             // Highlight
@@ -278,7 +277,7 @@ public class TinyWorldMenuLayer extends RenderableLayer implements SelectListene
         case SelectEvent.LEFT_PRESS:
             this.pressedButton = selectedObject;
             this.pressedButtonType = menuOpType;
-            
+
             this.highlight(this.pressedButton);
             this.frame.getWwd().redraw();
             break;
@@ -288,13 +287,16 @@ public class TinyWorldMenuLayer extends RenderableLayer implements SelectListene
                 event.consume();
 
             this.pressedButton = null;
-            
-            switch(menuOpType) {
+
+            switch (menuOpType) {
             case TWLayerOperations.MENU_INDEX:
-                JOptionPane.showMessageDialog(this.frame, "Not implemented yet", UIStrings.APP_NAME + " - " + UIStrings.MENU_INDEX_DISPLAYNAME, JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(this.frame, "Not implemented yet",
+                        UIStrings.APP_NAME + " - " + UIStrings.MENU_INDEX_DISPLAYNAME, JOptionPane.INFORMATION_MESSAGE);
                 break;
             case TWLayerOperations.MENU_FILTER:
-                JOptionPane.showMessageDialog(this.frame, "Not implemented yet", UIStrings.APP_NAME + " - " + UIStrings.MENU_FILTER_DISPLAYNAME, JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(this.frame, "Not implemented yet",
+                        UIStrings.APP_NAME + " - " + UIStrings.MENU_FILTER_DISPLAYNAME,
+                        JOptionPane.INFORMATION_MESSAGE);
                 break;
             case TWLayerOperations.MENU_SETTINGS:
                 if (this.frame.getSettingsPanel() != null) {
@@ -311,24 +313,26 @@ public class TinyWorldMenuLayer extends RenderableLayer implements SelectListene
             break;
         }
     }
-    
+
     public void setToolTips(boolean enable) {
         // Enable/Disable tooltips (see ToolTipController in GlobePanel)
-        if (this.buttonIndex != null) this.buttonIndex.setValue(AVKey.DISPLAY_NAME, enable ? UIStrings.MENU_INDEX_DISPLAYNAME : null);
-        if (this.buttonFilter != null) this.buttonFilter.setValue(AVKey.DISPLAY_NAME, enable ? UIStrings.MENU_FILTER_DISPLAYNAME : null);
-        if (this.buttonSettings != null) this.buttonSettings.setValue(AVKey.DISPLAY_NAME, enable ? UIStrings.MENU_SETTINGS_DISPLAYNAME : null);
+        if (this.buttonIndex != null)
+            this.buttonIndex.setValue(AVKey.DISPLAY_NAME, enable ? UIStrings.MENU_INDEX_DISPLAYNAME : null);
+        if (this.buttonFilter != null)
+            this.buttonFilter.setValue(AVKey.DISPLAY_NAME, enable ? UIStrings.MENU_FILTER_DISPLAYNAME : null);
+        if (this.buttonSettings != null)
+            this.buttonSettings.setValue(AVKey.DISPLAY_NAME, enable ? UIStrings.MENU_SETTINGS_DISPLAYNAME : null);
     }
-    
+
     @Override
     public String toString() {
         return LAYER_NAME;
     }
-    
-    
+
     protected boolean isInitialized() {
         return this.initialized;
     }
-    
+
     protected void initialize(DrawContext dc) {
         if (this.initialized)
             return;
@@ -346,7 +350,7 @@ public class TinyWorldMenuLayer extends RenderableLayer implements SelectListene
 
         final String NOTEXT = "";
         final Point ORIGIN = new Point(0, 0);
-        
+
         // Index
         this.buttonIndex = new ScreenAnnotation(NOTEXT, ORIGIN, ca);
         this.buttonIndex.setValue(TWLayerOperations.MENU_OPERATION, TWLayerOperations.MENU_INDEX);
@@ -364,16 +368,16 @@ public class TinyWorldMenuLayer extends RenderableLayer implements SelectListene
         this.buttonSettings.setValue(TWLayerOperations.MENU_OPERATION, TWLayerOperations.MENU_SETTINGS);
         this.buttonSettings.getAttributes().setImageSource(IMAGE_SETTINGS);
         this.addRenderable(this.buttonSettings);
-        
+
         // Set tooltips on/off depending on actual choice in Settings panel
         this.setToolTips(this.frame.getSettingsPanel().isMenuTooltipEnabled());
-        
+
         // Place controls according to layout and viewport dimension
         this.updatePositions(dc);
 
         this.initialized = true;
     }
-    
+
     // Set controls positions according to layout and viewport dimension
     protected void updatePositions(DrawContext dc) {
         boolean horizontalLayout = this.layout.equals(AVKey.HORIZONTAL);
@@ -411,7 +415,7 @@ public class TinyWorldMenuLayer extends RenderableLayer implements SelectListene
         this.buttonIndex.setScreenPoint(new Point(x + halfButtonSize, y));
         if (horizontalLayout)
             x += (int) (this.buttonSize * this.scale);
-        
+
         // Filter
         if (!horizontalLayout)
             y -= (int) (this.buttonSize * this.scale);
@@ -419,7 +423,7 @@ public class TinyWorldMenuLayer extends RenderableLayer implements SelectListene
         this.buttonFilter.setScreenPoint(new Point(x + halfButtonSize, y));
         if (horizontalLayout)
             x += (int) (this.buttonSize * this.scale);
-        
+
         // Settings
         if (!horizontalLayout)
             y -= (int) (this.buttonSize * this.scale);
@@ -430,9 +434,9 @@ public class TinyWorldMenuLayer extends RenderableLayer implements SelectListene
 
         this.referenceViewport = dc.getView().getViewport();
     }
-    
+
     /**
-     * Compute the screen location of the controls overall rectangle bottom right corner according to 
+     * Compute the screen location of the controls overall rectangle bottom right corner according to
      * the screen position.
      *
      * @param viewport the current viewport rectangle.
@@ -447,27 +451,23 @@ public class TinyWorldMenuLayer extends RenderableLayer implements SelectListene
         if (this.position.equals(AVKey.NORTHEAST)) {
             x = viewport.getWidth() - controls.width - this.borderWidth;
             y = viewport.getHeight() - controls.height - this.borderWidth;
-        }
-        else if (this.position.equals(AVKey.SOUTHEAST)) {
+        } else if (this.position.equals(AVKey.SOUTHEAST)) {
             x = viewport.getWidth() - controls.width - this.borderWidth;
             y = 0d + this.borderWidth;
-        }
-        else if (this.position.equals(AVKey.NORTHWEST)) {
+        } else if (this.position.equals(AVKey.NORTHWEST)) {
             x = 0d + this.borderWidth;
             y = viewport.getHeight() - controls.height - this.borderWidth;
-        }
-        else if (this.position.equals(AVKey.SOUTHWEST)) {
+        } else if (this.position.equals(AVKey.SOUTHWEST)) {
             x = 0d + this.borderWidth;
             y = 0d + this.borderWidth;
-        }
-        else { // use North East as default
+        } else { // use North East as default
             x = viewport.getWidth() - controls.width - this.borderWidth;
             y = viewport.getHeight() - controls.height - this.borderWidth;
         }
 
         return new Point((int) x, (int) y);
     }
-    
+
     protected void clearControls() {
         this.removeAllRenderables();
 
@@ -478,4 +478,3 @@ public class TinyWorldMenuLayer extends RenderableLayer implements SelectListene
         this.initialized = false;
     }
 }
-

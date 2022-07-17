@@ -51,18 +51,17 @@ import jakarta.json.stream.JsonParser;
 import jakarta.json.stream.JsonParserFactory;
 
 public class JacksonJsonProvider extends JsonProvider {
-    
+
     private final JsonFactory jsonFactory;
-    
+
     public JacksonJsonProvider(JsonFactory jsonFactory) {
         this.jsonFactory = jsonFactory;
     }
-    
+
     public JacksonJsonProvider() {
         this(new JsonFactory());
     }
-    
-    
+
     /**
      * Return the underlying Jackson {@link JsonFactory}.
      */
@@ -70,7 +69,7 @@ public class JacksonJsonProvider extends JsonProvider {
         return this.jsonFactory;
     }
 
-  //---------------------------------------------------------------------------------------------
+    // ---------------------------------------------------------------------------------------------
     // Parser
 
     private final ParserFactory defaultParserFactory = new ParserFactory(null);
@@ -154,7 +153,7 @@ public class JacksonJsonProvider extends JsonProvider {
         }
     }
 
-    //---------------------------------------------------------------------------------------------
+    // ---------------------------------------------------------------------------------------------
     // Generator
 
     private final JsonGeneratorFactory defaultGeneratorFactory = new GeneratorFactory(null);
@@ -220,7 +219,7 @@ public class JacksonJsonProvider extends JsonProvider {
         }
     }
 
-    //---------------------------------------------------------------------------------------------
+    // ---------------------------------------------------------------------------------------------
     // Unsupported operations
 
     /**

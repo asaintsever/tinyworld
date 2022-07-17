@@ -35,23 +35,23 @@ import jakarta.json.stream.JsonGenerator;
 import jakarta.json.stream.JsonParser;
 
 public class JacksonJsonpMapper implements JsonpMapper {
-    
+
     private final JacksonJsonProvider provider;
     private final ObjectMapper objectMapper;
 
     public JacksonJsonpMapper(ObjectMapper objectMapper) {
         this(objectMapper, new JsonFactory());
     }
-    
+
     public JacksonJsonpMapper(ObjectMapper objectMapper, JsonFactory jsonFactory) {
         this.provider = new JacksonJsonProvider(jsonFactory);
         this.objectMapper = objectMapper;
     }
-    
+
     public JacksonJsonpMapper() {
         this(new ObjectMapper());
     }
-    
+
     /**
      * Returns the underlying Jackson mapper.
      */
@@ -75,14 +75,14 @@ public class JacksonJsonpMapper implements JsonpMapper {
             throw new IllegalArgumentException("Jackson' ObjectMapper can only be used with the JacksonJsonpProvider");
         }
 
-        com.fasterxml.jackson.core.JsonGenerator jkGenerator = ((JacksonJsonpGenerator)generator).jacksonGenerator();
+        com.fasterxml.jackson.core.JsonGenerator jkGenerator = ((JacksonJsonpGenerator) generator).jacksonGenerator();
         try {
             objectMapper.writeValue(jkGenerator, value);
         } catch (IOException ioe) {
             throw JacksonUtils.convertException(ioe);
         }
     }
-    
+
     private class JacksonValueParser<T> extends JsonpDeserializer<T> {
 
         private final Class<T> clazz;
@@ -96,14 +96,15 @@ public class JacksonJsonpMapper implements JsonpMapper {
         public T deserialize(JsonParser parser, JsonpMapper mapper, JsonParser.Event event) {
 
             if (!(parser instanceof JacksonJsonpParser)) {
-                throw new IllegalArgumentException("Jackson' ObjectMapper can only be used with the JacksonJsonpProvider");
+                throw new IllegalArgumentException(
+                        "Jackson' ObjectMapper can only be used with the JacksonJsonpProvider");
             }
 
-            com.fasterxml.jackson.core.JsonParser jkParser = ((JacksonJsonpParser)parser).jacksonParser();
+            com.fasterxml.jackson.core.JsonParser jkParser = ((JacksonJsonpParser) parser).jacksonParser();
 
             try {
                 return objectMapper.readValue(jkParser, clazz);
-            } catch(IOException ioe) {
+            } catch (IOException ioe) {
                 throw JacksonUtils.convertException(ioe);
             }
         }

@@ -47,14 +47,13 @@ import gov.nasa.worldwind.layers.Layer;
 import gov.nasa.worldwind.layers.WorldMapLayer;
 import gov.nasa.worldwind.util.WWUtil;
 
-
 /**
  *
  *
  */
 @SuppressWarnings("serial")
 public class MainFrame extends JFrame {
-    
+
     protected final static String APP_ICON = "/icon/tinyworldicon.jpg";
 
     protected Indexor indexor;
@@ -63,58 +62,55 @@ public class MainFrame extends JFrame {
     protected List<SwingWorkerListener> workers = new ArrayList<SwingWorkerListener>();
     protected List<IndexorListener> indexorListeners = new ArrayList<IndexorListener>();
     protected Logger logger = LoggerFactory.getLogger(MainFrame.class);
-    
 
     public MainFrame(Configuration cfg, Dimension size) {
         this.initialize(cfg, size);
     }
-    
-    
+
     public void setIndexor(Indexor indexor) {
         this.indexor = indexor;
-        
+
         // Notify all listeners with Indexor
-        for(IndexorListener listener : this.indexorListeners)
-        	if (listener != null)
-        		listener.created(indexor);
+        for (IndexorListener listener : this.indexorListeners)
+            if (listener != null)
+                listener.created(indexor);
     }
 
     public WorldWindow getWwd() {
         return this.globePanel.getWwd();
     }
-    
+
     public GlobePanel getGlobe() {
-    	return this.globePanel;
+        return this.globePanel;
     }
 
     public SettingsPanel getSettingsPanel() {
         return this.settingsPanel;
     }
-    
+
     public void addIndexorListener(IndexorListener listener) {
-    	this.indexorListeners.add(listener);
+        this.indexorListeners.add(listener);
     }
-    
+
     public void addWorkerListener(SwingWorkerListener worker) {
-    	this.workers.add(worker);
+        this.workers.add(worker);
     }
-    
+
     @Override
     public void dispose() {
-    	// Cancel all running Swing Workers
-    	for(SwingWorkerListener worker : this.workers)
+        // Cancel all running Swing Workers
+        for (SwingWorkerListener worker : this.workers)
             if (worker != null)
                 worker.cancelWorkers();
-        
-    	super.dispose();
+
+        super.dispose();
     }
-    
-    
+
     protected void initialize(Configuration cfg, Dimension size) {
         // Create the WorldWindow.
         this.globePanel = new GlobePanel(cfg, size);
         this.globePanel.setPreferredSize(size);
-        
+
         // Register a rendering exception listener that's notified when exceptions occur during rendering.
         this.globePanel.getWwd().addRenderingExceptionListener((Throwable t) -> {
             if (t instanceof WWAbsentRequirementException) {
@@ -127,27 +123,28 @@ public class MainFrame extends JFrame {
                 System.exit(-1);
             }
         });
-        
+
         TinyWorldMenuLayer twMenuLayer = new TinyWorldMenuLayer(this);
         TinyWorldPhotoTreeLayer twPhotoTreeLayer = new TinyWorldPhotoTreeLayer(this);
-        
+
         this.globePanel.addLayer(twMenuLayer);
         this.globePanel.addLayer(twPhotoTreeLayer);
-        
+
         this.addListeners(this.globePanel.getStatusBar().getIndexorStatusPanel());
-        
+
         for (Layer layer : this.globePanel.getLayers()) {
             // Search the layer list for layers that are also select listeners and register them with the World
             // Window. This enables interactive layers to be included without specific knowledge of them here.
             this.addListeners(layer);
-            
+
             if (layer instanceof WorldMapLayer)
                 ((WorldMapLayer) layer).setPosition(AVKey.NORTHEAST);
         }
 
         this.settingsPanel = new SettingsPanel(this);
-        this.settingsPanel.setVisible(false); // Not visible by default (click on 'Settings' button of TW menu to enable panel)
-        
+        this.settingsPanel.setVisible(false); // Not visible by default (click on 'Settings' button of TW menu to enable
+                                              // panel)
+
         this.getContentPane().add(globePanel, BorderLayout.CENTER);
         this.getContentPane().add(this.settingsPanel, BorderLayout.WEST);
 
@@ -158,18 +155,18 @@ public class MainFrame extends JFrame {
         this.setResizable(true);
         this.setAppIcon();
     }
-    
+
     protected void addListeners(Object obj) {
-    	if (obj instanceof SelectListener)
-            this.globePanel.getWwd().addSelectListener((SelectListener)obj);
-        
+        if (obj instanceof SelectListener)
+            this.globePanel.getWwd().addSelectListener((SelectListener) obj);
+
         if (obj instanceof IndexorListener)
-        	this.addIndexorListener((IndexorListener)obj);
-        
+            this.addIndexorListener((IndexorListener) obj);
+
         if (obj instanceof SwingWorkerListener)
-        	this.addWorkerListener((SwingWorkerListener)obj);
+            this.addWorkerListener((SwingWorkerListener) obj);
     }
-    
+
     protected void setAppIcon() {
         try {
             URL resource = MainFrame.class.getResource(APP_ICON);
