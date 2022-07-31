@@ -167,7 +167,7 @@ public class TinyWorldPhotoTreeLayer extends RenderableLayer implements SelectLi
                 if (!this.indexor.metadataIndex().exists())
                     this.indexor.metadataIndex().create();
 
-                // TODO default request on Indexor and dynamic photo tree construction (default request criteria to
+                // TODO default query on Indexor and dynamic photo tree construction (default query criteria to
                 // be added in config)
 
             } catch (IOException e) {

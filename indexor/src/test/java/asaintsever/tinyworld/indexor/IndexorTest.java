@@ -145,25 +145,21 @@ public class IndexorTest {
                 "Total=" + mtdList.total() + ", Size=" + mtdList.size() + ", Result=" + mtdList.get().toString());
 
         // Search for photos with takenDate date before 2022
-        String queryDSL = "" + "{\n" + " \"range\": {\n" + "   \"takenDate\": {\n" + "      \"lt\": \"2022-01-01\",\n"
-                + "      \"format\": \"yyyy-MM-dd\"\n" + "   }\n" + " }\n" + "}";
+        String queryDSL = "{\"range\": {\"takenDate\": {\"lt\": \"2022-01-01\", \"format\": \"yyyy-MM-dd\"}}}";
 
         mtdList = indexor.photos().search(queryDSL, 0, 5);
         System.out.println(
                 "Total=" + mtdList.total() + ", Size=" + mtdList.size() + ", Result=" + mtdList.get().toString());
 
         // Search for photos in south hemisphere
-        queryDSL = "" + "{\n" + " \"geo_bounding_box\": {\n" + "   \"gpsLatLong\": {\n"
-                + "      \"top_left\": \"0,-180\",\n" + "      \"bottom_right\": \"-90,180\"\n" + "   }\n" + " }\n"
-                + "}";
+        queryDSL = "{\"geo_bounding_box\": {\"gpsLatLong\": {\"top_left\": \"0,-180\", \"bottom_right\": \"-90,180\"}}}";
 
         mtdList = indexor.photos().search(queryDSL, 0, 5);
         System.out.println(
                 "Total=" + mtdList.total() + ", Size=" + mtdList.size() + ", Result=" + mtdList.get().toString());
 
         // Search for photos within given distance
-        queryDSL = "" + "{\n" + " \"geo_distance\": {\n" + "   \"distance\": \"5000km\",\n"
-                + "   \"gpsLatLong\": \"48.85,2.35\"" + " }\n" + "}";
+        queryDSL = "{\"geo_distance\": {\"distance\": \"5000km\", \"gpsLatLong\": \"48.85,2.35\"}}";
 
         mtdList = indexor.photos().search(queryDSL, 0, 5);
         System.out.println(

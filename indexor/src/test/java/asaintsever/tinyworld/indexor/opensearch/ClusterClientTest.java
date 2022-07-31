@@ -193,17 +193,15 @@ public class ClusterClientTest {
         assertFalse(client.isIndexExists("test.index"));
 
         // Set explicit mapping so that dates and coordinates are handled the way we want
-        String mapping = "" + "{\n" + " \"properties\": {\n" + "   \"attr1\": {\n" + "     \"type\": \"text\"\n"
-                + "   },\n" + "   \"attr2\": {\n" + "     \"type\": \"text\"\n" + "   },\n" + "   \"attr3\": {\n"
-                + "     \"type\": \"float\"\n" + "   },\n" + "   \"attr4\": {\n" + "     \"type\": \"text\"\n"
-                + "   },\n" + "   \"creationDate\": {\n" + "     \"type\": \"date\",\n"
-                + "     \"format\": \"yyyy-MM-dd HH:mm:ss\"\n" + "   },\n" + "   \"latlong\": {\n"
-                + "     \"type\": \"geo_point\"\n" + "   }\n" + " }\n" + "}";
+        String mapping = "{\"properties\": {\"attr1\": {\"type\": \"text\"}," + "\"attr2\": {\"type\": \"text\"},"
+                + "\"attr3\": {\"type\": \"float\"}," + "\"attr4\": {\"type\": \"text\"},"
+                + "\"creationDate\": {\"type\": \"date\", \"format\": \"yyyy-MM-dd HH:mm:ss\"},"
+                + "\"latlong\": {\"type\": \"geo_point\"}}}";
 
         assertTrue(client.createIndex("test.index", mapping));
 
         try (Document<DocObject> doc = new Document<>(client)) {
-            // Set date format for your Document mapper to match defined format for DocObject
+            // Set date format for our Document mapper to match defined format for DocObject
             doc.setIndex("test.index").getMapper().setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
 
             EasyRandomParameters parameters = new EasyRandomParameters().seed(seed)
@@ -234,26 +232,21 @@ public class ClusterClientTest {
                     + docObjList.get().toString());
 
             // Search for documents with creationDate date before 2022
-            String queryDSL = "" + "{\n" + " \"range\": {\n" + "   \"creationDate\": {\n"
-                    + "      \"lt\": \"2022-01-01\",\n" + "      \"format\": \"yyyy-MM-dd\"\n" + "   }\n" + " }\n"
-                    + "}";
+            String queryDSL = "{\"range\": {\"creationDate\": {\"lt\": \"2022-01-01\", \"format\": \"yyyy-MM-dd\"}}}";
 
             docObjList = doc.search(queryDSL, 0, 5, DocObject.class);
             System.out.println("Total=" + docObjList.total() + ", Size=" + docObjList.size() + ", Result="
                     + docObjList.get().toString());
 
             // Search for documents in south hemisphere
-            queryDSL = "" + "{\n" + " \"geo_bounding_box\": {\n" + "   \"latlong\": {\n"
-                    + "      \"top_left\": \"0,-180\",\n" + "      \"bottom_right\": \"-90,180\"\n" + "   }\n" + " }\n"
-                    + "}";
+            queryDSL = "{\"geo_bounding_box\": {\"latlong\": {\"top_left\": \"0,-180\", \"bottom_right\": \"-90,180\"}}}";
 
             docObjList = doc.search(queryDSL, 0, 5, DocObject.class);
             System.out.println("Total=" + docObjList.total() + ", Size=" + docObjList.size() + ", Result="
                     + docObjList.get().toString());
 
             // Search for documents within given distance
-            queryDSL = "" + "{\n" + " \"geo_distance\": {\n" + "   \"distance\": \"5000km\",\n"
-                    + "   \"latlong\": \"48.85,2.35\"" + " }\n" + "}";
+            queryDSL = "{\"geo_distance\": {\"distance\": \"5000km\", \"latlong\": \"48.85,2.35\"}}";
 
             docObjList = doc.search(queryDSL, 0, 5, DocObject.class);
             System.out.println("Total=" + docObjList.total() + ", Size=" + docObjList.size() + ", Result="

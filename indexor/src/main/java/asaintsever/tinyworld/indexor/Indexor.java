@@ -58,26 +58,23 @@ public class Indexor implements Closeable {
     // setters.
     private static String CLUSTER_PATH_HOME = "index";
     private static String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
-    private static String MAPPING = "" + "{\n" + " \"properties\": {\n" + "   \"path\": {\n"
-            + "     \"type\": \"text\"\n" + "   },\n" + "   \"fileName\": {\n" + "     \"type\": \"text\"\n" + "   },\n"
-            + "   \"sizeMb\": {\n" + "     \"type\": \"float\"\n" + "   },\n" + "   \"takenDate\": {\n"
-            + "     \"type\": \"date\",\n" + "     \"format\": \"yyyy-MM-dd HH:mm:ss\"\n" + "   },\n"
-            + "   \"timeZoneOffset\": {\n" + "     \"type\": \"text\"\n" + "   },\n" + "   \"thumbnail\": {\n"
-            + "     \"type\": \"text\"\n" + "   },\n" + "   \"camModelMake\": {\n" + "     \"type\": \"text\",\n"
-            + "     \"fields\": {\"keyword\": {\"type\": \"keyword\"}}\n" + "   },\n" + "   \"pixelRes\": {\n"
-            + "     \"type\": \"text\",\n" + "     \"fields\": {\"keyword\": {\"type\": \"keyword\"}}\n" + "   },\n"
-            + "   \"countryCode\": {\n" + "     \"type\": \"text\",\n"
-            + "     \"fields\": {\"keyword\": {\"type\": \"keyword\"}}\n" + "   },\n" + "   \"country\": {\n"
-            + "     \"type\": \"text\",\n" + "     \"fields\": {\"keyword\": {\"type\": \"keyword\"}}\n" + "   },\n"
-            + "   \"stateOrProvince\": {\n" + "     \"type\": \"text\",\n"
-            + "     \"fields\": {\"keyword\": {\"type\": \"keyword\"}}\n" + "   },\n" + "   \"city\": {\n"
-            + "     \"type\": \"text\",\n" + "     \"fields\": {\"keyword\": {\"type\": \"keyword\"}}\n" + "   },\n"
-            + "   \"sublocation\": {\n" + "     \"type\": \"text\",\n"
-            + "     \"fields\": {\"keyword\": {\"type\": \"keyword\"}}\n" + "   },\n" + "   \"caption\": {\n"
-            + "     \"type\": \"text\"\n" + "   },\n" + "   \"title\": {\n" + "     \"type\": \"text\"\n" + "   },\n"
-            + "   \"headline\": {\n" + "     \"type\": \"text\"\n" + "   },\n" + "   \"gpsDatum\": {\n"
-            + "     \"type\": \"text\",\n" + "     \"fields\": {\"keyword\": {\"type\": \"keyword\"}}\n" + "   },\n"
-            + "   \"gpsLatLong\": {\n" + "     \"type\": \"geo_point\"\n" + "   }\n" + " }\n" + "}";
+    private static String MAPPING = "{\"properties\": {" + "\"path\": {\"type\": \"text\"},"
+            + "\"fileName\": {\"type\": \"text\"}," + "\"sizeMb\": {\"type\": \"float\"},"
+            + "\"takenDate\": {\"type\": \"date\", \"format\": \"yyyy-MM-dd HH:mm:ss\"},"
+            + "\"timeZoneOffset\": {\"type\": \"text\"}," + "\"thumbnail\": {\"type\": \"text\"},"
+            + "\"camModelMake\": {\"type\": \"text\", \"fields\": {\"keyword\": {\"type\": \"keyword\"}}},"
+            + "\"pixelRes\": {\"type\": \"text\", \"fields\": {\"keyword\": {\"type\": \"keyword\"}}},"
+            + "\"countryCode\": {\"type\": \"text\", \"fields\": {\"keyword\": {\"type\": \"keyword\"}}},"
+            + "\"country\": {\"type\": \"text\", \"fields\": {\"keyword\": {\"type\": \"keyword\"}}},"
+            + "\"stateOrProvince\": {\"type\": \"text\", \"fields\": {\"keyword\": {\"type\": \"keyword\"}}},"
+            + "\"city\": {\"type\": \"text\", \"fields\": {\"keyword\": {\"type\": \"keyword\"}}},"
+            + "\"sublocation\": {\"type\": \"text\", \"fields\": {\"keyword\": {\"type\": \"keyword\"}}},"
+            + "\"caption\": {\"type\": \"text\"}," + "\"title\": {\"type\": \"text\"},"
+            + "\"headline\": {\"type\": \"text\"},"
+            + "\"gpsDatum\": {\"type\": \"text\", \"fields\": {\"keyword\": {\"type\": \"keyword\"}}},"
+            + "\"gpsLatLong\": {\"type\": \"geo_point\"},"
+            + "\"tags\": {\"type\":\"text\", \"fields\": {\"keyword\": {\"type\":\"keyword\", \"ignore_above\":256}}}"
+            + "}}";
 
     public static void setDateFormat(String format) {
         DATE_FORMAT = format;
