@@ -84,7 +84,7 @@ public class Document<T> implements Closeable {
     }
 
     public String add(T document) throws IOException {
-        return this.add(null, document, false);
+        return this.add(null, document, true);
     }
 
     public String add(String id, T document, boolean allowUpdate) throws DocumentAlreadyExistsException, IOException {
@@ -92,6 +92,9 @@ public class Document<T> implements Closeable {
         // null when using "_doc".
         // Use "_create" type to fail if we try to add a document with same id as existing document in
         // index. Note: id must not be null when using "_create".
+        //
+        // See
+        // https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-index_.html#docs-index-api-request
         IndexRequest<T> indexRequest = new IndexRequest.Builder<T>().index(this.index)
                 .type((allowUpdate || id == null) ? "_doc" : "_create").id(id).value(document).build();
 
