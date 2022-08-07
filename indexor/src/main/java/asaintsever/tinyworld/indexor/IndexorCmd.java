@@ -62,6 +62,7 @@ public class IndexorCmd {
         if (args.length >= 3)
             allowUpdate = Boolean.valueOf(args[2]);
 
+        System.out.println("--> current working directory: " + System.getProperty("user.dir"));
         System.out.println("--> clearIndex: " + clearIndex);
         System.out.println("--> allowUpdate: " + allowUpdate);
 
@@ -71,8 +72,7 @@ public class IndexorCmd {
             logger.info("Indexor Cmd started and ready to ingest photos from " + ingestionPath);
 
             PhotoMetadata defaultMetadata = new PhotoMetadata();
-            defaultMetadata.country = "_Unknown_";
-            defaultMetadata.gpsLatLong = "25.0,-71.0";
+            defaultMetadata.setCountry("_Unknown_").setCountryCode("XXX").setGpsLatLong("25.0,-71.0");
 
             if (clearIndex) {
                 // Clear index (may already exists): ie delete then create with default mapping for photo metadata

@@ -29,7 +29,7 @@ import org.junitpioneer.jupiter.SetEnvironmentVariable;
 public class LoaderTest {
 
     @BeforeEach
-    void teardown() {
+    void setupTest() {
         Loader.setPathToConfigFile("target/newconfig.yml");
     }
 

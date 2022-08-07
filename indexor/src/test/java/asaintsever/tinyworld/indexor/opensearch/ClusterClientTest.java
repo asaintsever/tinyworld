@@ -207,6 +207,7 @@ public class ClusterClientTest {
             EasyRandomParameters parameters = new EasyRandomParameters().seed(seed)
                     .dateRange(LocalDate.of(2021, 12, 1), LocalDate.of(2022, 1, 10))
                     .randomize(FieldPredicates.named("latlong"), new LatLongGenerator());
+
             EasyRandom easyRandom = new EasyRandom(parameters);
 
             for (int i = 0; i < 10; i++) {
@@ -245,7 +246,7 @@ public class ClusterClientTest {
             System.out.println("Total=" + docObjList.total() + ", Size=" + docObjList.size() + ", Result="
                     + docObjList.get().toString());
 
-            // Search for documents within given distance
+            // Search for documents within given distance (5000km radius from Paris, France)
             queryDSL = "{\"geo_distance\": {\"distance\": \"5000km\", \"latlong\": \"48.85,2.35\"}}";
 
             docObjList = doc.search(queryDSL, 0, 5, DocObject.class);

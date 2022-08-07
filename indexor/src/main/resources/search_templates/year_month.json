@@ -1,0 +1,27 @@
+{
+    "aggs": {
+        "photo_year": {
+            "terms": {
+                "field": "takenYear",
+                "order": {
+                    "_key": "desc"
+                },
+                "size": 99
+            },
+            "aggs": {
+                "photo_month": {
+                    "terms": {
+                        "field": "takenMonth",
+                        "order": {
+                            "_key": "asc"
+                        },
+                        "size": 12
+                    }
+                }
+            }
+        }
+    },
+    "size": 0,
+    "from": 0,
+    "sort": []
+}

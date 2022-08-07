@@ -19,5 +19,6 @@ indexor:
   photo:
     defaultMetadata:  # Default attribute(s) to set if not found in photo metadata (for easier filtering and display)
       country: "_Unknown_"
+      countryCode: "XXX"
       gpsLatLong: "25.0,-71.0"  # Bermuda Triangle
  

@@ -21,6 +21,7 @@ package asaintsever.tinyworld.indexor;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 
 import org.apache.commons.codec.digest.DigestUtils;
@@ -28,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import asaintsever.tinyworld.cfg.Configuration;
+import asaintsever.tinyworld.cfg.utils.Utils;
 import asaintsever.tinyworld.indexor.opensearch.Cluster;
 import asaintsever.tinyworld.indexor.opensearch.Cluster.ClusterNodeException;
 import asaintsever.tinyworld.indexor.opensearch.ClusterClient;
@@ -54,27 +56,24 @@ public class Indexor implements Closeable {
     private MetadataIndex mtdIndx;
     private Photo photos;
 
+    private final static String DEFAULT_MAPPING = "mapping/tinyworld_photo.json";
+    private final static String[] SEARCH_TEMPLATES = { "search_templates/country_year_month.json",
+            "search_templates/year_country_month.json", "search_templates/year_month.json" };
+
     // Default for TinyWorld's date format, mapping and storage path. Can be modified using static
     // setters.
     private static String CLUSTER_PATH_HOME = "index";
     private static String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
-    private static String MAPPING = "{\"properties\": {" + "\"path\": {\"type\": \"text\"},"
-            + "\"fileName\": {\"type\": \"text\"}," + "\"sizeMb\": {\"type\": \"float\"},"
-            + "\"takenDate\": {\"type\": \"date\", \"format\": \"yyyy-MM-dd HH:mm:ss\"},"
-            + "\"timeZoneOffset\": {\"type\": \"text\"}," + "\"thumbnail\": {\"type\": \"text\"},"
-            + "\"camModelMake\": {\"type\": \"text\", \"fields\": {\"keyword\": {\"type\": \"keyword\"}}},"
-            + "\"pixelRes\": {\"type\": \"text\", \"fields\": {\"keyword\": {\"type\": \"keyword\"}}},"
-            + "\"countryCode\": {\"type\": \"text\", \"fields\": {\"keyword\": {\"type\": \"keyword\"}}},"
-            + "\"country\": {\"type\": \"text\", \"fields\": {\"keyword\": {\"type\": \"keyword\"}}},"
-            + "\"stateOrProvince\": {\"type\": \"text\", \"fields\": {\"keyword\": {\"type\": \"keyword\"}}},"
-            + "\"city\": {\"type\": \"text\", \"fields\": {\"keyword\": {\"type\": \"keyword\"}}},"
-            + "\"sublocation\": {\"type\": \"text\", \"fields\": {\"keyword\": {\"type\": \"keyword\"}}},"
-            + "\"caption\": {\"type\": \"text\"}," + "\"title\": {\"type\": \"text\"},"
-            + "\"headline\": {\"type\": \"text\"},"
-            + "\"gpsDatum\": {\"type\": \"text\", \"fields\": {\"keyword\": {\"type\": \"keyword\"}}},"
-            + "\"gpsLatLong\": {\"type\": \"geo_point\"},"
-            + "\"tags\": {\"type\":\"text\", \"fields\": {\"keyword\": {\"type\":\"keyword\", \"ignore_above\":256}}}"
-            + "}}";
+    private static String MAPPING;
+
+    static {
+        // Load default mapping from internal resource
+        try {
+            MAPPING = new String(Utils.getInternalResource(DEFAULT_MAPPING));
+        } catch (IOException | URISyntaxException e) {
+            logger.error("Fail to load internal mapping", e);
+        }
+    }
 
     public static void setDateFormat(String format) {
         DATE_FORMAT = format;
@@ -121,6 +120,8 @@ public class Indexor implements Closeable {
         this.clusterClient = new ClusterClient(this.host, this.port);
         this.mtdIndx = new MetadataIndex().setConnection(this.clusterClient, this.index);
         this.photos = new Photo().setConnection(this.clusterClient, this.index);
+
+        // TODO call this.clusterClient.loadSearchTemplate() to load all search templates into cluster
     }
 
     public PhotoMetadata getDefaultMetadata() {
@@ -225,12 +226,12 @@ public class Indexor implements Closeable {
         @Override
         public String add(PhotoMetadata photo, boolean allowUpdate) throws IOException {
             // Compute unique photo metadata id from path
-            String id = DigestUtils.sha256Hex(photo.path.toString());
+            String id = DigestUtils.sha256Hex(photo.getPath().toString());
 
             try {
                 return this.document.add(id, photo, allowUpdate);
             } catch (DocumentAlreadyExistsException e) {
-                String msg = "Photo [id=" + id + ", path=" + photo.path + "] already exists in index "
+                String msg = "Photo [id=" + id + ", path=" + photo.getPath() + "] already exists in index "
                         + this.document.getIndex();
                 logger.error(msg);
                 throw new IOException(msg, e);

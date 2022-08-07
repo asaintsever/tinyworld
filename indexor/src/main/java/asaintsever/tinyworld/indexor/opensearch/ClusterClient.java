@@ -129,6 +129,12 @@ public class ClusterClient implements Closeable {
         return deleteResponse.acknowledged();
     }
 
+    public Boolean loadSearchTemplate(String templatePath) throws IOException {
+        // TODO
+        // Read JSON Search Template file and load it in cluster
+        return false;
+    }
+
     @Override
     public void close() throws IOException {
         if (this.restClient != null)

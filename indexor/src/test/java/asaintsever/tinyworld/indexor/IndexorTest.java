@@ -158,7 +158,7 @@ public class IndexorTest {
         System.out.println(
                 "Total=" + mtdList.total() + ", Size=" + mtdList.size() + ", Result=" + mtdList.get().toString());
 
-        // Search for photos within given distance
+        // Search for photos within given distance (5000km radius from Paris, France)
         queryDSL = "{\"geo_distance\": {\"distance\": \"5000km\", \"gpsLatLong\": \"48.85,2.35\"}}";
 
         mtdList = indexor.photos().search(queryDSL, 0, 5);

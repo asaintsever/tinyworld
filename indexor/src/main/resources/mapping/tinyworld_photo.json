@@ -1,0 +1,114 @@
+{
+    "properties": {
+        "path": {
+            "type": "text"
+        },
+        "fileName": {
+            "type": "text"
+        },
+        "sizeMb": {
+            "type": "float"
+        },
+        "takenDate": {
+            "type": "date",
+            "format": "yyyy-MM-dd HH:mm:ss"
+        },
+        "takenYear": {
+            "type": "short"
+        },
+        "takenMonth": {
+            "type": "byte"
+        },
+        "timeZoneOffset": {
+            "type": "text"
+        },
+        "thumbnail": {
+            "type": "text"
+        },
+        "camModelMake": {
+            "type": "text",
+            "fields": {
+                "keyword": {
+                    "type": "keyword"
+                }
+            }
+        },
+        "pixelRes": {
+            "type": "text",
+            "fields": {
+                "keyword": {
+                    "type": "keyword"
+                }
+            }
+        },
+        "countryCode": {
+            "type": "text",
+            "fields": {
+                "keyword": {
+                    "type": "keyword"
+                }
+            }
+        },
+        "country": {
+            "type": "text",
+            "fields": {
+                "keyword": {
+                    "type": "keyword"
+                }
+            }
+        },
+        "stateOrProvince": {
+            "type": "text",
+            "fields": {
+                "keyword": {
+                    "type": "keyword"
+                }
+            }
+        },
+        "city": {
+            "type": "text",
+            "fields": {
+                "keyword": {
+                    "type": "keyword"
+                }
+            }
+        },
+        "sublocation": {
+            "type": "text",
+            "fields": {
+                "keyword": {
+                    "type": "keyword"
+                }
+            }
+        },
+        "caption": {
+            "type": "text"
+        },
+        "title": {
+            "type": "text"
+        },
+        "headline": {
+            "type": "text"
+        },
+        "gpsDatum": {
+            "type": "text",
+            "fields": {
+                "keyword": {
+                    "type": "keyword"
+                }
+            }
+        },
+        "gpsLatLong": {
+            "type": "geo_point"
+        },
+        "tags": {
+            "type": "text",
+            "fields": {
+                "keyword": {
+                    "type": "keyword",
+                    "ignore_above": 256
+                }
+            }
+        }
+    }
+}
