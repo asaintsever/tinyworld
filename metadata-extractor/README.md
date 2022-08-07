@@ -18,11 +18,12 @@
 | **Lat** | *Exif:GPS:LatitudeRef Exif:GPS:Latitude* |
 | **Long** | *Exif:GPS:LongitudeRef Exif:GPS:Longitude* |
 | **Datum** | *Exif:GPS:GPSMapDatum* |
-| **File Size** | |
-| **File Name** | |
-| **Absolute Path** | |
+| **File Size** | Photo file size |
+| **File Name** | Photo file name |
+| **Absolute Path** | URL to photo |
 | **Camera Model (Manufacturer)** | *Exif:IFD0:Model (Exif:IFD0:Make)* |
 | **Thumbnail** | *Exif:IFD1:ThumbnailImage* or generated from photo if not found |
+| **Keywords** | *Iptc:IPTC:Keywords* |
 
 ## Format and Schema
 
@@ -35,6 +36,8 @@
     "fileName":"<photo filename>",
     "sizeMb":<photo size in mb>,
     "takenDate":"<taken date>",
+    "takenYear":<taken year>,
+    "takenMonth":<taken month>,
     "timeZoneOffset":"<timezone offset>",
     "thumbnail":"<base64-encoded photo thumbnail>",
     "camModelMake":"<camera model and maker>",
@@ -49,6 +52,7 @@
     "headline":"<headline>",
     "gpsDatum":"<gps map datum>",
     "gpsLat":"<gps latitude>",
-    "gpsLong":"<gps longitude>"
+    "gpsLong":"<gps longitude>",
+    "tags":["<keyword>", ...]
   }
   ```

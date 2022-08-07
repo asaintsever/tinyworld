@@ -9,7 +9,7 @@ IMAGE_FQIN:=asaintsever/tinyworld
 
 .SILENT: ;  	# No need for @
 .ONESHELL: ; 	# Single shell for a target (required to properly use local variables)
-.PHONY: help init clean test package run-ui run-indexor pre-release gen-portableapp gen-container-image gen-appimage next-version release
+.PHONY: help init clean format test package run-ui run-indexor pre-release gen-portableapp gen-container-image gen-appimage next-version release
 .DEFAULT_GOAL := help
 
 help: ## Show Help
@@ -21,6 +21,10 @@ init: ## Init build (to run once)
 clean: ## Clean
 	mvn clean
 	rm -rf release/artifacts || true
+
+format: ## Format code
+	mvn install -pl build-tools
+	mvn net.revelc.code.formatter:formatter-maven-plugin:format
 
 test: clean ## Run tests
 	mvn test

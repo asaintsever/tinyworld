@@ -20,18 +20,21 @@
 package asaintsever.tinyworld.metadata.extractor;
 
 import java.net.URL;
+import java.util.Calendar;
 import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
+import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.Accessors;
 
 @ToString
 @Setter
+@Getter
 @Accessors(chain = true)
 @JsonInclude(Include.NON_NULL)
 public class PhotoMetadata {
@@ -69,47 +72,54 @@ public class PhotoMetadata {
      *
      * Used to compute Id/Primary Key during ingestion
      */
-    public URL path;
+    private URL path;
 
-    public String fileName;
+    private String fileName;
 
     @JsonSerialize(using = CustomFloatSerializer.class)
-    public Float sizeMb;
+    private Float sizeMb;
 
     @JsonSerialize(using = CustomDateSerializer.class)
-    public Date takenDate;
+    private Date takenDate;
 
-    public String timeZoneOffset;
+    private Short takenYear;
+    private Short takenMonth;
+
+    private String timeZoneOffset;
 
     /**
      * Base64-encoded thumbnail
      */
-    public String thumbnail;
+    private String thumbnail;
 
     /**
      * Model (Manufacturer)
      */
-    public String camModelMake;
+    private String camModelMake;
 
     /**
      * Width x Height
      */
-    public String pixelRes;
+    private String pixelRes;
 
-    public String countryCode;
-    public String country;
-    public String stateOrProvince;
-    public String city;
-    public String sublocation;
-    public String caption;
-    public String title;
-    public String headline;
+    private String countryCode;
+    private String country;
+    private String stateOrProvince;
+    private String city;
+    private String sublocation;
+    private String caption;
+    private String title;
+    private String headline;
 
-    public String gpsDatum;
+    private String gpsDatum;
 
     // "lat,lon" format to comply with geo_point string format
     // (https://www.elastic.co/guide/en/elasticsearch/reference/current/geo-point.html)
-    public String gpsLatLong;
+    private String gpsLatLong;
+
+    // IPTC keywords from photo but also custom ones (added by object/face detection algorithms later
+    // on)
+    private String[] tags;
 
     /**
      * Initialize from default metadata
@@ -121,10 +131,28 @@ public class PhotoMetadata {
             // Handling other fields not relevant unless we want to add extended metadata ingestion capabilities
             // to TinyWorld (not the intent now)
             this.setCountry(defaultMetadata.country);
+            this.setCountryCode(defaultMetadata.countryCode);
             this.setGpsLatLong(defaultMetadata.gpsLatLong);
         }
 
         return this;
+    }
+
+    /**
+     * Setters with data extraction
+     */
+    public PhotoMetadata setTakenDate(Date takenDate) {
+        this.takenDate = takenDate;
+
+        // Extract year and month
+        if (this.takenDate != null) {
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(this.takenDate);
+            return this.setTakenYear((short) calendar.get(Calendar.YEAR))
+                    .setTakenMonth((short) (calendar.get(Calendar.MONTH) + 1));
+        } else {
+            return this;
+        }
     }
 
     /**
@@ -139,11 +167,32 @@ public class PhotoMetadata {
         return this;
     }
 
+    public PhotoMetadata setCountryCode(String countryCode) {
+        if (countryCode != null && !countryCode.isBlank()) {
+            this.countryCode = countryCode;
+        }
+
+        return this;
+    }
+
     public PhotoMetadata setGpsLatLong(String latlong) {
         if (latlong != null && !latlong.isBlank()) {
             this.gpsLatLong = latlong;
         }
 
+        return this;
+    }
+
+    /**
+     * Private setters (internal call only)
+     */
+    private PhotoMetadata setTakenYear(Short takenYear) {
+        this.takenYear = takenYear;
+        return this;
+    }
+
+    private PhotoMetadata setTakenMonth(Short takenMonth) {
+        this.takenMonth = takenMonth;
         return this;
     }
 }

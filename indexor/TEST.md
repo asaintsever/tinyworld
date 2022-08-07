@@ -2,7 +2,7 @@
 
 ## Indexing test photos
 
-A test program is provided to test extraction of photo metadata: [IndexorCmd](src/main/java/asaintsever/tinyworld/indexor/IndexorCmd.java). This program instantiates and exposes a local OpenSearch cluster at `http://localhost:9200`.
+A program is provided to test extraction of photo metadata: [IndexorCmd](src/main/java/asaintsever/tinyworld/indexor/IndexorCmd.java). This program instantiates and exposes a local OpenSearch cluster at `http://localhost:9200`.
 
 ```sh
 make run-indexor
@@ -39,7 +39,8 @@ To connect on OpenSearch/Elasticsearch cluster using Elasticvue's docker image:
 2) Start Elasticvue
 
     ```sh
-    docker run -p 8080:8080 -d cars10/elasticvue
+    # Using either Docker or Podman. Podman in use here.
+    podman run -p 8080:8080 -d docker.io/cars10/elasticvue
     ```
 
 3) Open browser at `http://<your IP>:8080`, then enter cluster address and port and click on "Connect" button.

@@ -102,8 +102,7 @@ public class ExtractMetadataFromPhotoTest {
     @Test
     void getTinyWorldPhotoMetadataWithDefaults() {
         PhotoMetadata defaultMetadata = new PhotoMetadata();
-        defaultMetadata.country = "France";
-        defaultMetadata.gpsLatLong = "48.85,2.35";
+        defaultMetadata.setCountry("France").setCountryCode("FRA").setGpsLatLong("48.85,2.35");
 
         // Using 1 to indicate that only first level should be visited.
         Result res = Extract.exploreFS("src/test/resources/photos/level1", 1, new IPhotoProcess() {

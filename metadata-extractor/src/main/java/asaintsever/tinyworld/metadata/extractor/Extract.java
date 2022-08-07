@@ -81,40 +81,45 @@ public class Extract {
         int nb_skipped = 0;
         List<String> errors = new ArrayList<String>();
 
-        try {
-            Set<URI> photos = listFilesUsingFileWalk(rootDir, depth);
+        if (photoProcess != null) {
+            try {
+                Set<URI> photos = listFilesUsingFileWalk(rootDir, depth);
 
-            for (URI photo : photos) {
-                File photoFile = new File(photo);
-                try (InputStream photoStream = new FileInputStream(photoFile)) {
-                    try (FilterInputStream photoFltStream = new BufferedInputStream(photoStream)) {
-                        // Check this is a supported media
-                        FileType fileType = FileTypeDetector.detectFileType(photoFltStream);
+                for (URI photo : photos) {
+                    File photoFile = new File(photo);
+                    try (InputStream photoStream = new FileInputStream(photoFile)) {
+                        try (FilterInputStream photoFltStream = new BufferedInputStream(photoStream)) {
+                            // Check this is a supported media
+                            FileType fileType = FileTypeDetector.detectFileType(photoFltStream);
 
-                        if (fileType == FileType.Jpeg || fileType == FileType.Png) {
-                            Metadata metadata = ImageMetadataReader.readMetadata(photoFile); // Use File here, not
-                                                                                             // stream, to get
-                                                                                             // FileSystemDirectory info
-                                                                                             // (photo name and size)
-                            photoProcess.task(photo, fileType, metadata);
-                            nb_processed_ok++;
-                        } else {
-                            logger.warn("Skipping " + photo + ": unsupported media type (" + fileType.getName() + ")");
-                            nb_skipped++;
+                            if (fileType == FileType.Jpeg || fileType == FileType.Png) {
+                                Metadata metadata = ImageMetadataReader.readMetadata(photoFile); // Use File here, not
+                                                                                                 // stream, to get
+                                                                                                 // FileSystemDirectory
+                                                                                                 // info
+                                                                                                 // (photo name and
+                                                                                                 // size)
+                                photoProcess.task(photo, fileType, metadata);
+                                nb_processed_ok++;
+                            } else {
+                                logger.warn(
+                                        "Skipping " + photo + ": unsupported media type (" + fileType.getName() + ")");
+                                nb_skipped++;
+                            }
+                        } catch (ImageProcessingException | PhotoProcessException e) {
+                            nb_processed_error++;
+                            errors.add(e.getMessage());
+                            logger.error(e.getMessage());
                         }
-                    } catch (ImageProcessingException | PhotoProcessException e) {
-                        nb_processed_error++;
-                        errors.add(e.getMessage());
+                    } catch (IOException e) {
                         logger.error(e.getMessage());
+                        e.printStackTrace();
                     }
-                } catch (IOException e) {
-                    logger.error(e.getMessage());
-                    e.printStackTrace();
                 }
+            } catch (IOException e) {
+                logger.error(e.getMessage());
+                e.printStackTrace();
             }
-        } catch (IOException e) {
-            logger.error(e.getMessage());
-            e.printStackTrace();
         }
 
         return new Result(nb_processed_ok, nb_processed_error, nb_skipped, errors);

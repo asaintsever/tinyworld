@@ -117,6 +117,14 @@ make gen-appimage
 make gen-container-image
 ```
 
+## Releases
+
+Instructions to release new versions of TinyWorld are available [here](RELEASE.md).
+
+## Contributing
+
+See [Contributing Guide](CONTRIBUTING.md)
+
 ## Deps & Credits
 
 TinyWorld is built upon lots of great open source projects. Main ones are listed below.

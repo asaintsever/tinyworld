@@ -20,14 +20,9 @@
 package asaintsever.tinyworld.cfg;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.URL;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections;
 
 import org.apache.commons.text.StringSubstitutor;
 import org.apache.commons.text.lookup.StringLookupFactory;
@@ -36,6 +31,9 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+
+import asaintsever.tinyworld.cfg.utils.Utils;
+import asaintsever.tinyworld.cfg.utils.Utils.IResourceProcessing;
 
 public class Loader {
     protected static Logger logger = LoggerFactory.getLogger(Loader.class);
@@ -74,28 +72,26 @@ public class Loader {
         // As a fallback: get default config from file embedded in jar
         if (internalCfg) {
             try {
-                ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-                URL resource = classLoader.getResource(Env.TINYWORLD_CONFIG_HOME + "/" + Env.TINYWORLD_CONFIG_FILE);
+                cfg = Utils.getInternalResource(Env.TINYWORLD_CONFIG_HOME + "/" + Env.TINYWORLD_CONFIG_FILE,
+                        new IResourceProcessing<Configuration>() {
 
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Loading internal configuration from: " + resource.toString());
-                }
+                            @Override
+                            public Configuration process(Path resourcePath) throws IOException {
+                                Configuration defaultCfg = unserialize(resourcePath);
 
-                try (FileSystem fs = initFileSystem(resource.toURI())) {
-                    Path cfgFile = Paths.get(resource.toURI());
-                    cfg = unserialize(cfgFile);
+                                if (writeDefaultCfgIfNotFound) {
+                                    // Write config in current user's home directory
+                                    try {
+                                        Files.createDirectories(Env.TINYWORLD_CONFIG_HOME_PATH);
+                                        Files.copy(resourcePath, TINYWORLD_CONFIG_FILE_PATH);
+                                    } catch (Exception e) {
+                                        logger.error("Fail to write default configuration", e);
+                                    }
+                                }
 
-                    if (writeDefaultCfgIfNotFound) {
-                        // Write config in current user's home directory
-                        try {
-                            Files.createDirectories(Env.TINYWORLD_CONFIG_HOME_PATH);
-                            Files.copy(cfgFile, TINYWORLD_CONFIG_FILE_PATH);
-                        } catch (Exception e) {
-                            logger.error("Fail to write default configuration", e);
-                        }
-                    }
-                } catch (UnsupportedOperationException e) {
-                }
+                                return defaultCfg;
+                            }
+                        });
             } catch (Exception e) {
                 logger.error("Fail to load internal configuration", e);
             }
@@ -108,17 +104,5 @@ public class Loader {
         String cfgFileContent = stringSubstitutor.replace(new String(Files.readAllBytes(cfgFilePath)));
         Configuration cfg = mapper.readValue(cfgFileContent, Configuration.class);
         return cfg;
-    }
-
-    // Create filesystem (see doc
-    // https://docs.oracle.com/javase/7/docs/technotes/guides/io/fsp/zipfilesystemprovider.html)
-    // See
-    // https://stackoverflow.com/questions/25032716/getting-filesystemnotfoundexception-from-zipfilesystemprovider-when-creating-a-p
-    private static FileSystem initFileSystem(URI uri) throws IOException {
-        try {
-            return FileSystems.newFileSystem(uri, Collections.emptyMap());
-        } catch (IllegalArgumentException e) {
-            return FileSystems.getDefault();
-        }
     }
 }

@@ -135,6 +135,12 @@ public class PhotoObject {
                     .setSublocation(iptcDesc.getDescription(IptcDirectory.TAG_SUB_LOCATION))
                     .setCaption(iptcDesc.getCaptionDescription()).setTitle(iptcDesc.getObjectNameDescription())
                     .setHeadline(iptcDesc.getHeadlineDescription());
+
+            if (iptcDesc.getKeywordsDescription() != null) {
+                // IPTC keywords have been concatenated with ";" as separator
+                String[] keywords = iptcDesc.getKeywordsDescription().split(";");
+                this.metadata.setTags(keywords);
+            }
         }
 
         GpsDirectory gpsDir = metadata.getFirstDirectoryOfType(GpsDirectory.class);

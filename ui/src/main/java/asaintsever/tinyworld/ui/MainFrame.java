@@ -133,8 +133,8 @@ public class MainFrame extends JFrame {
         this.addListeners(this.globePanel.getStatusBar().getIndexorStatusPanel());
 
         for (Layer layer : this.globePanel.getLayers()) {
-            // Search the layer list for layers that are also select listeners and register them with the World
-            // Window. This enables interactive layers to be included without specific knowledge of them here.
+            // Search the layer list for layers that are also select listeners and register them.
+            // This enables interactive layers to be included without specific knowledge of them here.
             this.addListeners(layer);
 
             if (layer instanceof WorldMapLayer)
