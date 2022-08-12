@@ -17,21 +17,25 @@
  *
  *    https://github.com/asaintsever/tinyworld
  */
-package asaintsever.tinyworld.indexor;
+package asaintsever.tinyworld.indexor.search.results;
 
 import java.util.Collections;
 import java.util.List;
 
+import lombok.ToString;
+
+@ToString
 public class IndexPage<T> {
 
     @SuppressWarnings("rawtypes")
     public static final IndexPage EMPTY = new IndexPage<>(Collections.emptyList(), null, 0, 0, 0);
 
-    private final List<T> documents;
-    private final String query;
     private final long total;
     private final int from;
     private final int size;
+    private final boolean lastPage;
+    private final String query;
+    private final List<T> documents;
 
     public IndexPage(List<T> products, String query, long total, int from, int size) {
         this.documents = products;
@@ -39,6 +43,7 @@ public class IndexPage<T> {
         this.total = total;
         this.from = from;
         this.size = size;
+        this.lastPage = (from + size) >= total ? true : false;
     }
 
     public List<T> get() {
@@ -59,5 +64,9 @@ public class IndexPage<T> {
 
     public int size() {
         return this.size;
+    }
+
+    public boolean isLastPage() {
+        return this.lastPage;
     }
 }

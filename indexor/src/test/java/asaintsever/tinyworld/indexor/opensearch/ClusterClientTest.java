@@ -24,6 +24,8 @@ import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -41,14 +43,19 @@ import org.opensearch.rest.RestStatus;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-import asaintsever.tinyworld.indexor.IndexPage;
 import asaintsever.tinyworld.indexor.LatLongGenerator;
 import asaintsever.tinyworld.indexor.opensearch.Cluster.ClusterNodeException;
+import asaintsever.tinyworld.indexor.search.results.TermsAggregation;
+import asaintsever.tinyworld.indexor.search.results.IndexPage;
 import asaintsever.tinyworld.metadata.extractor.CustomDateSerializer;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 public class ClusterClientTest {
+
+    private final static String TEST_SEARCH_TEMPLATE_ID = "my_test_template";
+    private final static Map<String, String> TEST_SEARCH_TEMPLATES = Map.of(TEST_SEARCH_TEMPLATE_ID,
+            "search_templates/my_test_template.json");
 
     private static Cluster cluster;
     private static ClusterClient client;
@@ -71,7 +78,8 @@ public class ClusterClientTest {
     @SuppressWarnings("resource")
     @BeforeAll
     public static void setup() throws ClusterNodeException {
-        // Create single node cluster on special port
+        // Create single node cluster on special port. Cluster is exposed to be able to connect to it from
+        // any external tool.
         cluster = new Cluster().setHttpPort(9299).setPathHome("target/index").create(true);
 
         // Create client, connect on local cluster
@@ -80,6 +88,10 @@ public class ClusterClientTest {
 
     @AfterAll
     public static void teardown() throws IOException {
+        if (client.isSearchTemplateExists(TEST_SEARCH_TEMPLATE_ID)) {
+            client.deleteSearchTemplate(TEST_SEARCH_TEMPLATE_ID);
+        }
+
         client.close();
         cluster.close();
     }
@@ -193,8 +205,8 @@ public class ClusterClientTest {
         assertFalse(client.isIndexExists("test.index"));
 
         // Set explicit mapping so that dates and coordinates are handled the way we want
-        String mapping = "{\"properties\": {\"attr1\": {\"type\": \"text\"}," + "\"attr2\": {\"type\": \"text\"},"
-                + "\"attr3\": {\"type\": \"float\"}," + "\"attr4\": {\"type\": \"text\"},"
+        String mapping = "{\"properties\": {\"attr1\": {\"type\": \"text\"}, \"attr2\": {\"type\": \"text\"},"
+                + "\"attr3\": {\"type\": \"float\"}, \"attr4\": {\"type\": \"text\"},"
                 + "\"creationDate\": {\"type\": \"date\", \"format\": \"yyyy-MM-dd HH:mm:ss\"},"
                 + "\"latlong\": {\"type\": \"geo_point\"}}}";
 
@@ -210,7 +222,7 @@ public class ClusterClientTest {
 
             EasyRandom easyRandom = new EasyRandom(parameters);
 
-            for (int i = 0; i < 10; i++) {
+            for (int i = 0; i < 15; i++) {
                 assertTrue(() -> {
                     try {
                         // Insert documents
@@ -224,34 +236,92 @@ public class ClusterClientTest {
 
             // Pause before asking # of doc in index
             Thread.sleep(2000);
-            assertEquals(doc.count(), 10);
+            assertEquals(doc.count(), 15);
 
             // Search all documents
-            IndexPage<DocObject> docObjList = doc.search("{\"simple_query_string\": {\"query\": \"*\"}}",
+            IndexPage<DocObject> docObjList = doc.search("{\"simple_query_string\": {\"query\": \"*\"}}", 0, 10,
                     DocObject.class);
-            System.out.println("Total=" + docObjList.total() + ", Size=" + docObjList.size() + ", Result="
-                    + docObjList.get().toString());
+            System.out.println(docObjList);
+            assertFalse(docObjList.isLastPage());
+
+            docObjList = doc.next(docObjList, DocObject.class); // Get remaining documents
+            System.out.println(docObjList);
+            assertTrue(docObjList.isLastPage());
 
             // Search for documents with creationDate date before 2022
             String queryDSL = "{\"range\": {\"creationDate\": {\"lt\": \"2022-01-01\", \"format\": \"yyyy-MM-dd\"}}}";
 
             docObjList = doc.search(queryDSL, 0, 5, DocObject.class);
-            System.out.println("Total=" + docObjList.total() + ", Size=" + docObjList.size() + ", Result="
-                    + docObjList.get().toString());
+            System.out.println(docObjList);
 
             // Search for documents in south hemisphere
             queryDSL = "{\"geo_bounding_box\": {\"latlong\": {\"top_left\": \"0,-180\", \"bottom_right\": \"-90,180\"}}}";
 
             docObjList = doc.search(queryDSL, 0, 5, DocObject.class);
-            System.out.println("Total=" + docObjList.total() + ", Size=" + docObjList.size() + ", Result="
-                    + docObjList.get().toString());
+            System.out.println(docObjList);
 
             // Search for documents within given distance (5000km radius from Paris, France)
             queryDSL = "{\"geo_distance\": {\"distance\": \"5000km\", \"latlong\": \"48.85,2.35\"}}";
 
             docObjList = doc.search(queryDSL, 0, 5, DocObject.class);
-            System.out.println("Total=" + docObjList.total() + ", Size=" + docObjList.size() + ", Result="
-                    + docObjList.get().toString());
+            System.out.println(docObjList);
         }
+    }
+
+    @Test
+    void loadThenDeleteSearchTemplate() throws IOException {
+        assertFalse(client.isSearchTemplateExists(TEST_SEARCH_TEMPLATE_ID));
+        assertTrue(
+                client.loadSearchTemplate(TEST_SEARCH_TEMPLATE_ID, TEST_SEARCH_TEMPLATES.get(TEST_SEARCH_TEMPLATE_ID)));
+        assertTrue(client.isSearchTemplateExists(TEST_SEARCH_TEMPLATE_ID));
+        assertTrue(client.deleteSearchTemplate(TEST_SEARCH_TEMPLATE_ID));
+    }
+
+    @Test
+    void runSearchTemplate() throws IOException, InterruptedException {
+        // Make sure our template has been loaded
+        if (!client.isSearchTemplateExists(TEST_SEARCH_TEMPLATE_ID)) {
+            assertTrue(client.loadSearchTemplate(TEST_SEARCH_TEMPLATE_ID,
+                    TEST_SEARCH_TEMPLATES.get(TEST_SEARCH_TEMPLATE_ID)));
+        }
+
+        assertFalse(client.isIndexExists("test.index"));
+
+        // Set explicit mapping with keyword type for fields we want to aggregate (attr4 & attr1 in our test
+        // template)
+        String mapping = "{\"properties\": {\"attr1\": {\"type\": \"keyword\"}, \"attr4\": {\"type\": \"keyword\"}}}";
+
+        assertTrue(client.createIndex("test.index", mapping));
+
+        // Insert documents before running our template
+        try (Document<DocObject> doc = new Document<>(client)) {
+            // Set date format for our Document mapper to match defined format for DocObject
+            doc.setIndex("test.index").getMapper().setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
+
+            EasyRandomParameters parameters = new EasyRandomParameters().seed(seed);
+            EasyRandom easyRandom = new EasyRandom(parameters);
+
+            for (int i = 0; i < 30; i++) {
+                assertTrue(() -> {
+                    try {
+                        // Insert documents
+                        String id = doc.add(easyRandom.nextObject(DocObject.class));
+                        return ((id != null) && !id.isEmpty());
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+            }
+
+            // Pause before asking # of doc in index
+            Thread.sleep(2000);
+            assertEquals(doc.count(), 30);
+
+            // Now, run template
+            List<TermsAggregation> aggr = doc.getAggregations(TEST_SEARCH_TEMPLATE_ID);
+            System.out.println(aggr);
+        }
+
+        assertTrue(client.deleteSearchTemplate(TEST_SEARCH_TEMPLATE_ID));
     }
 }

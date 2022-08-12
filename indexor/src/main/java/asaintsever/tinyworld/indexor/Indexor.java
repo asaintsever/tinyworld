@@ -23,6 +23,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
+import java.util.Map;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.slf4j.Logger;
@@ -32,6 +33,7 @@ import asaintsever.tinyworld.cfg.Configuration;
 import asaintsever.tinyworld.cfg.utils.Utils;
 import asaintsever.tinyworld.indexor.opensearch.Cluster;
 import asaintsever.tinyworld.indexor.opensearch.Cluster.ClusterNodeException;
+import asaintsever.tinyworld.indexor.search.results.IndexPage;
 import asaintsever.tinyworld.indexor.opensearch.ClusterClient;
 import asaintsever.tinyworld.indexor.opensearch.Document;
 import asaintsever.tinyworld.indexor.opensearch.DocumentAlreadyExistsException;
@@ -57,8 +59,11 @@ public class Indexor implements Closeable {
     private Photo photos;
 
     private final static String DEFAULT_MAPPING = "mapping/tinyworld_photo.json";
-    private final static String[] SEARCH_TEMPLATES = { "search_templates/country_year_month.json",
-            "search_templates/year_country_month.json", "search_templates/year_month.json" };
+
+    // Init map of Search Templates (<template id>, <template path>) using Java 9 Map<K, V> interface
+    private final static Map<String, String> SEARCH_TEMPLATES = Map.of("country_year_month",
+            "search_templates/country_year_month.json", "year_country_month",
+            "search_templates/year_country_month.json", "year_month", "search_templates/year_month.json");
 
     // Default for TinyWorld's date format, mapping and storage path. Can be modified using static
     // setters.
@@ -71,7 +76,7 @@ public class Indexor implements Closeable {
         try {
             MAPPING = new String(Utils.getInternalResource(DEFAULT_MAPPING));
         } catch (IOException | URISyntaxException e) {
-            logger.error("Fail to load internal mapping", e);
+            logger.error("Fail to load internal mapping (" + DEFAULT_MAPPING + ")", e);
         }
     }
 
@@ -121,7 +126,17 @@ public class Indexor implements Closeable {
         this.mtdIndx = new MetadataIndex().setConnection(this.clusterClient, this.index);
         this.photos = new Photo().setConnection(this.clusterClient, this.index);
 
-        // TODO call this.clusterClient.loadSearchTemplate() to load all search templates into cluster
+        // Load all search templates into cluster
+        SEARCH_TEMPLATES.forEach((k, v) -> {
+            try {
+                if (!this.clusterClient.isSearchTemplateExists(k)) {
+                    this.clusterClient.loadSearchTemplate(k, v);
+                }
+            } catch (IOException e) {
+                logger.error("Fail to load search template " + k + " from resource " + v + ": " + e.getMessage());
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     public PhotoMetadata getDefaultMetadata() {

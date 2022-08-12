@@ -10,7 +10,7 @@ make format
 
 ## Logging
 
-- The logging framework to use is **SLF4J** (with LOG4J as backend). *Do not introduce another framework*. You may find references to JUL because of some dependencies making use of it (WorldWind for e.g.): such calls are redirected to SLF4J via the "JUL to SLF4J bridge".
+- The logging framework to use is **SLF4J** (with Log4j as backend). *Do not introduce another framework*. You may find references to JUL *(Java Util Logging)* because of some dependencies making use of it (WorldWind for e.g.): such calls are redirected to SLF4J via the "JUL to SLF4J bridge".
 
 ## Testing
 

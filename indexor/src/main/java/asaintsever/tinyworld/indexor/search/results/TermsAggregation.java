@@ -17,22 +17,29 @@
  *
  *    https://github.com/asaintsever/tinyworld
  */
-package asaintsever.tinyworld.indexor;
+package asaintsever.tinyworld.indexor.search.results;
 
-import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
-import asaintsever.tinyworld.indexor.search.results.IndexPage;
-import asaintsever.tinyworld.metadata.extractor.PhotoMetadata;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
-public interface IPhoto {
+@ToString
+@Setter
+@Getter
+public class TermsAggregation {
 
-    String add(PhotoMetadata photo, boolean allowUpdate) throws IOException;
+    private long sum_other_doc_count;
+    private String name;
+    private List<Bucket> buckets = new ArrayList<Bucket>();
 
-    PhotoMetadata get(String id) throws IOException;
-
-    long count() throws IOException;
-
-    IndexPage<PhotoMetadata> search(String query, int from, int size) throws IOException;
-
-    IndexPage<PhotoMetadata> next(IndexPage<PhotoMetadata> page) throws IOException;
+    @ToString
+    @Setter
+    @Getter
+    public class Bucket {
+        private String key;
+        private List<TermsAggregation> subAggregations = new ArrayList<TermsAggregation>();
+    }
 }
