@@ -31,6 +31,7 @@ import org.opensearch.node.InternalSettingsPreparer;
 import org.opensearch.node.Node;
 import org.opensearch.node.NodeValidationException;
 import org.opensearch.plugins.Plugin;
+import org.opensearch.script.mustache.MustachePlugin;
 import org.opensearch.transport.Netty4Plugin;
 
 public class Cluster implements Closeable {
@@ -93,7 +94,10 @@ public class Cluster implements Closeable {
 
         try {
             // Create and start node all at once
-            this.node = new ClusterNode(settingsBuilder.build(), Arrays.asList(Netty4Plugin.class));
+            this.node = new ClusterNode(settingsBuilder.build(), Arrays.asList(Netty4Plugin.class, // Netty plugin for
+                                                                                                   // transport
+                    MustachePlugin.class // Mustache plugin as supported language in Search Template scripts
+            ));
             this.node.start();
         } catch (NodeValidationException e) {
             throw new ClusterNodeException(e);

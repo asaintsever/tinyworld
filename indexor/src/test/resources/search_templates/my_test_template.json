@@ -1,0 +1,27 @@
+{
+    "aggs": {
+        "docobject_attr4": {
+            "terms": {
+                "field": "attr4",
+                "order": {
+                    "_key": "desc"
+                },
+                "size": 20
+            },
+            "aggs": {
+                "docobject_attr1": {
+                    "terms": {
+                        "field": "attr1",
+                        "order": {
+                            "_key": "asc"
+                        },
+                        "size": 20
+                    }
+                }
+            }
+        }
+    },
+    "size": 0,
+    "from": 0,
+    "sort": []
+}

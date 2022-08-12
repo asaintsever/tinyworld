@@ -39,6 +39,7 @@ import org.junit.jupiter.api.Test;
 import org.opensearch.client.ResponseException;
 import org.opensearch.rest.RestStatus;
 
+import asaintsever.tinyworld.indexor.search.results.IndexPage;
 import asaintsever.tinyworld.metadata.extractor.PhotoMetadata;
 
 public class IndexorTest {

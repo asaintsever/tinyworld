@@ -22,6 +22,7 @@ package asaintsever.tinyworld.indexor.opensearch;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.opensearch.action.search.SearchRequest;
@@ -38,22 +39,29 @@ import org.opensearch.client.opensearch._global.IndexResponse;
 import org.opensearch.index.query.QueryBuilder;
 import org.opensearch.index.query.QueryBuilders;
 import org.opensearch.rest.RestStatus;
+import org.opensearch.script.ScriptType;
+import org.opensearch.script.mustache.SearchTemplateRequest;
+import org.opensearch.script.mustache.SearchTemplateResponse;
 import org.opensearch.search.SearchHit;
 import org.opensearch.search.SearchHits;
 import org.opensearch.search.builder.SearchSourceBuilder;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import asaintsever.tinyworld.indexor.IndexPage;
+import asaintsever.tinyworld.indexor.search.results.TermsAggregation;
+import asaintsever.tinyworld.indexor.opensearch.utils.TermsAggregationBuilder;
+import asaintsever.tinyworld.indexor.search.results.IndexPage;
 
 public class Document<T> implements Closeable {
     private ObjectMapper mapper;
     private ClusterClient client;
     private String index;
 
-    // Used for search only (new Java client search capabilities not on par compared to high-level rest
+    // Used for search and templates only (new Java client search capabilities not on par compared to
+    // high-level rest
     // client)
-    // To be removed once new Java client fully supports all search expressions
+    // To be removed once new Java client fully supports all search expressions and search templates
+    // aggregations
     private RestHighLevelClient restHlClient;
 
     public Document(ClusterClient client) {
@@ -122,8 +130,20 @@ public class Document<T> implements Closeable {
         return countResponse.count().longValue();
     }
 
-    public IndexPage<T> search(String queryDSL, Class<T> docClass) throws IOException {
-        return this.search(queryDSL, 0, 10, docClass);
+    public List<TermsAggregation> getAggregations(String searchTemplateId) throws IOException {
+        SearchRequest searchRequest = new SearchRequest(this.index);
+        SearchTemplateRequest searchTemplateRequest = new SearchTemplateRequest(searchRequest);
+        searchTemplateRequest.setScriptType(ScriptType.STORED); // We use stored Search Template (should have been
+                                                                // loaded first)
+        searchTemplateRequest.setScript(searchTemplateId); // Only reference id of Search Template to invoke
+        searchTemplateRequest.setScriptParams(new HashMap<String, Object>()); // Provide no params (our aggregation
+                                                                              // templates currently had none)
+
+        SearchTemplateResponse searchTemplateResponse = this.restHlClient.searchTemplate(searchTemplateRequest,
+                RequestOptions.DEFAULT);
+        SearchResponse searchResponse = searchTemplateResponse.getResponse();
+
+        return TermsAggregationBuilder.from(searchResponse.getAggregations());
     }
 
     @SuppressWarnings("unchecked")
@@ -147,7 +167,7 @@ public class Document<T> implements Closeable {
 
         for (SearchHit hit : searchHits) {
             // Try to unserialize source to object using provided class
-            T result = mapper.readValue(hit.getSourceAsString(), docClass);
+            T result = this.mapper.readValue(hit.getSourceAsString(), docClass);
             resultList.add(result);
         }
 
