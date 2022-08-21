@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.text.ParseException;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import com.drew.imaging.FileType;
@@ -36,6 +37,23 @@ import com.drew.metadata.xmp.XmpDirectory;
 import asaintsever.tinyworld.metadata.extractor.Extract.Result;
 
 public class ExtractMetadataFromPhotoTest {
+    
+    static boolean isImageMagickInPath;
+
+    
+    @BeforeAll
+    public static void setup() {
+        // Check if ImageMagick is available in PATH or not.
+        // ImageMagick is needed only to generate thumbnails from HEIC photos.
+        try {
+            Runtime.getRuntime().exec("magick -version");
+        } catch (IOException e) {
+            isImageMagickInPath = false;
+            return;
+        }
+        
+        isImageMagickInPath = true;
+    }
 
     @Test
     void getAllPhotoMetadata() {
@@ -68,7 +86,7 @@ public class ExtractMetadataFromPhotoTest {
             }
         });
 
-        assertEquals(25, res.getProcessed_ok());
+        assertEquals(28, res.getProcessed_ok());
         assertEquals(3, res.getSkipped());
         assertEquals(0, res.getProcessed_nok());
         System.out.println("\n====\nResult=" + res.toString());
@@ -93,9 +111,9 @@ public class ExtractMetadataFromPhotoTest {
             }
         });
 
-        assertEquals(12, res.getProcessed_ok());
+        assertEquals(isImageMagickInPath ? 15 : 13, res.getProcessed_ok());
         assertEquals(2, res.getSkipped());
-        assertEquals(0, res.getProcessed_nok());
+        assertEquals(isImageMagickInPath ? 0 : 2, res.getProcessed_nok());
         System.out.println("\n====\nResult=" + res.toString());
     }
 
@@ -148,9 +166,9 @@ public class ExtractMetadataFromPhotoTest {
             }
         });
 
-        assertEquals(25, res.getProcessed_ok());
+        assertEquals(isImageMagickInPath ? 28 : 26, res.getProcessed_ok());
         assertEquals(3, res.getSkipped());
-        assertEquals(0, res.getProcessed_nok());
+        assertEquals(isImageMagickInPath ? 0 : 2, res.getProcessed_nok());
         System.out.println("\n====\nResult=" + res.toString());
     }
 
