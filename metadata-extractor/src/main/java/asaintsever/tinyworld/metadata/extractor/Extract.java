@@ -74,6 +74,7 @@ public class Extract {
     }
 
     protected static Logger logger = LoggerFactory.getLogger(Extract.class);
+    protected final static List<FileType> supportedFileTypes = List.of(FileType.Jpeg, FileType.Png, FileType.Heif);
 
     public static Result exploreFS(String rootDir, int depth, IPhotoProcess photoProcess) {
         int nb_processed_ok = 0;
@@ -92,7 +93,7 @@ public class Extract {
                             // Check this is a supported media
                             FileType fileType = FileTypeDetector.detectFileType(photoFltStream);
 
-                            if (fileType == FileType.Jpeg || fileType == FileType.Png) {
+                            if (supportedFileTypes.contains(fileType)) {
                                 Metadata metadata = ImageMetadataReader.readMetadata(photoFile); // Use File here, not
                                                                                                  // stream, to get
                                                                                                  // FileSystemDirectory

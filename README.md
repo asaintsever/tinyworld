@@ -19,6 +19,7 @@
 
 - JPEG/JPG
 - PNG
+- HEIF/HEIC
 
 ## Requirements
 
@@ -127,8 +128,10 @@ See [Contributing Guide](CONTRIBUTING.md)
 
 ## Deps & Credits
 
-TinyWorld is built upon lots of great open source projects. Main ones are listed below.
+TinyWorld is built upon lots of great projects. Main ones are listed below.
 
 - NASA WorldWind Java: <https://github.com/NASAWorldWind/WorldWindJava>
 - OpenSearch: <https://github.com/opensearch-project/OpenSearch>
 - Metadata Extractor: <https://github.com/drewnoakes/metadata-extractor>
+
+Thumbnails for HEIF/HEIC photos are generated using [ImageMagick](https://imagemagick.org/).
