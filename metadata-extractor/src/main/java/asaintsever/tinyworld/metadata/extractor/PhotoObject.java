@@ -158,7 +158,8 @@ public class PhotoObject {
         GpsDirectory gpsDir = metadata.getFirstDirectoryOfType(GpsDirectory.class);
         if (gpsDir != null) {
             this.metadata.setGpsLatLong(gpsDir.getGeoLocation() != null
-                    ? gpsDir.getGeoLocation().getLatitude() + "," + gpsDir.getGeoLocation().getLongitude() : null);
+                    ? gpsDir.getGeoLocation().getLatitude() + "," + gpsDir.getGeoLocation().getLongitude()
+                    : null);
 
             GpsDescriptor gpsDesc = new GpsDescriptor(gpsDir);
             this.metadata.setGpsDatum(gpsDesc.getDescription(GpsDirectory.TAG_MAP_DATUM));
@@ -214,8 +215,7 @@ public class PhotoObject {
             // Test if HEIF format: Java Image I/O API does not support it
             // Make use of ImageMagick to generate a thumbnail (JPG format)
             if (fileType == FileType.Heif) {
-                ImageCommand cmd = new ImageCommand("magick");
-                // cmd.setSearchPath(""); //In case magick binary is not in path
+                ImageCommand cmd = new ImageCommand(Extract.imageMagickCommand);
                 Stream2BufferedImage s2b = new Stream2BufferedImage();
                 cmd.setOutputConsumer(s2b);
 

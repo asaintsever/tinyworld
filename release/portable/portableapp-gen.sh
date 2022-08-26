@@ -4,26 +4,24 @@ set -e
 
 RELEASE_VERSION=$1
 
-rm -rf release/tmp || true
 rm -rf release/portable/tinyworld-* || true
-mkdir -p release/portable/tinyworld-linux-jre
-mkdir -p release/portable/tinyworld-windows-jre
-mkdir -p release/portable/tinyworld-nojre
+mkdir -p release/portable/tinyworld-linux-jre/tools
+mkdir -p release/portable/tinyworld-windows-jre/tools
 
 cp -R release/portable/tmp/* release/portable/tinyworld-linux-jre
 cp -R release/portable/tmp/* release/portable/tinyworld-windows-jre
-cp -R release/portable/tmp/* release/portable/tinyworld-nojre
 
 cp -R release/portable/linux-jre/tinyworld.* release/portable/tinyworld-linux-jre
 cp -R release/portable/windows-jre/tinyworld.* release/portable/tinyworld-windows-jre
-cp -R release/portable/nojre/tinyworld.* release/portable/tinyworld-nojre
 
 chmod +x release/portable/tinyworld-linux-jre/tinyworld.sh
-chmod +x release/portable/tinyworld-nojre/tinyworld.sh
 
-# No JRE
-echo "Portable No JRE ..."
-tar -C release/portable -czf release/artifacts/TinyWorld-noJRE-${RELEASE_VERSION}-x86_64.tgz tinyworld-nojre
+# Include 3rd party software
+cp release/tmp/3rd/LICENSE-3RD-PARTY.txt release/portable/tinyworld-linux-jre
+cp release/tmp/3rd/linux/* release/portable/tinyworld-linux-jre/tools
+
+cp release/tmp/3rd/LICENSE-3RD-PARTY.txt release/portable/tinyworld-windows-jre
+cp release/tmp/3rd/windows/* release/portable/tinyworld-windows-jre/tools
 
 # Linux - Add JRE 17
 echo "Portable Linux JRE ..."

@@ -37,6 +37,7 @@ import asaintsever.tinyworld.indexor.search.results.IndexPage;
 import asaintsever.tinyworld.indexor.opensearch.ClusterClient;
 import asaintsever.tinyworld.indexor.opensearch.Document;
 import asaintsever.tinyworld.indexor.opensearch.DocumentAlreadyExistsException;
+import asaintsever.tinyworld.metadata.extractor.Extract;
 import asaintsever.tinyworld.metadata.extractor.PhotoMetadata;
 
 public class Indexor implements Closeable {
@@ -137,6 +138,9 @@ public class Indexor implements Closeable {
                 throw new RuntimeException(e);
             }
         });
+
+        // Check metadata extractor prerequisites
+        Extract.checkPrerequisites();
     }
 
     public PhotoMetadata getDefaultMetadata() {

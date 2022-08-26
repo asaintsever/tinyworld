@@ -16,6 +16,10 @@ cp release/appimage/x86_64/AppRun-x86_64 release/appimage/AppDir/AppRun
 chmod +x release/appimage/AppDir/AppRun
 chmod +x release/appimage/AppDir/usr/bin/tinyworld.sh
 
+# Include 3rd party software
+cp release/tmp/3rd/LICENSE-3RD-PARTY.txt release/appimage/AppDir/usr/bin
+cp release/tmp/3rd/linux/* release/appimage/AppDir/usr/bin
+
 # Add JRE 17
 curl -s -L --create-dirs --output release/tmp/jre_linux.tar.gz https://github.com/asaintsever/tinyworld-utils/releases/download/jre-distro/OpenJDK17U-jre_x64_linux_hotspot_17.0.3_7.tar.gz
 tar -xzf release/tmp/jre_linux.tar.gz -C release/appimage/AppDir/usr/bin

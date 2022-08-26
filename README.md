@@ -13,7 +13,7 @@
 - Geolocalize photos on virtual globe with metadata in annotations
 - Search & filter capabilities to easily navigate your photos (by dates, countries, ...)
 - Offline mode (use local cache for globe data)
-- Available as portable app, AppImage package and container image
+- Available as portable app, AppImage package and OCI image
 
 ## Supported Photo Formats
 
@@ -23,9 +23,8 @@
 
 ## Requirements
 
-- Java 11+ for portable app without JRE
 - Linux or WSL2 for AppImage
-- Docker or Podman for container image
+- Docker or Podman for OCI image
 
 ## Configuration
 
@@ -35,7 +34,7 @@ See [TinyWorld Configuration](cfg/README.md)
 
 ### Using Portable App
 
-Untar/Unzip downloaded portable package (several flavors available: without JRE, with Linux JRE, with Windows JRE) then run provided TinyWorld script:
+Untar/Unzip downloaded portable package (several flavors available: with Linux JRE, with Windows JRE) then run provided TinyWorld script:
 
 ```sh
 # On Linux
@@ -61,7 +60,7 @@ By default, 4Gb of memory is set via Xmx/Xms Java options. You can override this
 JAVA_OPTS="-Xmx2048m -Xms1024m" ./TinyWorld-<release version>-x86_64.AppImage
 ```
 
-### Using Container Image on Linux/WSL2
+### Using OCI Image on Linux/WSL2
 
 ```sh
 <docker|podman> run --rm -e DISPLAY -v "$HOME/.Xauthority:/root/.Xauthority:rw" -v "$HOME/.tinyworld:/root/.tinyworld" -v "$HOME/var/cache:/root/var/cache" --network host asaintsever/tinyworld:<release version>
@@ -92,7 +91,7 @@ In case you experience scaling issue with High DPI (such as globe not filling th
 - Maven 3
 - Java JDK 17
 - zip/unzip *(to generate TinyWorld portable app for Windows)*
-- Podman *(to generate TinyWorld container image)*
+- Podman *(to generate TinyWorld OCI image)*
 - FUSE *(to generate TinyWorld AppImage)*
 
     > *On Ubuntu 22.04+, install required FUSE library using `sudo apt install libfuse2`*
@@ -114,8 +113,8 @@ make gen-portableapp
 # Build TinyWorld AppImage
 make gen-appimage
 
-# Build TinyWorld container image
-make gen-container-image
+# Build TinyWorld OCI image
+make gen-oci-image
 ```
 
 ## Releases

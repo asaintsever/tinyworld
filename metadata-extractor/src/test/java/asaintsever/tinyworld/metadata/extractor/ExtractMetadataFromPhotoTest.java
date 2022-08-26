@@ -37,22 +37,14 @@ import com.drew.metadata.xmp.XmpDirectory;
 import asaintsever.tinyworld.metadata.extractor.Extract.Result;
 
 public class ExtractMetadataFromPhotoTest {
-    
+
     static boolean isImageMagickInPath;
 
-    
     @BeforeAll
     public static void setup() {
         // Check if ImageMagick is available in PATH or not.
         // ImageMagick is needed only to generate thumbnails from HEIC photos.
-        try {
-            Runtime.getRuntime().exec("magick -version");
-        } catch (IOException e) {
-            isImageMagickInPath = false;
-            return;
-        }
-        
-        isImageMagickInPath = true;
+        isImageMagickInPath = Extract.checkPrerequisites();
     }
 
     @Test
