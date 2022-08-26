@@ -6,11 +6,16 @@ RUN mkdir -p /opt/tinyworld
 
 WORKDIR /opt/tinyworld
 
-COPY tinyworld.sh .
+ENV PATH=/opt/tinyworld/tools:$PATH
+
+COPY tmp/magick ./tools/magick
+COPY tmp/LICENSE* .
 COPY tmp/deps ./deps
+COPY tinyworld.sh .
 COPY tmp/config ./config
 COPY tmp/*.jar .
 
+RUN chmod +x ./tools/magick
 RUN chmod +x tinyworld.sh
 
 CMD ["./tinyworld.sh"]

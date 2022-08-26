@@ -32,6 +32,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -75,6 +76,26 @@ public class Extract {
 
     protected static Logger logger = LoggerFactory.getLogger(Extract.class);
     protected final static List<FileType> supportedFileTypes = List.of(FileType.Jpeg, FileType.Png, FileType.Heif);
+    protected final static String imageMagickCommand = "magick";
+
+    public static boolean checkPrerequisites() {
+        boolean isWindows = File.pathSeparator.equals(";");
+
+        // Check if ImageMagick is available in PATH or not.
+        // ImageMagick is needed only to generate thumbnails from HEIC photos.
+        try {
+            Process improc = Runtime.getRuntime()
+                    .exec((isWindows ? imageMagickCommand + ".exe" : imageMagickCommand) + " -version");
+            Optional<String> impathname = improc.info().command();
+            logger.info("Found ImageMagick at: " + impathname.get());
+        } catch (IOException e) {
+            logger.warn("ImageMagick program not found: " + e.getMessage());
+            logger.warn("Path is: " + System.getenv("PATH"));
+            return false;
+        }
+
+        return true;
+    }
 
     public static Result exploreFS(String rootDir, int depth, IPhotoProcess photoProcess) {
         int nb_processed_ok = 0;
