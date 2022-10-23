@@ -64,6 +64,8 @@ import net.coobird.thumbnailator.Thumbnails;
 
 public class PhotoObject {
     protected static Logger logger = LoggerFactory.getLogger(PhotoObject.class);
+    protected static final int THUMBNAIL_WIDTH = 160;
+    protected static final int THUMBNAIL_HEIGHT = 160;
     private static ObjectMapper mapper;
     private PhotoMetadata metadata;
 
@@ -221,7 +223,8 @@ public class PhotoObject {
 
                 IMOperation op = new IMOperation();
                 op.addImage(uri.toString());
-                op.thumbnail(160, 160).addImage("jpg:-"); // Generate thumbnail on stdout (jpg format)
+                op.thumbnail(THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT).addImage("jpg:-"); // Generate thumbnail on stdout (jpg
+                                                                                   // format)
 
                 try {
                     cmd.run(op);
@@ -237,9 +240,9 @@ public class PhotoObject {
                 }
             } else {
                 try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-                    // Create thumbnail from photo, resized to a maximum dimension of 160 x 160, maintaining the aspect
-                    // ratio of the original image
-                    Thumbnails.of(uri.toURL()).size(160, 160).toOutputStream(baos);
+                    // Create thumbnail from photo, resized to a maximum dimension of THUMBNAIL_WIDTH x
+                    // THUMBNAIL_HEIGHT, maintaining the aspect ratio of the original image
+                    Thumbnails.of(uri.toURL()).size(THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT).toOutputStream(baos);
                     thumbnail = baos.toByteArray();
                 }
             }

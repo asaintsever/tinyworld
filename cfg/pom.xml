@@ -8,7 +8,7 @@
   <artifactId>cfg</artifactId>
 
   <properties>
-    <commons.text.version>1.9</commons.text.version>
+    <commons.text.version>1.10.0</commons.text.version>
   </properties>
 
   <dependencies>

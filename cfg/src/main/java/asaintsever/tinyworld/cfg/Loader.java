@@ -44,7 +44,7 @@ public class Loader {
     private static StringSubstitutor stringSubstitutor = new StringSubstitutor(
             StringLookupFactory.INSTANCE.environmentVariableStringLookup());
 
-    public static void setPathToConfigFile(String pathCfg) {
+    static void setPathToConfigFile(String pathCfg) {
         TINYWORLD_CONFIG_FILE_PATH = Paths.get(pathCfg);
     }
 

@@ -45,6 +45,7 @@ public class LoaderTest {
         assertEquals(cfg.indexor.cluster.address, "localhost");
         assertEquals(cfg.indexor.cluster.port, 9200);
         assertEquals(cfg.indexor.cluster.index, "photos");
+        assertEquals(cfg.ui.photoTree.filter.template, "year_month");
     }
 
     @Test
@@ -58,6 +59,7 @@ public class LoaderTest {
     @SetEnvironmentVariable(key = "TW_IDX_CLUSTER_ADDRESS", value = "127.0.0.1")
     @SetEnvironmentVariable(key = "TW_IDX_CLUSTER_PORT", value = "9210")
     @SetEnvironmentVariable(key = "TW_IDX_CLUSTER_INDEX", value = "test")
+    @SetEnvironmentVariable(key = "TW_UI_PHOTOTREE_FILTER_TMPL", value = "country_year_month")
     void loadDefaultInternalConfigOverrideWithEnv() {
         Configuration cfg = Loader.getConfig(false);
         assertNotNull(cfg);
@@ -69,6 +71,7 @@ public class LoaderTest {
         assertEquals(cfg.indexor.cluster.address, "127.0.0.1");
         assertEquals(cfg.indexor.cluster.port, 9210);
         assertEquals(cfg.indexor.cluster.index, "test");
+        assertEquals(cfg.ui.photoTree.filter.template, "country_year_month");
     }
 
     @Test
@@ -85,5 +88,6 @@ public class LoaderTest {
         assertEquals(cfg.indexor.cluster.address, "localhost");
         assertEquals(cfg.indexor.cluster.port, 9200);
         assertEquals(cfg.indexor.cluster.index, "my_index");
+        assertEquals(cfg.ui.photoTree.filter.template, "year_country_month");
     }
 }

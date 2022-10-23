@@ -101,8 +101,7 @@ public class IndexorStatusPanel extends JPanel implements IndexorListener, Swing
         this.indexor = indexor;
 
         // Cancel any already running indexorStatusWorker before creating new one
-        if (this.indexorStatusWorker != null)
-            this.indexorStatusWorker.cancel(false);
+        this.cancelWorkers();
 
         this.indexorStatusWorker = new IndexorStatusWorker(this);
         this.indexorStatusWorker.execute();

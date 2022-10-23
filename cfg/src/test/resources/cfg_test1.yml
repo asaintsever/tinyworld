@@ -5,6 +5,9 @@ ui:
     logging:      # logging for dependencies
       wwj: off          # on/off
       flatlaf: off      # on/off
+  photoTree:
+    filter:
+      template: "year_country_month"  # search template to use
  
 indexor:
   # Default TinyWorld's embedded cluster is running at localhost:9200

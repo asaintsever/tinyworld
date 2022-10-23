@@ -32,10 +32,21 @@ public class Configuration {
     @ToString
     public class UI {
         public Deps deps;
+        public PhotoTree photoTree;
 
         @ToString
         public class Deps {
             public Map<String, String> logging;
+        }
+        
+        @ToString
+        public class PhotoTree {
+            public Filter filter;
+            
+            @ToString
+            public class Filter {
+                public String template;
+            }
         }
     }
 

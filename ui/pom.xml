@@ -8,7 +8,7 @@
   <artifactId>ui</artifactId>
 
   <properties>
-    <flatlaf.version>2.4</flatlaf.version>
+    <flatlaf.version>2.6</flatlaf.version>
     <worldwindjava.version>2.2.0</worldwindjava.version>
   </properties>
 

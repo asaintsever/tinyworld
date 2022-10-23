@@ -13,7 +13,7 @@
 - Geolocalize photos on virtual globe with metadata in annotations
 - Search & filter capabilities to easily navigate your photos (by dates, countries, ...)
 - Offline mode (use local cache for globe data)
-- Available as portable app, AppImage package and OCI image
+- Available as portable app, AppImage package and OCI image *(i.e. container)*
 
 ## Supported Photo Formats
 
@@ -24,7 +24,7 @@
 ## Requirements
 
 - Linux or WSL2 for AppImage
-- Docker or Podman for OCI image
+- Docker or [Podman](https://podman.io/) for OCI image
 
 ## Configuration
 
@@ -60,7 +60,7 @@ By default, 4Gb of memory is set via Xmx/Xms Java options. You can override this
 JAVA_OPTS="-Xmx2048m -Xms1024m" ./TinyWorld-<release version>-x86_64.AppImage
 ```
 
-### Using OCI Image on Linux/WSL2
+### Using OCI Image
 
 ```sh
 <docker|podman> run --rm -e DISPLAY -v "$HOME/.Xauthority:/root/.Xauthority:rw" -v "$HOME/.tinyworld:/root/.tinyworld" -v "$HOME/var/cache:/root/var/cache" --network host asaintsever/tinyworld:<release version>
@@ -87,8 +87,11 @@ In case you experience scaling issue with High DPI (such as globe not filling th
 
 ### Requirements
 
-- Make
-- Maven 3
+- GNU Make 4+
+
+    > *On MacOS, you can install/update GNU Make using [brew](https://brew.sh/): `brew install make`*
+
+- Maven 3+
 - Java JDK 17
 - zip/unzip *(to generate TinyWorld portable app for Windows)*
 - Podman *(to generate TinyWorld OCI image)*
