@@ -13,7 +13,7 @@ IMAGE_FQIN:=asaintsever/tinyworld
 .DEFAULT_GOAL := help
 
 help: ## Show Help
-	grep -E '^[a-zA-Z_-]+:.*?## .*$$' Makefile | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
+	grep -E '^[a-zA-Z_-]+:.*?## .*$$' *makefile | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
 init: ## Init build (to run once)
 	mvn validate

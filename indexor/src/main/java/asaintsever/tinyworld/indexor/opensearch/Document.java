@@ -58,8 +58,7 @@ public class Document<T> implements Closeable {
     private String index;
 
     // Used for search and templates only (new Java client search capabilities not on par compared to
-    // high-level rest
-    // client)
+    // high-level rest client)
     // To be removed once new Java client fully supports all search expressions and search templates
     // aggregations
     private RestHighLevelClient restHlClient;

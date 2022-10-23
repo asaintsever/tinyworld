@@ -18,8 +18,9 @@ Following env vars allow to override values in TinyWorld's config file (`tinywor
 |-----|-----------------|-------------|
 | TW_UI_LOGS_WWJ | `on` (default), `off` | Enable logs for NASA WorldWind |
 | TW_UI_LOGS_FLATLAF | `on` (default), `off` | Enable logs for FlatLaf framework |
+| TW_UI_PHOTOTREE_FILTER_TMPL | Any valid search template name. Default is `year_month` | Search template to use in photo tree |
 | TW_IDX_CLUSTER_EMBEDDED | `true` (default), `false` | Use TinyWorld's embedded cluster (OpenSearch). Set to `false` to use your own ElasticSearch / OpenSearch cluster |
 | TW_IDX_CLUSTER_EMBEDDED_EXPOSE | `true`, `false` (default) | Expose embedded cluster to external machines (with CORS enabled as well) |
-| TW_IDX_CLUSTER_ADDRESS | any address. Default is `localhost` | Address of OpenSearch / Elasticsearch cluster |
-| TW_IDX_CLUSTER_PORT | a valid port number. Default is `9200` | Cluster listening port |
-| TW_IDX_CLUSTER_INDEX | any valid index name. Default is `photos` | Cluster index name |
+| TW_IDX_CLUSTER_ADDRESS | Any address. Default is `localhost` | Address of OpenSearch / Elasticsearch cluster |
+| TW_IDX_CLUSTER_PORT | A valid port number. Default is `9200` | Cluster listening port |
+| TW_IDX_CLUSTER_INDEX | Any valid index name. Default is `photos` | Cluster index name |
