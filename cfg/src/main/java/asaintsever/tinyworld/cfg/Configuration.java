@@ -38,11 +38,11 @@ public class Configuration {
         public class Deps {
             public Map<String, String> logging;
         }
-        
+
         @ToString
         public class PhotoTree {
             public Filter filter;
-            
+
             @ToString
             public class Filter {
                 public String template;

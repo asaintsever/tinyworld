@@ -23,6 +23,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.codec.digest.DigestUtils;
@@ -34,6 +35,7 @@ import asaintsever.tinyworld.cfg.utils.Utils;
 import asaintsever.tinyworld.indexor.opensearch.Cluster;
 import asaintsever.tinyworld.indexor.opensearch.Cluster.ClusterNodeException;
 import asaintsever.tinyworld.indexor.search.results.IndexPage;
+import asaintsever.tinyworld.indexor.search.results.TermsAggregation;
 import asaintsever.tinyworld.indexor.opensearch.ClusterClient;
 import asaintsever.tinyworld.indexor.opensearch.Document;
 import asaintsever.tinyworld.indexor.opensearch.DocumentAlreadyExistsException;
@@ -265,6 +267,11 @@ public class Indexor implements Closeable {
         @Override
         public long count() throws IOException {
             return this.document.count();
+        }
+
+        @Override
+        public List<TermsAggregation> getAggregations(String searchTemplateId) throws IOException {
+            return this.document.getAggregations(searchTemplateId);
         }
 
         @Override

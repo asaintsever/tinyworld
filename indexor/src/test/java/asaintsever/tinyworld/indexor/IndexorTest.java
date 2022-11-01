@@ -26,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Random;
 
 import org.jeasy.random.EasyRandom;
@@ -40,6 +41,7 @@ import org.opensearch.client.ResponseException;
 import org.opensearch.rest.RestStatus;
 
 import asaintsever.tinyworld.indexor.search.results.IndexPage;
+import asaintsever.tinyworld.indexor.search.results.TermsAggregation;
 import asaintsever.tinyworld.metadata.extractor.PhotoMetadata;
 
 public class IndexorTest {
@@ -166,4 +168,34 @@ public class IndexorTest {
         System.out.println(
                 "Total=" + mtdList.total() + ", Size=" + mtdList.size() + ", Result=" + mtdList.get().toString());
     }
+
+    @Test
+    void insertThenAggregateMetadata() throws IOException, InterruptedException {
+        assertTrue(indexor.metadataIndex().create()); // Index must be explicitly created as our mapping is set here
+
+        for (int i = 0; i < 100; i++) {
+            assertTrue(() -> {
+                try {
+                    // Insert photo metadata
+                    PhotoMetadata mtd = easyRandom.nextObject(PhotoMetadata.class);
+
+                    String id = indexor.photos().add(mtd, false);
+                    return ((id != null) && !id.isEmpty());
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+        }
+
+        // Pause before asking # of photos in index
+        Thread.sleep(2000);
+        assertEquals(indexor.photos().count(), 100);
+
+        // Now, run template
+        List<TermsAggregation> aggr = indexor.photos().getAggregations("year_country_month");
+        System.out.println(aggr);
+        
+        assertTrue(aggr.size() > 0);
+    }
+
 }

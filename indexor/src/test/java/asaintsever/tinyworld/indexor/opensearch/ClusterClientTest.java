@@ -320,6 +320,8 @@ public class ClusterClientTest {
             // Now, run template
             List<TermsAggregation> aggr = doc.getAggregations(TEST_SEARCH_TEMPLATE_ID);
             System.out.println(aggr);
+
+            assertTrue(aggr.size() > 0);
         }
 
         assertTrue(client.deleteSearchTemplate(TEST_SEARCH_TEMPLATE_ID));
