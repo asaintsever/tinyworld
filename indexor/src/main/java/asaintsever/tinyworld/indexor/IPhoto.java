@@ -20,8 +20,10 @@
 package asaintsever.tinyworld.indexor;
 
 import java.io.IOException;
+import java.util.List;
 
 import asaintsever.tinyworld.indexor.search.results.IndexPage;
+import asaintsever.tinyworld.indexor.search.results.TermsAggregation;
 import asaintsever.tinyworld.metadata.extractor.PhotoMetadata;
 
 public interface IPhoto {
@@ -31,6 +33,8 @@ public interface IPhoto {
     PhotoMetadata get(String id) throws IOException;
 
     long count() throws IOException;
+
+    List<TermsAggregation> getAggregations(String searchTemplateId) throws IOException;
 
     IndexPage<PhotoMetadata> search(String query, int from, int size) throws IOException;
 

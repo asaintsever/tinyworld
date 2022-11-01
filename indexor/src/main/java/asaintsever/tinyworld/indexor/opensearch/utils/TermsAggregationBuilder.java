@@ -24,7 +24,7 @@ import java.util.List;
 
 import org.opensearch.search.aggregations.Aggregation;
 import org.opensearch.search.aggregations.Aggregations;
-import org.opensearch.search.aggregations.bucket.terms.ParsedStringTerms;
+import org.opensearch.search.aggregations.bucket.terms.ParsedTerms;
 import org.opensearch.search.aggregations.bucket.terms.Terms;
 
 import asaintsever.tinyworld.indexor.search.results.TermsAggregation;
@@ -41,10 +41,10 @@ public class TermsAggregationBuilder {
                 for (Aggregation aggregation : aggrList) {
                     // We only support Terms aggregation
                     // (https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-terms-aggregation.html)
-                    if (ParsedStringTerms.class.isInstance(aggregation)) {
+                    if (ParsedTerms.class.isInstance(aggregation)) {
                         TermsAggregation buckAggr = new TermsAggregation();
 
-                        ParsedStringTerms aggr = (ParsedStringTerms) aggregation;
+                        ParsedTerms aggr = (ParsedTerms) aggregation;
                         buckAggr.setName(aggr.getName());
                         buckAggr.setSum_other_doc_count(aggr.getSumOfOtherDocCounts());
 
