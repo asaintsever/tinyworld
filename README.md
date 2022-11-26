@@ -7,7 +7,7 @@
 [![Docker Pulls](https://img.shields.io/docker/pulls/asaintsever/tinyworld?style=for-the-badge)](https://hub.docker.com/r/asaintsever/tinyworld)
 [![Latest release](https://img.shields.io/github/v/release/asaintsever/tinyworld?style=for-the-badge)](https://github.com/asaintsever/tinyworld/releases)
 
-![](tinyworld.gif)
+![](https://github.com/asaintsever/tinyworld/releases/download/demo/tinyworld.gif)
 
 ## Features
 
