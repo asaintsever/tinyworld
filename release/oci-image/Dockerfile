@@ -1,6 +1,6 @@
 FROM docker.io/eclipse-temurin:17-jre
 
-RUN apt update && apt upgrade -y && apt install -y libxrender1 libxtst6 libxi6 libxxf86vm1 mesa-utils
+RUN apt update && apt upgrade -y && apt install -y libraqm0 liblqr-1-0 libdjvulibre21 libwebpmux3 libwebpdemux2 libheif1 libpango-1.0-0 libpangocairo-1.0-0 libraw20 libcgraph6 libgvc6 libopenexr25 libzip4 libzstd1 libtiff5 libxrender1 libxtst6 libxi6 libxxf86vm1 mesa-utils
 
 RUN mkdir -p /opt/tinyworld
 
