@@ -38,11 +38,13 @@
         <Property name="Name" value="Stars"/>
     </Layer>
     <Layer className="gov.nasa.worldwind.layers.SkyGradientLayer"/>
+    <!--
     <Layer className="gov.nasa.worldwind.layers.Earth.BMNGOneImage">
         <Property name="MinActiveAltitude" value="3e6"/>
     </Layer>
     <Layer href="config/Earth/BMNGWMSLayer2.xml" actuate="onLoad"/>
     <Layer href="config/Earth/LandsatI3WMSLayer2.xml" actuate="onLoad"/>
+    -->
     <Layer className="gov.nasa.worldwind.layers.WorldMapLayer"/>
     <Layer className="gov.nasa.worldwind.layers.ScalebarLayer"/>
 </LayerList>
