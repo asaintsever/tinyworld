@@ -186,8 +186,8 @@ public class UI {
 
             frame.addWindowListener(new WindowAdapter() {
                 /**
-                 * Make sure to properly release Indexor before closing (SwingWorker's get() method will wait in case
-                 * Indexor creation is still on-going)
+                 * Make sure to properly release Indexor before closing (SwingWorker's get() method will wait in
+                 * case Indexor creation is still on-going)
                  */
                 @Override
                 public void windowClosing(WindowEvent event) {

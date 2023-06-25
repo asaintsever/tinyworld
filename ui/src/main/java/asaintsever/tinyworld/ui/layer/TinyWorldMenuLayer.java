@@ -95,9 +95,8 @@ public class TinyWorldMenuLayer extends RenderableLayer implements SelectListene
     /**
      * Sets the view controls offset from the viewport border.
      *
-     * @param borderWidth
-     *            the number of pixels to offset the view controls from the borders indicated by
-     *            {@link #setPosition(String)}.
+     * @param borderWidth the number of pixels to offset the view controls from the borders indicated by
+     *                    {@link #setPosition(String)}.
      */
     public void setBorderWidth(int borderWidth) {
         this.borderWidth = borderWidth;
@@ -116,8 +115,7 @@ public class TinyWorldMenuLayer extends RenderableLayer implements SelectListene
     /**
      * Set the controls display scale.
      *
-     * @param scale
-     *            the controls display scale.
+     * @param scale the controls display scale.
      */
     public void setScale(double scale) {
         this.scale = scale;
@@ -134,12 +132,11 @@ public class TinyWorldMenuLayer extends RenderableLayer implements SelectListene
     }
 
     /**
-     * Sets the relative viewport location to display the view controls. Can be one of {@link AVKey#NORTHEAST},
-     * {@link AVKey#NORTHWEST}, {@link AVKey#SOUTHEAST}, or {@link AVKey#SOUTHWEST}. These indicate the corner of the
-     * viewport to place view controls.
+     * Sets the relative viewport location to display the view controls. Can be one of
+     * {@link AVKey#NORTHEAST}, {@link AVKey#NORTHWEST}, {@link AVKey#SOUTHEAST}, or
+     * {@link AVKey#SOUTHWEST}. These indicate the corner of the viewport to place view controls.
      *
-     * @param position
-     *            the desired view controls position, in screen coordinates.
+     * @param position the desired view controls position, in screen coordinates.
      */
     public void setPosition(String position) {
         if (position == null) {
@@ -164,8 +161,7 @@ public class TinyWorldMenuLayer extends RenderableLayer implements SelectListene
     /**
      * Sets the desired layout. Can be one of {@link AVKey#HORIZONTAL} or {@link AVKey#VERTICAL}.
      *
-     * @param layout
-     *            the desired layout.
+     * @param layout the desired layout.
      */
     public void setLayout(String layout) {
         if (layout == null) {
@@ -181,11 +177,10 @@ public class TinyWorldMenuLayer extends RenderableLayer implements SelectListene
     }
 
     /**
-     * Layer opacity is not applied to layers of this type. Opacity is controlled by the alpha values of the operation
-     * images.
+     * Layer opacity is not applied to layers of this type. Opacity is controlled by the alpha values of
+     * the operation images.
      *
-     * @param opacity
-     *            the current opacity value, which is ignored by this layer.
+     * @param opacity the current opacity value, which is ignored by this layer.
      */
     @Override
     public void setOpacity(double opacity) {
@@ -193,8 +188,8 @@ public class TinyWorldMenuLayer extends RenderableLayer implements SelectListene
     }
 
     /**
-     * Returns the layer's opacity value, which is ignored by this layer. Opacity is controlled by the alpha values of
-     * the operation images.
+     * Returns the layer's opacity value, which is ignored by this layer. Opacity is controlled by the
+     * alpha values of the operation images.
      *
      * @return The layer opacity, a value between 0 and 1.
      */
@@ -215,8 +210,7 @@ public class TinyWorldMenuLayer extends RenderableLayer implements SelectListene
     /**
      * Specifies the button to highlight. Any currently highlighted button is un-highlighted.
      *
-     * @param control
-     *            the button to highlight.
+     * @param control the button to highlight.
      */
     public void highlight(Object button) {
         // Manage highlighting of controls.
@@ -268,9 +262,9 @@ public class TinyWorldMenuLayer extends RenderableLayer implements SelectListene
         ScreenAnnotation selectedObject = (ScreenAnnotation) event.getTopObject();
 
         /*
-         * if (logger.isDebugEnabled()) { logger.debug("SelectEvent: " + event.toString()); logger.debug("PickPoint: " +
-         * event.getPickPoint() != null ? event.getPickPoint().toString() : ""); logger.debug("EventAction: " +
-         * event.getEventAction()); }
+         * if (logger.isDebugEnabled()) { logger.debug("SelectEvent: " + event.toString());
+         * logger.debug("PickPoint: " + event.getPickPoint() != null ? event.getPickPoint().toString() :
+         * ""); logger.debug("EventAction: " + event.getEventAction()); }
          */
 
         switch (event.getEventAction()) {
@@ -442,13 +436,11 @@ public class TinyWorldMenuLayer extends RenderableLayer implements SelectListene
     }
 
     /**
-     * Compute the screen location of the controls overall rectangle bottom right corner according to the screen
-     * position.
+     * Compute the screen location of the controls overall rectangle bottom right corner according to
+     * the screen position.
      *
-     * @param viewport
-     *            the current viewport rectangle.
-     * @param controls
-     *            the overall controls rectangle
+     * @param viewport the current viewport rectangle.
+     * @param controls the overall controls rectangle
      *
      * @return the screen location of the bottom left corner - south west corner.
      */
