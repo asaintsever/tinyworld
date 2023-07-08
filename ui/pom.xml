@@ -232,6 +232,8 @@
                 <argument>--add-exports</argument>
                 <argument>java.desktop/sun.java2d=ALL-UNNAMED</argument>
                 <!-- Workaround issues using JOGL library with Java 8+ -->
+                <argument>-Djogl.debug.DebugGL</argument>
+                <argument>-Djogl.debug.TraceGL</argument>
                 <argument>-Xmx2048m</argument>
                 <!-- TinyWorld'UI jar must come before WorldWind as we override some messages in MessageStrings.properties file -->
                 <argument>-cp</argument>
