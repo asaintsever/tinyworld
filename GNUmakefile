@@ -9,7 +9,7 @@ IMAGE_FQIN:=asaintsever/tinyworld
 
 .SILENT: ;  	# No need for @
 .ONESHELL: ; 	# Single shell for a target (required to properly use local variables)
-.PHONY: help init clean format test package run-ui run-indexor pre-release gen-portableapp gen-oci-image gen-appimage next-version release
+.PHONY: help init clean format test package run-ui run-ui-gl-sw run-indexor pre-release gen-portableapp gen-oci-image gen-appimage next-version release
 .DEFAULT_GOAL := help
 
 help: ## Show Help
@@ -40,6 +40,9 @@ run-indexor: ## Run Indexor test program
 
 run-ui: ## Run TinyWorld UI
 	mvn package -Dmaven.test.skip=true -P UI
+
+run-ui-gl-sw: ## Run TinyWorld UI with OpenGL software rendering
+	LIBGL_ALWAYS_SOFTWARE=1 mvn package -Dmaven.test.skip=true -P UI 
 
 pre-release:
 	set -e
