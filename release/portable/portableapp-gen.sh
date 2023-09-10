@@ -4,35 +4,50 @@ set -e
 
 RELEASE_VERSION=$1
 
+target_platforms=(linux windows)
+windows_arch=(x86_64)
+linux_arch=(x86_64 aarch64)
+
 rm -rf release/portable/tinyworld-* || true
-mkdir -p release/portable/tinyworld-linux-jre/tools
-mkdir -p release/portable/tinyworld-windows-jre/tools
 
-cp -R release/portable/tmp/* release/portable/tinyworld-linux-jre
-cp -R release/portable/tmp/* release/portable/tinyworld-windows-jre
+for platform in "${target_platforms[@]}"; do
+  arch_array="${platform}_arch[@]"
+  for arch in "${!arch_array}"; do
+    echo "Generating TinyWorld portable release for ${platform} (arch=${arch}) ..."
+    mkdir -p release/portable/tinyworld-jre-${platform}-${arch}/tools
+    
+    # Copy TinyWorld libraries
+    cp -R release/portable/tmp/* release/portable/tinyworld-jre-${platform}-${arch}
 
-cp -R release/portable/linux-jre/tinyworld.* release/portable/tinyworld-linux-jre
-cp -R release/portable/windows-jre/tinyworld.* release/portable/tinyworld-windows-jre
+    # Copy TinyWorld launcher
+    cp -R release/portable/${platform}-jre/tinyworld.* release/portable/tinyworld-jre-${platform}-${arch}
+    if [ "${platform}" == "linux" ]; then
+      chmod +x release/portable/tinyworld-jre-${platform}-${arch}/tinyworld.sh || true
+    fi
 
-chmod +x release/portable/tinyworld-linux-jre/tinyworld.sh
-
-# Include 3rd party software
-cp release/tmp/3rd/LICENSE-3RD-PARTY.txt release/portable/tinyworld-linux-jre
-cp release/tmp/3rd/linux/* release/portable/tinyworld-linux-jre/tools
-
-cp release/tmp/3rd/LICENSE-3RD-PARTY.txt release/portable/tinyworld-windows-jre
-cp release/tmp/3rd/windows/* release/portable/tinyworld-windows-jre/tools
-
-# Linux - Add JRE 17
-echo "Portable Linux JRE ..."
-curl -s -L --create-dirs --output release/tmp/jre_linux.tar.gz https://github.com/asaintsever/tinyworld-utils/releases/download/jre-distro/OpenJDK17U-jre_x64_linux_hotspot_17.0.3_7.tar.gz
-tar -xzf release/tmp/jre_linux.tar.gz -C release/portable/tinyworld-linux-jre
-mv release/portable/tinyworld-linux-jre/jdk-* release/portable/tinyworld-linux-jre/jre
-tar -C release/portable -czf release/artifacts/TinyWorld-Linux-JRE-${RELEASE_VERSION}-x86_64.tgz tinyworld-linux-jre
-
-# Windows - Add JRE 17
-echo "Portable Windows JRE ..."
-curl -s -L --create-dirs --output release/tmp/jre_win.zip https://github.com/asaintsever/tinyworld-utils/releases/download/jre-distro/OpenJDK17U-jre_x64_windows_hotspot_17.0.3_7.zip
-unzip -q release/tmp/jre_win.zip -d release/portable/tinyworld-windows-jre
-mv release/portable/tinyworld-windows-jre/jdk-* release/portable/tinyworld-windows-jre/jre
-cd release/portable && zip -q -r ../artifacts/TinyWorld-Windows-JRE-${RELEASE_VERSION}-x86_64.zip tinyworld-windows-jre
+    # Include 3rd party software
+    cp release/tmp/3rd/LICENSE-3RD-PARTY.txt release/portable/tinyworld-jre-${platform}-${arch}
+    for thirdparty in release/tmp/3rd/*-${platform}-${arch}*
+    do
+      if [ "${platform}" == "linux" ]; then
+        cp ${thirdparty} "release/portable/tinyworld-jre-${platform}-${arch}/tools/$(basename "${thirdparty%-${platform}-${arch}}")"
+      else # Windows
+        cp ${thirdparty} "release/portable/tinyworld-jre-${platform}-${arch}/tools/$(basename "${thirdparty%-${platform}-${arch}.exe}").exe"
+      fi
+    done
+    
+    # Add JRE 17
+    if [ "${platform}" == "linux" ]; then
+      curl -s -L --create-dirs --output release/tmp/jre-${platform}-${arch}.tar.gz https://github.com/asaintsever/tinyworld-utils/releases/download/jre-distro/OpenJDK17U-jre_${arch}_${platform}_hotspot.tar.gz
+      tar -xzf release/tmp/jre-${platform}-${arch}.tar.gz -C release/portable/tinyworld-jre-${platform}-${arch}
+      mv release/portable/tinyworld-jre-${platform}-${arch}/jdk-* release/portable/tinyworld-jre-${platform}-${arch}/jre
+      tar -C release/portable -czf release/artifacts/tinyworld-jre-${platform}-${arch}-${RELEASE_VERSION}.tgz tinyworld-jre-${platform}-${arch}
+    else # Windows
+      curl -s -L --create-dirs --output release/tmp/jre-${platform}-${arch}.zip https://github.com/asaintsever/tinyworld-utils/releases/download/jre-distro/OpenJDK17U-jre_${arch}_${platform}_hotspot.zip
+      unzip -q release/tmp/jre-${platform}-${arch}.zip -d release/portable/tinyworld-jre-${platform}-${arch}
+      mv release/portable/tinyworld-jre-${platform}-${arch}/jdk-* release/portable/tinyworld-jre-${platform}-${arch}/jre
+      cd release/portable && zip -q -r ../artifacts/tinyworld-jre-${platform}-${arch}-${RELEASE_VERSION}.zip tinyworld-jre-${platform}-${arch}
+    fi
+    echo "... Done"
+  done
+done

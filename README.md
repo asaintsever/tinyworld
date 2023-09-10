@@ -25,7 +25,8 @@
 
 ## Requirements
 
-- Linux or WSL2 for AppImage
+- Windows *(x64)* or Linux *(x64 or aarch64)* for Portable App
+- Linux *(x64 or aarch64)* for AppImage
 - Docker or [Podman](https://podman.io/) for OCI image
 
 ## Configuration
@@ -36,30 +37,33 @@ See [TinyWorld Configuration](cfg/README.md)
 
 ### Using Portable App
 
-Untar/Unzip downloaded portable package (several flavors available: with Linux JRE, with Windows JRE) then run provided TinyWorld script:
+Untar/Unzip downloaded portable package (several flavors available: with Linux JRE x64 or aarch64, with Windows JRE x64) then run provided TinyWorld script:
 
 ```sh
-# On Linux
+# On Linux (x64 or aarch64)
 <TinyWorld folder>/tinyworld.sh
 
-# On Windows
+# On Windows (x64)
 <TinyWorld folder>\tinyworld.bat
 ```
 
 By default, 4Gb of memory is set via Xmx/Xms Java options: edit the script to change any Java options.
 
-### Using AppImage on Linux/WSL2
+> The `tools` folder **must be added** to your PATH environment variable.
+
+### Using AppImage on Linux
 
 ```sh
-chmod +x TinyWorld-<release version>-x86_64.AppImage
-./TinyWorld-<release version>-x86_64.AppImage
+chmod +x tinyworld-<x86_64|aarch64>-<release version>.AppImage
+
+./tinyworld-<x86_64|aarch64>-<release version>.AppImage
 ```
 
 By default, 4Gb of memory is set via Xmx/Xms Java options. You can override this and add other options using the JAVA_OPTS env var:
 
 ```sh
 # E.g. 2Gb max, 1Gb min
-JAVA_OPTS="-Xmx2048m -Xms1024m" ./TinyWorld-<release version>-x86_64.AppImage
+JAVA_OPTS="-Xmx2048m -Xms1024m" ./tinyworld-<x86_64|aarch64>-<release version>.AppImage
 ```
 
 ### Using OCI Image
@@ -95,7 +99,11 @@ See [instructions](ui/TEST.md).
 - Podman *(to generate TinyWorld OCI image)*
 - [FUSE](https://github.com/libfuse/libfuse) *(to generate TinyWorld AppImage)*
 
-    > *On Ubuntu 22.04+, install required FUSE library using `sudo apt install libfuse2`*
+    > *On Ubuntu / Debian, install required FUSE library using `sudo apt install libfuse2`*
+    >
+    > *On Chrome OS, install required FUSE library using `sudo apt install fuse`*
+
+> *Note: for AppImage package, you'll only be able to generate the package for the platform you're running on (e.g. aarch64 AppImage if you use an arm/aarch64 platform).*
 
 ### Building from Source
 
@@ -128,7 +136,7 @@ See [Contributing Guide](CONTRIBUTING.md)
 
 ## Deps & Credits
 
-TinyWorld is built upon lots of great projects. Main ones are listed below.
+TinyWorld is built upon lots of great projects. Main ones are:
 
 - NASA WorldWind Java: <https://github.com/NASAWorldWind/WorldWindJava>
 - OpenSearch: <https://github.com/opensearch-project/OpenSearch>

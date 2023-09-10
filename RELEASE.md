@@ -3,7 +3,7 @@
 1) Build, test, package and publish
 
     ```sh
-    make release
+    make release-github
     ```
 
 2) Tag the release
