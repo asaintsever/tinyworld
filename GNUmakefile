@@ -9,7 +9,7 @@ IMAGE_FQIN:=asaintsever/tinyworld
 
 .SILENT: ;  	# No need for @
 .ONESHELL: ; 	# Single shell for a target (required to properly use local variables)
-.PHONY: help init clean format test package run-ui run-indexor pre-release gen-portableapp gen-oci-image gen-appimage next-version release
+.PHONY: help init clean format test package run-ui run-ui-gl-sw run-indexor pre-release gen-portableapp gen-oci-image gen-appimage next-version release-github
 .DEFAULT_GOAL := help
 
 help: ## Show Help
@@ -41,15 +41,17 @@ run-indexor: ## Run Indexor test program
 run-ui: ## Run TinyWorld UI
 	mvn package -Dmaven.test.skip=true -P UI
 
+run-ui-gl-sw: ## Run TinyWorld UI with OpenGL software rendering
+	LIBGL_ALWAYS_SOFTWARE=1 mvn package -Dmaven.test.skip=true -P UI 
+
 pre-release:
 	set -e
 	mkdir -p release/artifacts
 	chmod +x release/get-3rd-party.sh
 	chmod +x release/release-helper.sh
 	chmod +x release/appimage/appdir-gen.sh
-	chmod +x release/appimage/x86_64/appimagetool-x86_64
+	chmod +x release/appimage/bin/appimagetool-*
 	chmod +x release/portable/portableapp-gen.sh
-	echo "Get 3rd-party software ..."
 	release/get-3rd-party.sh
 
 gen-portableapp: package pre-release ## Generate TinyWorld Portable App
@@ -60,12 +62,12 @@ gen-portableapp: package pre-release ## Generate TinyWorld Portable App
 
 # https://docs.appimage.org/packaging-guide/manual.html
 # https://github.com/AppImage/AppImageKit/wiki/Bundling-Java-apps#option-2-bundling-jre-manually
-gen-appimage: package pre-release ## Generate TinyWorld AppImage
+gen-appimage: package pre-release ## Generate TinyWorld AppImage (for current architecture)
 	set -e
-	echo "Build AppImage package ..."
+	arch=$$(uname -m)
+	echo "Build AppImage package (arch=$$arch)..."
 	release/release-helper.sh release/appimage
-	release/appimage/appdir-gen.sh
-	release/appimage/x86_64/appimagetool-x86_64 release/appimage/AppDir release/artifacts/TinyWorld-${RELEASE_VERSION}-x86_64.AppImage
+	release/appimage/appdir-gen.sh $$arch ${RELEASE_VERSION}
 
 gen-oci-image: package pre-release ## Generate TinyWorld OCI Image
 	set -e
@@ -79,7 +81,7 @@ next-version: ## Set next version
 	mvn versions:set -DnewVersion=$$twNewVer
 	echo -n $$twNewVer > VERSION
 
-release: test gen-oci-image gen-appimage gen-portableapp ## Release
+release-github: test gen-oci-image gen-appimage gen-portableapp ## Release on GitHub
 	read -p "Publish image (y/n)? " answer
 	case $$answer in \
 	y|Y ) \

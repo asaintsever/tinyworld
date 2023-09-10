@@ -38,7 +38,7 @@
         <Property name="Name" value="Stars"/>
     </Layer>
     <Layer className="gov.nasa.worldwind.layers.SkyGradientLayer"/>
-    <Layer className="gov.nasa.worldwind.layers.Earth.BMNGOneImage">
+    <Layer className="asaintsever.tinyworld.ui.layer.BMNGOneImageLayer">
         <Property name="MinActiveAltitude" value="3e6"/>
     </Layer>
     <Layer href="config/Earth/BMNGWMSLayer2.xml" actuate="onLoad"/>

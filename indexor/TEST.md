@@ -38,8 +38,9 @@ To connect on OpenSearch/Elasticsearch cluster using Elasticvue's docker image:
 
 2) Start Elasticvue
 
+    Using either Docker or Podman. Podman in use here.
+    
     ```sh
-    # Using either Docker or Podman. Podman in use here.
     podman run -p 8080:8080 -d docker.io/cars10/elasticvue
     ```
 

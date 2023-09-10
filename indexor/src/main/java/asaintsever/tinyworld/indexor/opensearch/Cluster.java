@@ -52,25 +52,32 @@ public class Cluster implements Closeable {
     }
 
     private final String DEFAULT_PATH_HOME = "index";
+    private final String DEFAULT_HOST = "_local_"; // will listen on localhost
     private final int DEFAULT_PORT = 9200;
 
     private final String clusterName = "tinyworld";
     private final String nodeName = "node";
     private final String transportType = "netty4";
     private final String httpType = "netty4";
-    private final String networkHost = "_local_"; // will listen on localhost
 
     private String pathHome; // location for index storage
+    private String host;
     private int httpPort;
     private ClusterNode node;
 
     public Cluster() {
         this.pathHome = DEFAULT_PATH_HOME;
+        this.host = DEFAULT_HOST;
         this.httpPort = DEFAULT_PORT;
     }
 
     public Cluster setPathHome(String pathHome) {
         this.pathHome = pathHome;
+        return this;
+    }
+
+    public Cluster setHost(String host) {
+        this.host = host;
         return this;
     }
 
@@ -83,14 +90,11 @@ public class Cluster implements Closeable {
         Builder settingsBuilder = Settings.builder().put("cluster.name", this.clusterName)
                 .put("node.name", this.nodeName).put("path.home", this.pathHome)
                 .put("transport.type", this.transportType).put("http.type", this.httpType)
-                .put("http.port", this.httpPort).put("network.host", this.networkHost);
+                .put("http.port", this.httpPort).put("network.host", this.host);
 
-        // Enable external access (useful for tests or UI tools like https://github.com/cars10/elasticvue)
-        if (expose) {
-            settingsBuilder.put("network.host", this.networkHost + ", _site_") // will also bind IP address
-                                                                               // (https://opensearch.org/docs/latest/opensearch/cluster/#step-3-bind-a-cluster-to-specific-ip-addresses)
-                    .put("http.cors.enabled", "true").put("http.cors.allow-origin", "*");
-        }
+        // Enable CORS
+        if (expose)
+            settingsBuilder.put("http.cors.enabled", "true").put("http.cors.allow-origin", "*");
 
         try {
             // Create and start node all at once
