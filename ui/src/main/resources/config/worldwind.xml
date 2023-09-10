@@ -85,7 +85,7 @@
     <Property name="gov.nasa.worldwind.avkey.DataRasterReaderFactoryClassName"
               value="gov.nasa.worldwind.data.BasicDataRasterReaderFactory"/>
     <Property name="gov.nasa.worldwind.avkey.DataFileStoreConfigurationFileName" value="config/DataFileStore.xml"/>
-    <Property name="gov.nasa.worldwind.avkey.WorldMapImagePath" value="images/earth-map-512x256.dds"/>
+    <Property name="gov.nasa.worldwind.avkey.WorldMapImagePath" value="images/earth-map-512x256.png"/>
     <Property name="gov.nasa.worldwind.StarsLayer.StarsFileName" value="config/Hipparcos_Stars_Mag6x5044.dat"/>
     <!--The following are tuning parameters for various WorldWind internals-->
     <Property name="gov.nasa.worldwind.avkey.RetrievalPoolSize" value="32"/>
@@ -110,6 +110,7 @@
     <Property name="gov.nasa.worldwind.avkey.RectangularTessellatorMaxLevel" value="30"/>
     <Property name="gov.nasa.worldwind.StereoFocusAngle" value="1.6"/>
     <Property name="gov.nasa.worldwind.avkey.ForceRedrawOnMousePressed" value="f"/>
+    <Property name="gov.nasa.worldwind.avkey.BMNGOneImagePath" value="images/BMNG_world.topo.bathy.200405.3.2048x1024.jpg"/>
     <!-- Here's one way to specify proxy settings -->
     <!--<Property name="gov.nasa.worldwind.avkey.UrlProxyHost" value="100.215.10.20"/>-->
     <!--<Property name="gov.nasa.worldwind.avkey.UrlProxyPort" value="8080"/>-->
