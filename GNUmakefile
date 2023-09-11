@@ -2,6 +2,8 @@ SHELL=/bin/bash
 
 RELEASE_VERSION:=$(shell cat VERSION)
 
+CONTAINER_RUNTIME:=$(shell basename $$(command -v podman)  2> /dev/null || echo docker)
+
 OWNER:=asaintsever
 REPO:=tinyworld
 APPIMAGE_NAME:=TinyWorld
@@ -81,12 +83,13 @@ next-version: ## Set next version
 	mvn versions:set -DnewVersion=$$twNewVer
 	echo -n $$twNewVer > VERSION
 
-release-github: test gen-oci-image gen-appimage gen-portableapp ## Release on GitHub
+#release-github: test gen-oci-image gen-appimage gen-portableapp ## Release on GitHub
+release-github:
 	read -p "Publish image (y/n)? " answer
 	case $$answer in \
 	y|Y ) \
-		podman login; \
-		podman push ${IMAGE_FQIN}:${RELEASE_VERSION}; \
+		$(CONTAINER_RUNTIME) login; \
+		$(CONTAINER_RUNTIME) push ${IMAGE_FQIN}:${RELEASE_VERSION}; \
 		if [ "$$?" -ne 0 ]; then \
 			echo "Unable to publish image"; \
 			exit 1; \
@@ -108,8 +111,8 @@ release-github: test gen-oci-image gen-appimage gen-portableapp ## Release on Gi
 	echo "- Release id=$$id"
 	echo
 	echo "- Publishing release artifacts"
-	for asset_file in $(shell ls ./release/artifacts); do \
-		asset_absolute_path=$$(realpath $$asset_file); \
+	for asset_file in $$(ls ./release/artifacts); do \
+		asset_absolute_path=$$(realpath ./release/artifacts/$$asset_file); \
 		echo "Adding file $$asset_absolute_path"; \
 		echo; \
 		asset_filename=$$(basename $$asset_absolute_path); \

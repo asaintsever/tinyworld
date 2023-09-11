@@ -93,10 +93,11 @@ See [instructions](ui/TEST.md).
 
     > *On MacOS, you can install/update GNU Make using [brew](https://brew.sh/): `brew install make`*
 
+- [jq](https://jqlang.github.io/jq/) *(used to parse responses from GitHub API)*
 - Maven 3+
 - Java JDK 17
 - zip/unzip *(to generate TinyWorld portable app for Windows)*
-- Podman *(to generate TinyWorld OCI image)*
+- Docker or Podman *(to generate TinyWorld OCI image)*
 - [FUSE](https://github.com/libfuse/libfuse) *(to generate TinyWorld AppImage)*
 
     > *On Ubuntu / Debian, install required FUSE library using `sudo apt install libfuse2`*

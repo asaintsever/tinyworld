@@ -6,14 +6,7 @@
     make release-github
     ```
 
-2) Tag the release
-
-    ```sh
-    git tag <new TinyWorld release>
-    git push --tags
-    ```
-
-3) Set new version for next release
+2) Set new version for next release
 
     ```sh
     make next-version
