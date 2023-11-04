@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 A. Saint-Sever
+ * Copyright 2021-2024 A. Saint-Sever
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -19,12 +19,11 @@
  */
 package asaintsever.tinyworld.cfg;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junitpioneer.jupiter.SetEnvironmentVariable;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class LoaderTest {
 
@@ -40,8 +39,8 @@ public class LoaderTest {
 
         System.out.println(cfg.toString());
 
-        assertEquals(cfg.indexor.cluster.embedded.enabled, true);
-        assertEquals(cfg.indexor.cluster.embedded.expose, false);
+        assertTrue(cfg.indexor.cluster.embedded.enabled);
+        assertFalse(cfg.indexor.cluster.embedded.expose);
         assertEquals(cfg.indexor.cluster.address, "localhost");
         assertEquals(cfg.indexor.cluster.port, 9200);
         assertEquals(cfg.indexor.cluster.index, "photos");
@@ -66,8 +65,8 @@ public class LoaderTest {
 
         System.out.println(cfg.toString());
 
-        assertEquals(cfg.indexor.cluster.embedded.enabled, false);
-        assertEquals(cfg.indexor.cluster.embedded.expose, true);
+        assertFalse(cfg.indexor.cluster.embedded.enabled);
+        assertTrue(cfg.indexor.cluster.embedded.expose);
         assertEquals(cfg.indexor.cluster.address, "127.0.0.1");
         assertEquals(cfg.indexor.cluster.port, 9210);
         assertEquals(cfg.indexor.cluster.index, "test");
@@ -83,8 +82,8 @@ public class LoaderTest {
 
         System.out.println(cfg.toString());
 
-        assertEquals(cfg.indexor.cluster.embedded.enabled, true);
-        assertEquals(cfg.indexor.cluster.embedded.expose, true);
+        assertTrue(cfg.indexor.cluster.embedded.enabled);
+        assertTrue(cfg.indexor.cluster.embedded.expose);
         assertEquals(cfg.indexor.cluster.address, "localhost");
         assertEquals(cfg.indexor.cluster.port, 9200);
         assertEquals(cfg.indexor.cluster.index, "my_index");

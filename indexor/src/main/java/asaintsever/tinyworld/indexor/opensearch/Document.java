@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 A. Saint-Sever
+ * Copyright 2021-2024 A. Saint-Sever
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -175,9 +175,9 @@ public class Document<T> implements Closeable {
     }
 
     /**
-     * By default, you cannot use from and size to page through more than 10,000 hits. This limit is a
-     * safeguard set by the index.max_result_window index setting. If you need to page through more than
-     * 10,000 hits, use the search_after parameter instead. See
+     * By default, you cannot use from and size to page through more than 10,000 hits. This limit is a safeguard set by
+     * the index.max_result_window index setting. If you need to page through more than 10,000 hits, use the
+     * search_after parameter instead. See
      * https://www.elastic.co/guide/en/elasticsearch/reference/current/paginate-search-results.html#search-after
      */
     public IndexPage<T> next(IndexPage<T> page, Class<T> docClass) throws IOException {

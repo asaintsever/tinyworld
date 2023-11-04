@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 A. Saint-Sever
+ * Copyright 2021-2024 A. Saint-Sever
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -61,10 +61,10 @@ public class Extract {
     @Getter
     @ToString
     public static class Result {
-        private int processed_ok;
-        private int processed_nok;
-        private int skipped;
-        private List<String> errorMsg;
+        private final int processed_ok;
+        private final int processed_nok;
+        private final int skipped;
+        private final List<String> errorMsg;
 
         public Result(int ok, int nok, int skip, List<String> errors) {
             this.processed_ok = ok;

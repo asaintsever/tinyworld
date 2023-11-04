@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 A. Saint-Sever
+ * Copyright 2021-2024 A. Saint-Sever
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -50,16 +50,16 @@ public class Indexor implements Closeable {
     public final static int DEFAULT_PORT = 9200;
 
     private Configuration.INDEXOR indexorCfg;
-    private String host;
-    private int port;
-    private String index;
-    private boolean useEmbeddedCluster;
+    private final String host;
+    private final int port;
+    private final String index;
+    private final boolean useEmbeddedCluster;
 
     private ClusterClient clusterClient;
     private Cluster embeddedCluster;
 
-    private MetadataIndex mtdIndx;
-    private Photo photos;
+    private final MetadataIndex mtdIndx;
+    private final Photo photos;
 
     private final static String DEFAULT_MAPPING = "mapping/tinyworld_photo.json";
 
