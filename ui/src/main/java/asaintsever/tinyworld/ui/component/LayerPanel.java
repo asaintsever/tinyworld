@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 A. Saint-Sever
+ * Copyright 2021-2024 A. Saint-Sever
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import javax.swing.JPanel;
 
 import gov.nasa.worldwind.WorldWindow;
 import gov.nasa.worldwind.layers.Layer;
+import lombok.Getter;
 
 /**
  *
@@ -37,6 +38,7 @@ import gov.nasa.worldwind.layers.Layer;
 @SuppressWarnings("serial")
 public class LayerPanel extends JPanel {
 
+    @Getter
     protected Layer layer; // the layer represented by this instance
     protected JCheckBox checkBox; // the checkbox of this instance
 
@@ -49,10 +51,6 @@ public class LayerPanel extends JPanel {
         this.checkBox = new JCheckBox(action);
         this.checkBox.setSelected(action.selected);
         this.add(this.checkBox, BorderLayout.CENTER);
-    }
-
-    public Layer getLayer() {
-        return this.layer;
     }
 
     public Font getLayerNameFont() {
@@ -81,10 +79,7 @@ public class LayerPanel extends JPanel {
 
         public void actionPerformed(ActionEvent actionEvent) {
             // Simply enable or disable the layer based on its toggle button.
-            if (((JCheckBox) actionEvent.getSource()).isSelected())
-                this.layer.setEnabled(true);
-            else
-                this.layer.setEnabled(false);
+            this.layer.setEnabled(((JCheckBox) actionEvent.getSource()).isSelected());
 
             wwd.redraw();
         }

@@ -19,8 +19,11 @@
  */
 package asaintsever.tinyworld.indexor.opensearch;
 
+import lombok.Getter;
+
 import java.io.IOException;
 
+@Getter
 public class DocumentAlreadyExistsException extends IOException {
 
     private static final long serialVersionUID = 1L;
@@ -29,9 +32,5 @@ public class DocumentAlreadyExistsException extends IOException {
     public DocumentAlreadyExistsException(String id, IOException ex) {
         super(ex);
         this.docId = id;
-    }
-
-    public String getDocId() {
-        return this.docId;
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 A. Saint-Sever
+ * Copyright 2021-2024 A. Saint-Sever
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -74,32 +74,7 @@ public class LayersManagerPanel extends JPanel {
         dummyPanel.add(this.layerNamesPanel, BorderLayout.NORTH);
 
         // Add layers cache management button to panel
-        JButton layersCache = new JButton(UIStrings.LAYERS_CACHE_MGMT_LABEL);
-        layersCache.addActionListener((ActionEvent actionEvent) -> {
-            SwingUtilities.invokeLater(() -> {
-                JDialog layersCacheDialog = new JDialog(frame, UIStrings.APP_NAME, true);
-                layersCacheDialog.setPreferredSize(new Dimension(800, 300));
-                layersCacheDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-
-                FileStore store = new BasicDataFileStore();
-                File cacheRoot = store.getWriteLocation();
-                LayersCachePanel layersCachePanel = new LayersCachePanel(cacheRoot);
-                layersCacheDialog.getContentPane().add(layersCachePanel, BorderLayout.CENTER);
-                layersCacheDialog.pack();
-
-                // Center the application on the screen.
-                Dimension prefSize = layersCacheDialog.getPreferredSize();
-                Dimension parentSize;
-                java.awt.Point parentLocation = new java.awt.Point(0, 0);
-                parentSize = Toolkit.getDefaultToolkit().getScreenSize();
-                int x = parentLocation.x + (parentSize.width - prefSize.width) / 2;
-                int y = parentLocation.y + (parentSize.height - prefSize.height) / 2;
-                layersCacheDialog.setLocation(x, y);
-                layersCacheDialog.setVisible(true);
-            });
-        });
-
-        dummyPanel.add(layersCache, BorderLayout.SOUTH);
+        dummyPanel.add(getLayersCache(frame), BorderLayout.SOUTH);
 
         // Put the layers panel in a scroll pane.
         JScrollPane scrollPane = new JScrollPane(dummyPanel);
@@ -217,5 +192,33 @@ public class LayersManagerPanel extends JPanel {
                 layerPanel.setLayerNameFont(this.plainFont);
             }
         }
+    }
+
+    private static JButton getLayersCache(MainFrame frame) {
+        JButton layersCache = new JButton(UIStrings.LAYERS_CACHE_MGMT_LABEL);
+        layersCache.addActionListener((ActionEvent actionEvent) -> {
+            SwingUtilities.invokeLater(() -> {
+                JDialog layersCacheDialog = new JDialog(frame, UIStrings.APP_NAME, true);
+                layersCacheDialog.setPreferredSize(new Dimension(800, 300));
+                layersCacheDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+
+                FileStore store = new BasicDataFileStore();
+                File cacheRoot = store.getWriteLocation();
+                LayersCachePanel layersCachePanel = new LayersCachePanel(cacheRoot);
+                layersCacheDialog.getContentPane().add(layersCachePanel, BorderLayout.CENTER);
+                layersCacheDialog.pack();
+
+                // Center the application on the screen.
+                Dimension prefSize = layersCacheDialog.getPreferredSize();
+                Dimension parentSize;
+                java.awt.Point parentLocation = new java.awt.Point(0, 0);
+                parentSize = Toolkit.getDefaultToolkit().getScreenSize();
+                int x = parentLocation.x + (parentSize.width - prefSize.width) / 2;
+                int y = parentLocation.y + (parentSize.height - prefSize.height) / 2;
+                layersCacheDialog.setLocation(x, y);
+                layersCacheDialog.setVisible(true);
+            });
+        });
+        return layersCache;
     }
 }

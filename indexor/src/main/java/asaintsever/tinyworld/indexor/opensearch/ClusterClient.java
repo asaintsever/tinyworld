@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.net.URISyntaxException;
 
+import lombok.Getter;
 import org.apache.http.HttpHost;
 import org.opensearch.client.ResponseException;
 import org.opensearch.client.RestClient;
@@ -69,6 +70,8 @@ public class ClusterClient implements Closeable {
     private RestClient restClient;
     private final RestClientBuilder restClientBuilder;
     private OpenSearchClient osClient;
+
+    @Getter
     private final ObjectMapper mapper;
 
     public ClusterClient(String host, int port) {
@@ -107,10 +110,6 @@ public class ClusterClient implements Closeable {
 
     public RestClientBuilder getClientBuilder() {
         return this.restClientBuilder;
-    }
-
-    public ObjectMapper getMapper() {
-        return this.mapper;
     }
 
     public Boolean createIndex(String index, String mapping) throws IOException {

@@ -42,18 +42,15 @@ public class PhotoMetadata {
     protected static String EXIF_DATE_PATTERN; // Pattern for dates encoded in EXIF metadata
     protected static String JSON_DATE_PATTERN; // Pattern for dates in PhotoMetadata objects
 
+    @Getter
     public enum HoursFormat {
         // HH for (0-23) hours format (hh is for (1-12) am/pm format)
         _24HOURS("HH"), _12HOURS("hh");
 
-        private String value;
+        private final String value;
 
         private HoursFormat(String value) {
             this.value = value;
-        }
-
-        public String getValue() {
-            return this.value;
         }
     }
 

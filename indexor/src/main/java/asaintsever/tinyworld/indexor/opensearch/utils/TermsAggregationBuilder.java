@@ -37,7 +37,7 @@ public class TermsAggregationBuilder {
 
         if (aggregations != null) {
             List<Aggregation> aggrList = aggregations.asList();
-            if (aggrList != null && aggrList.size() > 0) {
+            if (aggrList != null && !aggrList.isEmpty()) {
                 for (Aggregation aggregation : aggrList) {
                     // We only support Terms aggregation
                     // (https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-terms-aggregation.html)
@@ -49,7 +49,7 @@ public class TermsAggregationBuilder {
                         buckAggr.setSum_other_doc_count(aggr.getSumOfOtherDocCounts());
 
                         List<? extends Terms.Bucket> buckets = aggr.getBuckets();
-                        if (buckets != null && buckets.size() > 0) {
+                        if (buckets != null && !buckets.isEmpty()) {
                             for (Terms.Bucket bucket : buckets) {
                                 Bucket buck = buckAggr.new Bucket();
                                 buck.setKey(bucket.getKeyAsString());

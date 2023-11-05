@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 A. Saint-Sever
+ * Copyright 2021-2024 A. Saint-Sever
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -20,11 +20,13 @@
 package asaintsever.tinyworld.ui.component;
 
 import asaintsever.tinyworld.cfg.Configuration;
+import lombok.Getter;
 
 /**
  *
  *
  */
+@Getter
 @SuppressWarnings("serial")
 public class StatusBar extends gov.nasa.worldwind.util.StatusBar {
 
@@ -38,9 +40,5 @@ public class StatusBar extends gov.nasa.worldwind.util.StatusBar {
 
         indexorStatusPanel = new IndexorStatusPanel(cfg.indexor);
         this.add(indexorStatusPanel);
-    }
-
-    public IndexorStatusPanel getIndexorStatusPanel() {
-        return this.indexorStatusPanel;
     }
 }

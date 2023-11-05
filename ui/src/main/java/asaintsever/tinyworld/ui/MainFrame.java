@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 A. Saint-Sever
+ * Copyright 2021-2024 A. Saint-Sever
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
+import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,6 +59,7 @@ public class MainFrame extends JFrame {
 
     protected Indexor indexor;
     protected GlobePanel globePanel;
+    @Getter
     protected SettingsPanel settingsPanel;
     protected List<SwingWorkerListener> workers = new ArrayList<SwingWorkerListener>();
     protected List<IndexorListener> indexorListeners = new ArrayList<IndexorListener>();
@@ -82,10 +84,6 @@ public class MainFrame extends JFrame {
 
     public GlobePanel getGlobe() {
         return this.globePanel;
-    }
-
-    public SettingsPanel getSettingsPanel() {
-        return this.settingsPanel;
     }
 
     public void addIndexorListener(IndexorListener listener) {

@@ -22,6 +22,7 @@ package asaintsever.tinyworld.indexor.search.results;
 import java.util.Collections;
 import java.util.List;
 
+import lombok.Getter;
 import lombok.ToString;
 
 @ToString
@@ -33,7 +34,10 @@ public class IndexPage<T> {
     private final long total;
     private final int from;
     private final int size;
+
+    @Getter
     private final boolean lastPage;
+
     private final String query;
     private final List<T> documents;
 
@@ -64,9 +68,5 @@ public class IndexPage<T> {
 
     public int size() {
         return this.size;
-    }
-
-    public boolean isLastPage() {
-        return this.lastPage;
     }
 }

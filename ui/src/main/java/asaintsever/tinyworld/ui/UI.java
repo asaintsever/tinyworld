@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 A. Saint-Sever
+ * Copyright 2021-2024 A. Saint-Sever
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -113,11 +113,11 @@ public class UI {
         flatlafJULlogger.setLevel(java.util.logging.Level.OFF);
 
         // Set log level for WWJ from config
-        if (uiCfg.deps.logging.get(UIStrings.DEP_WORLDWIND).toLowerCase().equals("on"))
+        if (uiCfg.deps.logging.get(UIStrings.DEP_WORLDWIND).equalsIgnoreCase("on"))
             wwjJULlogger.setLevel(java.util.logging.Level.FINER);
 
         // Set log level for FlatLaf from config
-        if (uiCfg.deps.logging.get(UIStrings.DEP_FLATLAF).toLowerCase().equals("on"))
+        if (uiCfg.deps.logging.get(UIStrings.DEP_FLATLAF).equalsIgnoreCase("on"))
             flatlafJULlogger.setLevel(java.util.logging.Level.CONFIG);
     }
 
@@ -126,8 +126,8 @@ public class UI {
      *
      */
     protected static class IndexorLoaderWorker extends SwingWorker<Indexor, Object> {
-        private MainFrame frame;
-        private Configuration.INDEXOR indexorCfg;
+        private final MainFrame frame;
+        private final Configuration.INDEXOR indexorCfg;
 
         public IndexorLoaderWorker(MainFrame frame, Configuration.INDEXOR indexorCfg) {
             this.frame = frame;

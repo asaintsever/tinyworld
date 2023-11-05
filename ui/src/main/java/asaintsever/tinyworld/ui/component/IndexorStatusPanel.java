@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 A. Saint-Sever
+ * Copyright 2021-2024 A. Saint-Sever
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -56,7 +56,7 @@ public class IndexorStatusPanel extends JPanel implements IndexorListener, Swing
     // Should run until app is closed. Closing will send cancellation signal to this worker (from
     // MainFrame cancelSwingWorkers())
     protected class IndexorStatusWorker extends SwingWorker<Void, Void> {
-        private IndexorStatusPanel indexorStatusPanel;
+        private final IndexorStatusPanel indexorStatusPanel;
 
         public IndexorStatusWorker(IndexorStatusPanel indexorStatusPanel) {
             this.indexorStatusPanel = indexorStatusPanel;

@@ -160,7 +160,8 @@ public class PhotoObject {
         GpsDirectory gpsDir = metadata.getFirstDirectoryOfType(GpsDirectory.class);
         if (gpsDir != null) {
             this.metadata.setGpsLatLong(gpsDir.getGeoLocation() != null
-                    ? gpsDir.getGeoLocation().getLatitude() + "," + gpsDir.getGeoLocation().getLongitude() : null);
+                    ? gpsDir.getGeoLocation().getLatitude() + "," + gpsDir.getGeoLocation().getLongitude()
+                    : null);
 
             GpsDescriptor gpsDesc = new GpsDescriptor(gpsDir);
             this.metadata.setGpsDatum(gpsDesc.getDescription(GpsDirectory.TAG_MAP_DATUM));

@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import lombok.Getter;
 import org.opensearch.action.search.SearchRequest;
 import org.opensearch.action.search.SearchResponse;
 import org.opensearch.client.RequestOptions;
@@ -53,8 +54,13 @@ import asaintsever.tinyworld.indexor.opensearch.utils.TermsAggregationBuilder;
 import asaintsever.tinyworld.indexor.search.results.IndexPage;
 
 public class Document<T> implements Closeable {
+    // Getter to allow customization of mapper
+    @Getter
     private ObjectMapper mapper;
+
     private ClusterClient client;
+
+    @Getter
     private String index;
 
     // Used for search and templates only (new Java client search capabilities not on par compared to
@@ -65,11 +71,6 @@ public class Document<T> implements Closeable {
 
     public Document(ClusterClient client) {
         this.setClient(client);
-    }
-
-    // Getter to allow customization of mapper
-    public ObjectMapper getMapper() {
-        return this.mapper;
     }
 
     public Document<T> setClient(ClusterClient client) {
@@ -84,10 +85,6 @@ public class Document<T> implements Closeable {
     public Document<T> setIndex(String index) {
         this.index = index;
         return this;
-    }
-
-    public String getIndex() {
-        return this.index;
     }
 
     public String add(T document) throws IOException {
@@ -175,9 +172,9 @@ public class Document<T> implements Closeable {
     }
 
     /**
-     * By default, you cannot use from and size to page through more than 10,000 hits. This limit is a safeguard set by
-     * the index.max_result_window index setting. If you need to page through more than 10,000 hits, use the
-     * search_after parameter instead. See
+     * By default, you cannot use from and size to page through more than 10,000 hits. This limit is a
+     * safeguard set by the index.max_result_window index setting. If you need to page through more than
+     * 10,000 hits, use the search_after parameter instead. See
      * https://www.elastic.co/guide/en/elasticsearch/reference/current/paginate-search-results.html#search-after
      */
     public IndexPage<T> next(IndexPage<T> page, Class<T> docClass) throws IOException {
