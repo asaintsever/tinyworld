@@ -46,6 +46,7 @@ import asaintsever.tinyworld.cfg.Configuration;
 import asaintsever.tinyworld.cfg.Env;
 import asaintsever.tinyworld.cfg.Loader;
 import asaintsever.tinyworld.indexor.Indexor;
+import asaintsever.tinyworld.ui.component.SplashScreen;
 
 /**
  *
@@ -177,8 +178,11 @@ public class UI {
         frame.setTitle(appName);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
+        SplashScreen splash = new SplashScreen(screenSize);
+
         SwingUtilities.invokeLater(() -> {
             frame.setVisible(true);
+            splash.display();
 
             // Create indexor in background thread
             IndexorLoaderWorker idxLoader = new IndexorLoaderWorker(frame, cfg.indexor);

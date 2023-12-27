@@ -22,6 +22,7 @@ package asaintsever.tinyworld.ui;
 public interface UIStrings {
 
     final String APP_NAME = "TinyWorld";
+    final String APP_COPYRIGHT = "(c) asaintsever 2021-2024";
 
     final String DEP_WORLDWIND = "wwj";
     final String DEP_FLATLAF = "flatlaf";
