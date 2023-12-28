@@ -50,6 +50,8 @@ public interface UIStrings {
 
     final String NETWORK_CHECKBOX_LABEL = " Online";
 
-    final String INDEXOR_STATUS_CONNECTING_LABEL = "Connecting to Indexor [%s]";
-    final String INDEXOR_STATUS_CONNECTED_LABEL = "Connected on Indexor [%s]";
+    final String INDEXOR_STATUS_CONNECTING_LABEL = "Connecting ";
+    final String INDEXOR_STATUS_CONNECTING_TOOLTIP = "to %s";
+    final String INDEXOR_STATUS_CONNECTED_LABEL = "Connected ";
+    final String INDEXOR_STATUS_CONNECTED_TOOLTIP = "on %s";
 }
