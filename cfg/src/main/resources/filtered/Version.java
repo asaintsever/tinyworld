@@ -17,32 +17,11 @@
  *
  *    https://github.com/asaintsever/tinyworld
  */
-package asaintsever.tinyworld.ui.component;
-
-import asaintsever.tinyworld.cfg.Configuration;
-import lombok.Getter;
-
-/**
- *
- *
+/*
+ * This file is updated by Maven resource filtering feature. Do not edit!
  */
-@Getter
-@SuppressWarnings("serial")
-public class StatusBar extends gov.nasa.worldwind.util.StatusBar {
+package asaintsever.tinyworld.cfg;
 
-    protected IndexorStatusPanel indexorStatusPanel;
-
-    public StatusBar(Configuration cfg) {
-        super();
-
-        // Remove elevation info in status bar (no need since we disabled elevation retrieval)
-        this.remove(this.eleDisplay);
-
-        // Add Version info panel
-        //TODO
-
-        // Add Indexor status panel
-        indexorStatusPanel = new IndexorStatusPanel(cfg.indexor);
-        this.add(indexorStatusPanel);
-    }
+public interface Version {
+    final String CURRENT = "${project.version}";
 }
