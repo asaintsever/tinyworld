@@ -39,7 +39,7 @@ public class StatusBar extends gov.nasa.worldwind.util.StatusBar {
         this.remove(this.eleDisplay);
 
         // Add Version info panel
-        //TODO
+        // TODO
 
         // Add Indexor status panel
         indexorStatusPanel = new IndexorStatusPanel(cfg.indexor);
