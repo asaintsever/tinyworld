@@ -19,10 +19,13 @@
  */
 package asaintsever.tinyworld.ui;
 
+import asaintsever.tinyworld.cfg.Version;
+
 public interface UIStrings {
 
     final String APP_NAME = "TinyWorld";
-    final String APP_COPYRIGHT = "(c) asaintsever 2021-2024";
+    final String APP_COPYRIGHT = "\u00A9 asaintsever 2021-2024";
+    final String APP_VERSION = "v" + Version.CURRENT;
 
     final String DEP_WORLDWIND = "wwj";
     final String DEP_FLATLAF = "flatlaf";

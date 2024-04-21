@@ -77,6 +77,7 @@ public class SplashScreen extends JWindow {
             }
         };
         JLabel copyright = new JLabel(UIStrings.APP_COPYRIGHT, JLabel.RIGHT);
+        JLabel version = new JLabel(UIStrings.APP_VERSION, JLabel.LEFT);
 
         content.add(label, BorderLayout.CENTER);
 
@@ -87,7 +88,14 @@ public class SplashScreen extends JWindow {
         app.setOpaque(false);
 
         label.add(app, BorderLayout.CENTER);
-        label.add(copyright, BorderLayout.PAGE_END);
+
+        // Create a new panel for version and copyright
+        JPanel bottomPanel = new JPanel(new BorderLayout());
+        bottomPanel.setOpaque(false);
+        bottomPanel.add(version, BorderLayout.WEST);
+        bottomPanel.add(copyright, BorderLayout.EAST);
+
+        label.add(bottomPanel, BorderLayout.PAGE_END);
 
         content.setBorder(BorderFactory.createLineBorder(Color.WHITE, 4));
     }
