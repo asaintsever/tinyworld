@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 A. Saint-Sever
+ * Copyright 2021-2024 A. Saint-Sever
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -40,8 +40,8 @@ public class Loader {
 
     private static Path TINYWORLD_CONFIG_FILE_PATH = Paths.get(Env.TINYWORLD_CONFIG_HOME_PATH.toString(),
             Env.TINYWORLD_CONFIG_FILE);
-    private static ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-    private static StringSubstitutor stringSubstitutor = new StringSubstitutor(
+    private static final ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+    private static final StringSubstitutor stringSubstitutor = new StringSubstitutor(
             StringLookupFactory.INSTANCE.environmentVariableStringLookup());
 
     static void setPathToConfigFile(String pathCfg) {

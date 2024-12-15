@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 A. Saint-Sever
+ * Copyright 2021-2024 A. Saint-Sever
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -51,24 +51,20 @@ public class Cluster implements Closeable {
         }
     }
 
-    private final String DEFAULT_PATH_HOME = "index";
-    private final String DEFAULT_HOST = "_local_"; // will listen on localhost
-    private final int DEFAULT_PORT = 9200;
-
-    private final String clusterName = "tinyworld";
-    private final String nodeName = "node";
-    private final String transportType = "netty4";
-    private final String httpType = "netty4";
-
     private String pathHome; // location for index storage
     private String host;
     private int httpPort;
     private ClusterNode node;
 
     public Cluster() {
-        this.pathHome = DEFAULT_PATH_HOME;
-        this.host = DEFAULT_HOST;
-        this.httpPort = DEFAULT_PORT;
+        // will listen on localhost
+        this("index", "_local_", 9200);
+    }
+
+    public Cluster(String pathHome, String host, int port) {
+        this.pathHome = pathHome;
+        this.host = host;
+        this.httpPort = port;
     }
 
     public Cluster setPathHome(String pathHome) {
@@ -87,9 +83,13 @@ public class Cluster implements Closeable {
     }
 
     public Cluster create(boolean expose) throws ClusterNodeException {
-        Builder settingsBuilder = Settings.builder().put("cluster.name", this.clusterName)
-                .put("node.name", this.nodeName).put("path.home", this.pathHome)
-                .put("transport.type", this.transportType).put("http.type", this.httpType)
+        String clusterName = "tinyworld";
+        String nodeName = "node";
+        String transportType = "netty4";
+        String httpType = "netty4";
+
+        Builder settingsBuilder = Settings.builder().put("cluster.name", clusterName).put("node.name", nodeName)
+                .put("path.home", this.pathHome).put("transport.type", transportType).put("http.type", httpType)
                 .put("http.port", this.httpPort).put("network.host", this.host);
 
         // Enable CORS

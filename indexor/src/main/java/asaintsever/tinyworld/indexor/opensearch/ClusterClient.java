@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 A. Saint-Sever
+ * Copyright 2021-2024 A. Saint-Sever
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.net.URISyntaxException;
 
+import lombok.Getter;
 import org.apache.http.HttpHost;
 import org.opensearch.client.ResponseException;
 import org.opensearch.client.RestClient;
@@ -67,9 +68,11 @@ public class ClusterClient implements Closeable {
     protected static Logger logger = LoggerFactory.getLogger(ClusterClient.class);
 
     private RestClient restClient;
-    private RestClientBuilder restClientBuilder;
+    private final RestClientBuilder restClientBuilder;
     private OpenSearchClient osClient;
-    private ObjectMapper mapper;
+
+    @Getter
+    private final ObjectMapper mapper;
 
     public ClusterClient(String host, int port) {
         this.restClientBuilder = RestClient.builder(new HttpHost(host, port));
@@ -107,10 +110,6 @@ public class ClusterClient implements Closeable {
 
     public RestClientBuilder getClientBuilder() {
         return this.restClientBuilder;
-    }
-
-    public ObjectMapper getMapper() {
-        return this.mapper;
     }
 
     public Boolean createIndex(String index, String mapping) throws IOException {

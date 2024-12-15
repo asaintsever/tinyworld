@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 A. Saint-Sever
+ * Copyright 2021-2024 A. Saint-Sever
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -66,8 +66,8 @@ public class PhotoObject {
     protected static Logger logger = LoggerFactory.getLogger(PhotoObject.class);
     protected static final int THUMBNAIL_WIDTH = 160;
     protected static final int THUMBNAIL_HEIGHT = 160;
-    private static ObjectMapper mapper;
-    private PhotoMetadata metadata;
+    private static final ObjectMapper mapper;
+    private final PhotoMetadata metadata;
 
     static {
         mapper = new ObjectMapper();

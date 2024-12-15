@@ -1,4 +1,4 @@
-# TinyWorld
+# TinyWorld <img src="./tinyworldicon.jpg" width="24" height="24">
 
 *Travel the globe from your photos. You'll see how small the World is.*
 

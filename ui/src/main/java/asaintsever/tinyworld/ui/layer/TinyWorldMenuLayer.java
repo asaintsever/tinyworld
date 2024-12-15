@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 A. Saint-Sever
+ * Copyright 2021-2024 A. Saint-Sever
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import java.awt.Rectangle;
 
 import javax.swing.JOptionPane;
 
+import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,10 +65,30 @@ public class TinyWorldMenuLayer extends RenderableLayer implements SelectListene
     protected ScreenAnnotation buttonSettings;
     protected ScreenAnnotation currentButton;
 
+    /**
+     * -- GETTER -- Returns the current relative view controls position.
+     *
+     */
+    @Getter
     protected String position = AVKey.NORTHWEST;
+
+    /**
+     * -- GETTER -- Returns the current layout.
+     *
+     */
+    @Getter
     protected String layout = AVKey.HORIZONTAL;
+
+    /**
+     * -- GETTER -- Get the controls display scale.
+     *
+     */
+    @Getter
     protected double scale = 1;
+
+    @Getter
     protected int borderWidth = 36;
+
     protected int buttonSize = 48;
     protected boolean initialized = false;
     protected Rectangle referenceViewport;
@@ -88,10 +109,6 @@ public class TinyWorldMenuLayer extends RenderableLayer implements SelectListene
         this.setValue(AVKey.HIDDEN, true);
     }
 
-    public int getBorderWidth() {
-        return this.borderWidth;
-    }
-
     /**
      * Sets the view controls offset from the viewport border.
      *
@@ -104,15 +121,6 @@ public class TinyWorldMenuLayer extends RenderableLayer implements SelectListene
     }
 
     /**
-     * Get the controls display scale.
-     *
-     * @return the controls display scale.
-     */
-    public double getScale() {
-        return this.scale;
-    }
-
-    /**
      * Set the controls display scale.
      *
      * @param scale the controls display scale.
@@ -120,15 +128,6 @@ public class TinyWorldMenuLayer extends RenderableLayer implements SelectListene
     public void setScale(double scale) {
         this.scale = scale;
         this.clearControls();
-    }
-
-    /**
-     * Returns the current relative view controls position.
-     *
-     * @return the current view controls position.
-     */
-    public String getPosition() {
-        return this.position;
     }
 
     /**
@@ -147,15 +146,6 @@ public class TinyWorldMenuLayer extends RenderableLayer implements SelectListene
 
         this.position = position;
         this.clearControls();
-    }
-
-    /**
-     * Returns the current layout. Can be one of {@link AVKey#HORIZONTAL} or {@link AVKey#VERTICAL}.
-     *
-     * @return the current layout.
-     */
-    public String getLayout() {
-        return this.layout;
     }
 
     /**
@@ -224,7 +214,7 @@ public class TinyWorldMenuLayer extends RenderableLayer implements SelectListene
         }
 
         // Turn on highlight if object selected.
-        if (button != null && button instanceof ScreenAnnotation) {
+        if (button instanceof ScreenAnnotation) {
             this.currentButton = (ScreenAnnotation) button;
             this.currentButton.getAttributes().setImageOpacity(1);
         }
@@ -448,21 +438,23 @@ public class TinyWorldMenuLayer extends RenderableLayer implements SelectListene
         double x;
         double y;
 
-        if (this.position.equals(AVKey.NORTHEAST)) {
-            x = viewport.getWidth() - controls.width - this.borderWidth;
-            y = viewport.getHeight() - controls.height - this.borderWidth;
-        } else if (this.position.equals(AVKey.SOUTHEAST)) {
+        switch (this.position) {
+        case AVKey.SOUTHEAST -> {
             x = viewport.getWidth() - controls.width - this.borderWidth;
             y = 0d + this.borderWidth;
-        } else if (this.position.equals(AVKey.NORTHWEST)) {
+        }
+        case AVKey.NORTHWEST -> {
             x = 0d + this.borderWidth;
             y = viewport.getHeight() - controls.height - this.borderWidth;
-        } else if (this.position.equals(AVKey.SOUTHWEST)) {
+        }
+        case AVKey.SOUTHWEST -> {
             x = 0d + this.borderWidth;
             y = 0d + this.borderWidth;
-        } else { // use North East as default
+        }
+        default -> { // use North East as default
             x = viewport.getWidth() - controls.width - this.borderWidth;
             y = viewport.getHeight() - controls.height - this.borderWidth;
+        }
         }
 
         return new Point((int) x, (int) y);

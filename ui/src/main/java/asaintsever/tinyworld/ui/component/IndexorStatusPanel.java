@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 A. Saint-Sever
+ * Copyright 2021-2024 A. Saint-Sever
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -21,6 +21,8 @@ package asaintsever.tinyworld.ui.component;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Point;
+import java.awt.event.MouseEvent;
 
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
@@ -56,7 +58,7 @@ public class IndexorStatusPanel extends JPanel implements IndexorListener, Swing
     // Should run until app is closed. Closing will send cancellation signal to this worker (from
     // MainFrame cancelSwingWorkers())
     protected class IndexorStatusWorker extends SwingWorker<Void, Void> {
-        private IndexorStatusPanel indexorStatusPanel;
+        private final IndexorStatusPanel indexorStatusPanel;
 
         public IndexorStatusWorker(IndexorStatusPanel indexorStatusPanel) {
             this.indexorStatusPanel = indexorStatusPanel;
@@ -85,7 +87,14 @@ public class IndexorStatusPanel extends JPanel implements IndexorListener, Swing
     public IndexorStatusPanel(Configuration.INDEXOR idxCfg) {
         this.connectionString = idxCfg.cluster.address + ":" + idxCfg.cluster.port;
 
-        this.indexorStatusLabel = new JLabel();
+        this.indexorStatusLabel = new JLabel() {
+            // Customize tooltip location
+            // The tooltip will appear at the top right corner of the label
+            @Override
+            public Point getToolTipLocation(MouseEvent event) {
+                return new Point(getWidth(), 0);
+            }
+        };
         this.indexorStatusLabel.setHorizontalAlignment(SwingConstants.RIGHT);
         this.indexorIcon = new JLabel();
         this.indexorIcon.setPreferredSize(new Dimension(16, 16));
@@ -120,15 +129,17 @@ public class IndexorStatusPanel extends JPanel implements IndexorListener, Swing
     protected IndexorStatusPanel setStatus(String status) {
         switch (status) {
         case UIStrings.INDEXOR_STATUS_CONNECTING_LABEL:
-            this.indexorStatusLabel
-                    .setText(String.format(UIStrings.INDEXOR_STATUS_CONNECTING_LABEL, this.connectionString));
+            this.indexorStatusLabel.setText(UIStrings.INDEXOR_STATUS_CONNECTING_LABEL);
             this.indexorStatusLabel.setForeground(new Color(255, 0, 0));
+            this.indexorStatusLabel
+                    .setToolTipText(String.format(UIStrings.INDEXOR_STATUS_CONNECTING_TOOLTIP, this.connectionString));
             this.indexorIcon.setIcon(CONNECTING);
             break;
         case UIStrings.INDEXOR_STATUS_CONNECTED_LABEL:
-            this.indexorStatusLabel
-                    .setText(String.format(UIStrings.INDEXOR_STATUS_CONNECTED_LABEL, this.connectionString));
+            this.indexorStatusLabel.setText(UIStrings.INDEXOR_STATUS_CONNECTED_LABEL);
             this.indexorStatusLabel.setForeground(new Color(255, 255, 255));
+            this.indexorStatusLabel
+                    .setToolTipText(String.format(UIStrings.INDEXOR_STATUS_CONNECTED_TOOLTIP, this.connectionString));
             this.indexorIcon.setIcon(CONNECTED);
             break;
         }

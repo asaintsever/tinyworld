@@ -17,20 +17,11 @@
  *
  *    https://github.com/asaintsever/tinyworld
  */
-package asaintsever.tinyworld.indexor.opensearch;
+/*
+ * This file is updated by Maven resource filtering feature. Do not edit!
+ */
+package asaintsever.tinyworld.cfg;
 
-import lombok.Getter;
-
-import java.io.IOException;
-
-@Getter
-public class DocumentAlreadyExistsException extends IOException {
-
-    private static final long serialVersionUID = 1L;
-    private final String docId;
-
-    public DocumentAlreadyExistsException(String id, IOException ex) {
-        super(ex);
-        this.docId = id;
-    }
+public interface Version {
+    final String CURRENT = "${project.version}";
 }

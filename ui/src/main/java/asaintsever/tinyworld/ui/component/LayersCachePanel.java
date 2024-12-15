@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 A. Saint-Sever
+ * Copyright 2021-2024 A. Saint-Sever
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -142,10 +142,10 @@ public class LayersCachePanel extends JPanel {
     }
 
     protected void update() {
-        java.util.List<FileStoreDataSet> dataSets = this.table.getSelectedDataSets();
+        List<FileStoreDataSet> dataSets = this.table.getSelectedDataSets();
         int age = Integer.parseInt(this.ageSpinner.getValue().toString());
 
-        if (dataSets.size() == 0) {
+        if (dataSets.isEmpty()) {
             this.deleteSizeLabel.setText(UIStrings.LAYERS_CACHE_SIZE_PANEL_LABEL + "N/A");
             this.delBtn.setEnabled(false);
             return;
@@ -170,16 +170,14 @@ public class LayersCachePanel extends JPanel {
         String unit = null;
         String unitString = (String) this.ageUnit.getSelectedItem();
 
-        if (unitString.equals("Hours"))
-            unit = FileStoreDataSet.HOUR;
-        else if (unitString.equals("Days"))
-            unit = FileStoreDataSet.DAY;
-        else if (unitString.equals("Weeks"))
-            unit = FileStoreDataSet.WEEK;
-        else if (unitString.equals("Months"))
-            unit = FileStoreDataSet.MONTH;
-        else if (unitString.equals("Years"))
-            unit = FileStoreDataSet.YEAR;
+        unit = switch (unitString) {
+        case "Hours" -> FileStoreDataSet.HOUR;
+        case "Days" -> FileStoreDataSet.DAY;
+        case "Weeks" -> FileStoreDataSet.WEEK;
+        case "Months" -> FileStoreDataSet.MONTH;
+        case "Years" -> FileStoreDataSet.YEAR;
+        default -> unit;
+        };
 
         return unit;
     }

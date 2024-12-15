@@ -3,13 +3,13 @@
   <parent>
     <groupId>asaintsever.tinyworld</groupId>
     <artifactId>tinyworld</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.2-SNAPSHOT</version>
   </parent>
   <artifactId>metadata-extractor</artifactId>
 
   <properties>
-    <metextractor.version>2.18.0</metextractor.version>
-    <thumbnailator.version>0.4.19</thumbnailator.version>
+    <metextractor.version>2.19.0</metextractor.version>
+    <thumbnailator.version>0.4.20</thumbnailator.version>
     <im4java.version>1.4.0</im4java.version>
   </properties>
 

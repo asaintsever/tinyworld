@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 A. Saint-Sever
+ * Copyright 2021-2024 A. Saint-Sever
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -19,9 +19,13 @@
  */
 package asaintsever.tinyworld.ui;
 
+import asaintsever.tinyworld.cfg.Version;
+
 public interface UIStrings {
 
     final String APP_NAME = "TinyWorld";
+    final String APP_COPYRIGHT = "\u00A9 asaintsever 2021-2024";
+    final String APP_VERSION = "v" + Version.CURRENT;
 
     final String DEP_WORLDWIND = "wwj";
     final String DEP_FLATLAF = "flatlaf";
@@ -49,6 +53,8 @@ public interface UIStrings {
 
     final String NETWORK_CHECKBOX_LABEL = " Online";
 
-    final String INDEXOR_STATUS_CONNECTING_LABEL = "Connecting to Indexor [%s]";
-    final String INDEXOR_STATUS_CONNECTED_LABEL = "Connected on Indexor [%s]";
+    final String INDEXOR_STATUS_CONNECTING_LABEL = "Connecting ";
+    final String INDEXOR_STATUS_CONNECTING_TOOLTIP = "to %s";
+    final String INDEXOR_STATUS_CONNECTED_LABEL = "Connected ";
+    final String INDEXOR_STATUS_CONNECTED_TOOLTIP = "on %s";
 }

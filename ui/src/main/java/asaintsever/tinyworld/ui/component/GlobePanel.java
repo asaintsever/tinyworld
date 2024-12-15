@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 A. Saint-Sever
+ * Copyright 2021-2024 A. Saint-Sever
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -39,6 +39,7 @@ import gov.nasa.worldwindx.examples.ClickAndGoSelectListener;
 import gov.nasa.worldwindx.examples.util.HighlightController;
 import gov.nasa.worldwindx.examples.util.HotSpotController;
 import gov.nasa.worldwindx.examples.util.ToolTipController;
+import lombok.Getter;
 
 /**
  *
@@ -47,7 +48,9 @@ import gov.nasa.worldwindx.examples.util.ToolTipController;
 @SuppressWarnings("serial")
 public class GlobePanel extends JPanel {
 
+    @Getter
     protected WorldWindow wwd;
+    @Getter
     protected StatusBar statusBar;
     protected ToolTipController toolTipController;
     protected HighlightController highlightController;
@@ -88,14 +91,6 @@ public class GlobePanel extends JPanel {
 
     public GlobeGLCanvas getGLCanvas() {
         return (GlobeGLCanvas) this.wwd;
-    }
-
-    public WorldWindow getWwd() {
-        return this.wwd;
-    }
-
-    public StatusBar getStatusBar() {
-        return this.statusBar;
     }
 
     public LayerList getLayers() {

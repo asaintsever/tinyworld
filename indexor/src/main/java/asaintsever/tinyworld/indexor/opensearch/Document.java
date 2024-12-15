@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 A. Saint-Sever
+ * Copyright 2021-2024 A. Saint-Sever
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import lombok.Getter;
 import org.opensearch.action.search.SearchRequest;
 import org.opensearch.action.search.SearchResponse;
 import org.opensearch.client.RequestOptions;
@@ -53,8 +54,13 @@ import asaintsever.tinyworld.indexor.opensearch.utils.TermsAggregationBuilder;
 import asaintsever.tinyworld.indexor.search.results.IndexPage;
 
 public class Document<T> implements Closeable {
+    // Getter to allow customization of mapper
+    @Getter
     private ObjectMapper mapper;
+
     private ClusterClient client;
+
+    @Getter
     private String index;
 
     // Used for search and templates only (new Java client search capabilities not on par compared to
@@ -65,11 +71,6 @@ public class Document<T> implements Closeable {
 
     public Document(ClusterClient client) {
         this.setClient(client);
-    }
-
-    // Getter to allow customization of mapper
-    public ObjectMapper getMapper() {
-        return this.mapper;
     }
 
     public Document<T> setClient(ClusterClient client) {
@@ -84,10 +85,6 @@ public class Document<T> implements Closeable {
     public Document<T> setIndex(String index) {
         this.index = index;
         return this;
-    }
-
-    public String getIndex() {
-        return this.index;
     }
 
     public String add(T document) throws IOException {
