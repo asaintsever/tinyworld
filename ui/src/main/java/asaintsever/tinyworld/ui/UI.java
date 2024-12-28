@@ -154,11 +154,14 @@ public class UI {
     }
 
     protected static MainFrame start(String appName, Configuration cfg) throws Exception {
-        if (gov.nasa.worldwind.Configuration.isMacOS() && appName != null) {
-            System.setProperty("com.apple.mrj.application.apple.menu.about.name", appName);
-        }
+        // if (gov.nasa.worldwind.Configuration.isMacOS() && appName != null) {
+        // System.setProperty("com.apple.mrj.application.apple.menu.about.name", appName);
+        // }
 
         if (logger.isDebugEnabled()) {
+            logger.debug("OS: " + System.getProperty("os.name") + " [" + System.getProperty("os.version") + "] / "
+                    + System.getProperty("os.arch"));
+
             // Loop through all detected screens and get size + UI scaling factor
             for (GraphicsDevice gd : GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices()) {
                 GraphicsConfiguration gConf = gd.getDefaultConfiguration();
