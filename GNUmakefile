@@ -83,8 +83,7 @@ next-version: ## Set next version
 	mvn versions:set -DnewVersion=$$twNewVer
 	echo -n $$twNewVer > VERSION
 
-#release-github: test gen-oci-image gen-appimage gen-portableapp ## Release on GitHub
-release-github:
+release-github: test gen-oci-image gen-appimage gen-portableapp ## Release on GitHub
 	read -p "Publish image (y/n)? " answer
 	case $$answer in \
 	y|Y ) \
