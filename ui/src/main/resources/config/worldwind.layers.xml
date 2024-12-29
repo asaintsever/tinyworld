@@ -35,7 +35,7 @@
 <LayerList>
     <Layer className="gov.nasa.worldwind.layers.StarsLayer">
         <!--Individual properties can be specified within Layer entries, like this:-->
-        <Property name="Name" value="Stars"/>
+        <!--<Property name="Name" value="Stars"/>-->
     </Layer>
     <Layer className="gov.nasa.worldwind.layers.SkyGradientLayer"/>
     <Layer className="asaintsever.tinyworld.ui.layer.BMNGOneImageLayer">

@@ -238,6 +238,11 @@
                 <argument>-Djogl.debug.TraceGL</argument>
                 -->
                 <!-- JOGL enable debug & trace logs -->
+                <!-- Force UI scale factor: see doc/WORKAROUNDS.md -->
+                <!--
+                <argument>-Dsun.java2d.uiScale=1.0</argument>
+                -->
+                <!-- Force UI scale factor: see doc/WORKAROUNDS.md -->
                 <argument>-Xmx2048m</argument>
                 <!-- TinyWorld'UI jar must come before WorldWind as we override some messages in MessageStrings.properties file -->
                 <argument>-cp</argument>
