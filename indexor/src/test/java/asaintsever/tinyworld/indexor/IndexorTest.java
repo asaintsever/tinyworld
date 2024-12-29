@@ -51,6 +51,9 @@ public class IndexorTest {
 
     @BeforeAll
     public static void setup() throws Exception {
+        System.setProperty("jna.debug_load", "true");
+        System.setProperty("jna.debug_load.jna", "true");
+
         // Change defaults for our tests
         Indexor.setClusterPathHome("target/index");
 
