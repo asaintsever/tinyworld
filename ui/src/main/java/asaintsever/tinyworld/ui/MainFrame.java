@@ -134,9 +134,6 @@ public class MainFrame extends JFrame {
             // Search the layer list for layers that are also select listeners and register them.
             // This enables interactive layers to be included without specific knowledge of them here.
             this.addListeners(layer);
-
-            if (layer instanceof WorldMapLayer)
-                ((WorldMapLayer) layer).setPosition(AVKey.NORTHEAST);
         }
 
         this.settingsPanel = new SettingsPanel(this);

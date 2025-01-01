@@ -43,6 +43,12 @@
     </Layer>
     <Layer href="config/Earth/BMNGWMSLayer2.xml" actuate="onLoad"/>
     <Layer href="config/Earth/LandsatI3WMSLayer2.xml" actuate="onLoad"/>
-    <Layer className="gov.nasa.worldwind.layers.WorldMapLayer"/>
+    <Layer className="gov.nasa.worldwind.layers.WorldMapLayer">
+        <Property name="Position" value="gov.nasa.worldwind.layers.ViewControlsLayer.NorthEast"/>
+    </Layer>
     <Layer className="gov.nasa.worldwind.layers.ScalebarLayer"/>
+    <Layer className="gov.nasa.worldwind.layers.CompassLayer">
+        <Property name="Position" value="gov.nasa.worldwind.layers.ViewControlsLayer.SouthWest"/>
+        <Property name="Enabled" value="false"/>
+    </Layer>
 </LayerList>
