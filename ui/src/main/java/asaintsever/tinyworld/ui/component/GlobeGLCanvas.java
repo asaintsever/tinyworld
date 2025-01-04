@@ -36,22 +36,16 @@ public class GlobeGLCanvas extends WorldWindowGLCanvas {
 
     @Override
     public int getWidth() {
-        if (gov.nasa.worldwind.Configuration.isMacOS()) {
-            // On MacOS, the pixel scale is already taken into account by the super.getWidth() method
-            return super.getWidth();
-        } else {
-            return (int) (super.getWidth() * this.getPixelScaleX());
-        }
+        // The pixel scale is already taken into account by the super.getWidth() method
+        // No need to multiply by the pixel scale using getPixelScaleX()
+        return super.getWidth();
     }
 
     @Override
     public int getHeight() {
-        if (gov.nasa.worldwind.Configuration.isMacOS()) {
-            // On MacOS, the pixel scale is already taken into account by the super.getHeight() method
-            return super.getHeight();
-        } else {
-            return (int) (super.getHeight() * this.getPixelScaleY());
-        }
+        // The pixel scale is already taken into account by the super.getHeight() method
+        // No need to multiply by the pixel scale using getPixelScaleY()
+        return super.getHeight();
     }
 
     @Override
