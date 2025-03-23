@@ -11,7 +11,7 @@ IMAGE_FQIN:=asaintsever/tinyworld
 
 .SILENT: ;  	# No need for @
 .ONESHELL: ; 	# Single shell for a target (required to properly use local variables)
-.PHONY: help init clean format test package run-ui run-ui-gl-sw run-indexor pre-release gen-portableapp gen-oci-image gen-appimage next-version release-github
+.PHONY: help init clean format test package run-ui run-ui-gl-sw run-indexor pre-release gen-portableapp gen-oci-image gen-appimage gen-dmg next-version release-github
 .DEFAULT_GOAL := help
 
 help: ## Show Help
@@ -23,6 +23,7 @@ init: ## Init build (to run once)
 clean: ## Clean
 	mvn clean
 	rm -rf release/artifacts || true
+	mkdir -p release/artifacts
 
 format: ## Format code
 	mvn install -pl build-tools
@@ -48,15 +49,13 @@ run-ui-gl-sw: ## Run TinyWorld UI with OpenGL software rendering
 
 pre-release:
 	set -e
-	mkdir -p release/artifacts
-	chmod +x release/get-3rd-party.sh
-	chmod +x release/release-helper.sh
+	chmod +x release/*.sh
 	chmod +x release/appimage/appdir-gen.sh
 	chmod +x release/appimage/bin/appimagetool-*
 	chmod +x release/portable/portableapp-gen.sh
 	release/get-3rd-party.sh
 
-gen-portableapp: package pre-release ## Generate TinyWorld Portable App
+gen-portableapp: package pre-release ## Generate TinyWorld Portable App (Linux - x86_64 aarch64, Windows - x86_64)
 	set -e
 	echo "Build Portable App ..."
 	release/release-helper.sh release/portable
@@ -64,7 +63,7 @@ gen-portableapp: package pre-release ## Generate TinyWorld Portable App
 
 # https://docs.appimage.org/packaging-guide/manual.html
 # https://github.com/AppImage/AppImageKit/wiki/Bundling-Java-apps#option-2-bundling-jre-manually
-gen-appimage: package pre-release ## Generate TinyWorld AppImage (for current architecture)
+gen-appimage: package pre-release ## Generate TinyWorld AppImage (Linux - For current architecture)
 	set -e
 	arch=$$(uname -m)
 	echo "Build AppImage package (arch=$$arch)..."
@@ -76,6 +75,12 @@ gen-oci-image: package pre-release ## Generate TinyWorld OCI Image
 	echo "Build OCI image ..."
 	release/release-helper.sh release/oci-image
 	release/oci-image/image-gen.sh ${IMAGE_FQIN} ${RELEASE_VERSION}
+
+gen-dmg: clean ## Generate TinyWorld DMG (macOS - Universal)
+	set -e
+	echo "Build DMG package ..."
+	mvn package -Dmaven.test.skip=true -P MacOSApp
+	mv ui/target/*.dmg release/artifacts
 
 next-version: ## Set next version
 	set -e

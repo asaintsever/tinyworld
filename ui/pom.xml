@@ -80,6 +80,11 @@
             </dependency>
           </dependencies>
         </plugin>
+        <plugin>
+          <groupId>de.perdian.maven.plugins</groupId>
+          <artifactId>macosappbundler-maven-plugin</artifactId>
+          <version>1.21.1</version>
+        </plugin>
       </plugins>
     </pluginManagement>
     
@@ -145,7 +150,7 @@
               </resources>
             </configuration>
           </execution>
-          <!-- copy tinyworld config -->
+          <!-- copy TinyWorld config -->
           <execution>
             <id>copy-ui-config</id>
             <phase>validate</phase>
@@ -164,7 +169,7 @@
         </executions>
       </plugin>
 
-      <!-- copy tinyworld dependencies -->
+      <!-- copy TinyWorld dependencies -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>
@@ -249,6 +254,76 @@
                 <argument>*:deps/*</argument>
                 <argument>asaintsever.tinyworld.ui.UI</argument>
               </arguments>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <!-- To generate macOS app bundle -->
+    <profile>
+      <id>MacOSApp</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>de.perdian.maven.plugins</groupId>
+            <artifactId>macosappbundler-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>bundle</goal>
+                </goals>
+              </execution>
+            </executions>
+            <configuration>
+              <app>
+                <additionalResources>
+                  <!-- Need to explicitly add JOGL libs required by WWJ -->
+                  <resource>
+                    <directory>${project.basedir}/globe/deps/wwj/lib</directory>
+                    <outputDirectory>Contents/Java/classpath</outputDirectory>
+                    <includes>
+                      <include>**</include>
+                    </includes>
+                  </resource>
+                  <!-- TinyWorld custom config -->
+                  <resource>
+                    <directory>${project.basedir}/target/config</directory>
+                    <outputDirectory>Contents/Resources/config</outputDirectory>
+                    <includes>
+                      <include>**</include>
+                    </includes>
+                  </resource>
+                </additionalResources>
+              </app>
+              <plist>
+                <CFBundleName>${project.parent.name}</CFBundleName>
+                <CFBundleDisplayName>${project.parent.name}</CFBundleDisplayName>
+                <JVMMainClassName>asaintsever.tinyworld.ui.UI</JVMMainClassName>
+                <JVMVersion>17+</JVMVersion>
+                <JVMOptions>
+                  <string>-Dapple.laf.useScreenMenuBar=true</string>
+                  <string>-Xdock:name=${project.parent.name}</string>
+                </JVMOptions>
+                <JVMArguments>
+                  <string>-Xmx4096m</string>
+                  <string>-Xms4096m</string>
+                  <string>--add-exports</string>
+                  <string>java.base/java.lang=ALL-UNNAMED</string>
+                  <string>--add-exports</string>
+                  <string>java.desktop/sun.awt=ALL-UNNAMED</string>
+                  <string>--add-exports</string>
+                  <string>java.desktop/sun.java2d=ALL-UNNAMED</string>
+                </JVMArguments>
+              </plist>
+              <dmg>
+                <generate>true</generate>
+              </dmg>
+              <codesign>
+                <enable>false</enable>
+              </codesign>
             </configuration>
           </plugin>
         </plugins>
