@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2024 A. Saint-Sever
+ * Copyright 2021-2025 A. Saint-Sever
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -24,11 +24,12 @@ import asaintsever.tinyworld.cfg.Version;
 public interface UIStrings {
 
     final String APP_NAME = "TinyWorld";
-    final String APP_COPYRIGHT = "\u00A9 asaintsever 2021-2024";
+    final String APP_COPYRIGHT = "\u00A9 asaintsever 2021-2025";
     final String APP_VERSION = "v" + Version.CURRENT;
 
     final String DEP_WORLDWIND = "wwj";
     final String DEP_FLATLAF = "flatlaf";
+    final String DEP_JNA = "jna";
 
     final String MENU_LABEL = "Action Icons";
     final String MENU_INDEX_DISPLAYNAME = "Index";

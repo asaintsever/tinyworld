@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2024 A. Saint-Sever
+ * Copyright 2021-2025 A. Saint-Sever
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -60,6 +60,8 @@ public class UI {
     // java.util.logging.LogManager$LoggerContext removeLoggerRef() method).
     // Failure to do so, some logs will not be routed by the SLF4J JUL bridge handler.
     // Worldwind & FlatLaf are using JUL: we will reroute their logs to SLF4J
+    protected static java.util.logging.Logger jnaJULlogger = java.util.logging.Logger
+            .getLogger(com.sun.jna.Native.class.getName());
     protected static java.util.logging.Logger wwjJULlogger = java.util.logging.Logger
             .getLogger(gov.nasa.worldwind.Configuration.getStringValue(gov.nasa.worldwind.avlist.AVKey.LOGGER_NAME,
                     gov.nasa.worldwind.Configuration.DEFAULT_LOGGER_NAME));
@@ -110,15 +112,20 @@ public class UI {
         SLF4JBridgeHandler.install();
 
         // By default, turn off logging for dependencies
+        jnaJULlogger.setLevel(java.util.logging.Level.OFF);
         wwjJULlogger.setLevel(java.util.logging.Level.OFF);
         flatlafJULlogger.setLevel(java.util.logging.Level.OFF);
 
+        // Set log level for JNA from config
+        if (uiCfg.deps.logging.getOrDefault(UIStrings.DEP_JNA, "off").equalsIgnoreCase("on"))
+            jnaJULlogger.setLevel(java.util.logging.Level.ALL);
+
         // Set log level for WWJ from config
-        if (uiCfg.deps.logging.get(UIStrings.DEP_WORLDWIND).equalsIgnoreCase("on"))
+        if (uiCfg.deps.logging.getOrDefault(UIStrings.DEP_WORLDWIND, "off").equalsIgnoreCase("on"))
             wwjJULlogger.setLevel(java.util.logging.Level.FINER);
 
         // Set log level for FlatLaf from config
-        if (uiCfg.deps.logging.get(UIStrings.DEP_FLATLAF).equalsIgnoreCase("on"))
+        if (uiCfg.deps.logging.getOrDefault(UIStrings.DEP_FLATLAF, "off").equalsIgnoreCase("on"))
             flatlafJULlogger.setLevel(java.util.logging.Level.CONFIG);
     }
 
@@ -154,11 +161,10 @@ public class UI {
     }
 
     protected static MainFrame start(String appName, Configuration cfg) throws Exception {
-        if (gov.nasa.worldwind.Configuration.isMacOS() && appName != null) {
-            System.setProperty("com.apple.mrj.application.apple.menu.about.name", appName);
-        }
-
         if (logger.isDebugEnabled()) {
+            logger.debug("OS: " + System.getProperty("os.name") + " [" + System.getProperty("os.version") + "] / "
+                    + System.getProperty("os.arch"));
+
             // Loop through all detected screens and get size + UI scaling factor
             for (GraphicsDevice gd : GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices()) {
                 GraphicsConfiguration gConf = gd.getDefaultConfiguration();
@@ -174,7 +180,7 @@ public class UI {
         }
 
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        MainFrame frame = new MainFrame(cfg, new Dimension(screenSize.width - 100, screenSize.height - 100));
+        final MainFrame frame = new MainFrame(cfg, new Dimension(screenSize.width - 100, screenSize.height - 100));
         frame.setTitle(appName);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -185,7 +191,7 @@ public class UI {
             splash.display();
 
             // Create indexor in background thread
-            IndexorLoaderWorker idxLoader = new IndexorLoaderWorker(frame, cfg.indexor);
+            final IndexorLoaderWorker idxLoader = new IndexorLoaderWorker(frame, cfg.indexor);
             idxLoader.execute();
 
             frame.addWindowListener(new WindowAdapter() {

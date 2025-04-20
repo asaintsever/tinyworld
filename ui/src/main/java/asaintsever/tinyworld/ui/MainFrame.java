@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2024 A. Saint-Sever
+ * Copyright 2021-2025 A. Saint-Sever
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -134,9 +134,6 @@ public class MainFrame extends JFrame {
             // Search the layer list for layers that are also select listeners and register them.
             // This enables interactive layers to be included without specific knowledge of them here.
             this.addListeners(layer);
-
-            if (layer instanceof WorldMapLayer)
-                ((WorldMapLayer) layer).setPosition(AVKey.NORTHEAST);
         }
 
         this.settingsPanel = new SettingsPanel(this);

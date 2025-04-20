@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2024 A. Saint-Sever
+ * Copyright 2021-2025 A. Saint-Sever
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -149,7 +149,12 @@ public class Extract {
 
     private static Set<URI> listFilesUsingFileWalk(String dir, int depth) throws IOException {
         try (Stream<Path> stream = Files.walk(Paths.get(dir), depth, FileVisitOption.FOLLOW_LINKS)) {
-            return stream.filter(file -> !Files.isDirectory(file)).map(Path::toUri).collect(Collectors.toSet());
+            return stream.filter(file -> !Files.isDirectory(file)) // Exclude directories
+                    .filter(file -> {
+                        String fileName = file.getFileName().toString();
+                        return !fileName.equals(".DS_Store") && !fileName.equalsIgnoreCase("desktop.ini");
+                    }) // Exclude .DS_Store (macOS) and desktop.ini (Windows) files
+                    .map(Path::toUri).collect(Collectors.toSet());
         }
     }
 

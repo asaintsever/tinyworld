@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2024 A. Saint-Sever
+ * Copyright 2021-2025 A. Saint-Sever
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -36,12 +36,16 @@ public class GlobeGLCanvas extends WorldWindowGLCanvas {
 
     @Override
     public int getWidth() {
-        return (int) (super.getWidth() * this.getPixelScaleX());
+        // The pixel scale is already taken into account by the super.getWidth() method
+        // No need to multiply by the pixel scale using getPixelScaleX()
+        return super.getWidth();
     }
 
     @Override
     public int getHeight() {
-        return (int) (super.getHeight() * this.getPixelScaleY());
+        // The pixel scale is already taken into account by the super.getHeight() method
+        // No need to multiply by the pixel scale using getPixelScaleY()
+        return super.getHeight();
     }
 
     @Override

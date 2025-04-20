@@ -46,14 +46,14 @@
     <dependency>
       <groupId>com.jogamp</groupId>
       <artifactId>jogl-all</artifactId>
-      <version>2.4</version>
+      <version>2.5.0</version>
       <scope>system</scope>
       <systemPath>${basedir}/globe/deps/wwj/lib/jogl-all.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>com.jogamp</groupId>
       <artifactId>gluegen-rt</artifactId>
-      <version>2.4</version>
+      <version>2.5.0</version>
       <scope>system</scope>
       <systemPath>${basedir}/globe/deps/wwj/lib/gluegen-rt.jar</systemPath>
     </dependency>
@@ -145,7 +145,7 @@
               </resources>
             </configuration>
           </execution>
-          <!-- copy tinyworld config -->
+          <!-- copy TinyWorld config
           <execution>
             <id>copy-ui-config</id>
             <phase>validate</phase>
@@ -161,10 +161,11 @@
               </resources>
             </configuration>
           </execution>
+          -->
         </executions>
       </plugin>
 
-      <!-- copy tinyworld dependencies -->
+      <!-- copy TinyWorld dependencies -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>
@@ -238,6 +239,15 @@
                 <argument>-Djogl.debug.TraceGL</argument>
                 -->
                 <!-- JOGL enable debug & trace logs -->
+                <!-- Disable High DPI by enforcing UI scale factor: see doc/WORKAROUNDS.md -->
+                <!--
+                <argument>-Dsun.java2d.uiScale=1.0</argument>
+                -->
+                <!-- Disable High DPI by enforcing UI scale factor: see doc/WORKAROUNDS.md -->
+                <!-- macOS only settings -->
+                <argument>-Dapple.laf.useScreenMenuBar=true</argument>
+                <argument>-Xdock:name=${project.parent.name}</argument>
+                <!-- macOS only settings -->
                 <argument>-Xmx2048m</argument>
                 <!-- TinyWorld'UI jar must come before WorldWind as we override some messages in MessageStrings.properties file -->
                 <argument>-cp</argument>

@@ -24,7 +24,6 @@ COPY --from=tools /tools ./tools
 COPY tmp/LICENSE* .
 COPY tmp/deps ./deps
 COPY tinyworld.sh .
-COPY tmp/config ./config
 COPY tmp/*.jar .
 
 RUN chmod +x ./tools/*

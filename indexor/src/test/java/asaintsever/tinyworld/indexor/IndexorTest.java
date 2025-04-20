@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2024 A. Saint-Sever
+ * Copyright 2021-2025 A. Saint-Sever
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -51,6 +51,9 @@ public class IndexorTest {
 
     @BeforeAll
     public static void setup() throws Exception {
+        System.setProperty("jna.debug_load", "true");
+        System.setProperty("jna.debug_load.jna", "true");
+
         // Change defaults for our tests
         Indexor.setClusterPathHome("target/index");
 

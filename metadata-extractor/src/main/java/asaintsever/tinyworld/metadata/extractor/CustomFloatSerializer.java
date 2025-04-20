@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2024 A. Saint-Sever
+ * Copyright 2021-2025 A. Saint-Sever
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@
 package asaintsever.tinyworld.metadata.extractor;
 
 import java.io.IOException;
+import java.util.Locale;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
@@ -30,8 +31,8 @@ public class CustomFloatSerializer extends JsonSerializer<Float> {
     @Override
     public void serialize(Float value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
         if (value != null) {
-            // Only keep 2 digits
-            Float roundedValue = Float.valueOf(String.format("%.2f", value));
+            // Only keep 2 digits, must set Locale.US to make sure a dot (.) is used as decimal separator
+            Float roundedValue = Float.valueOf(String.format(Locale.US, "%.2f", value));
             gen.writeNumber(roundedValue);
         } else {
             gen.writeNull();

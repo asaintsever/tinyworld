@@ -3,8 +3,9 @@
 ui:
   deps:
     logging:      # logging for dependencies
-      wwj: ${TW_UI_LOGS_WWJ:-on}          # on/off
-      flatlaf: ${TW_UI_LOGS_FLATLAF:-on}  # on/off
+      jna: ${TW_UI_LOGS_JNA:-off}          # on/off
+      wwj: ${TW_UI_LOGS_WWJ:-off}          # on/off
+      flatlaf: ${TW_UI_LOGS_FLATLAF:-off}  # on/off
   photoTree:
     filter:
       template: ${TW_UI_PHOTOTREE_FILTER_TMPL:-year_month}  # search template to use: year_month, year_country_month, country_year_month

@@ -49,7 +49,8 @@ Untar/Unzip downloaded portable package (several flavors available: with Linux J
 
 By default, 4Gb of memory is set via Xmx/Xms Java options: edit the script to change any Java options.
 
-> The `tools` folder **must be added** to your PATH environment variable.
+> [!IMPORTANT]
+> The `tools` subfolder **must be added** to your PATH environment variable.
 
 ### Using AppImage on Linux
 
@@ -81,7 +82,7 @@ By default, 4Gb of memory is set via Xmx/Xms Java options. You can override this
 
 ### From Source
 
-> *Requires GNU Make 4+, Java JDK 17, Maven 3+*
+> *Requires GNU Make 4+, Java JDK 17+, Maven 3+*
 
 See [instructions](ui/TEST.md).
 
@@ -95,7 +96,7 @@ See [instructions](ui/TEST.md).
 
 - [jq](https://jqlang.github.io/jq/) *(used to parse responses from GitHub API)*
 - Maven 3+
-- Java JDK 17
+- Java JDK 17+
 - zip/unzip *(to generate TinyWorld portable app for Windows)*
 - Docker or Podman *(to generate TinyWorld OCI image)*
 - [FUSE](https://github.com/libfuse/libfuse) *(to generate TinyWorld AppImage)*
@@ -104,7 +105,8 @@ See [instructions](ui/TEST.md).
     >
     > *On Chrome OS, install required FUSE library using `sudo apt install fuse`*
 
-> *Note: for AppImage package, you'll only be able to generate the package for the platform you're running on (e.g. aarch64 AppImage if you use an arm/aarch64 platform).*
+> [!NOTE]
+> *For AppImage package, you'll only be able to generate the package for the platform you're running on (e.g. aarch64 AppImage if you use an arm/aarch64 platform).*
 
 ### Building from Source
 
