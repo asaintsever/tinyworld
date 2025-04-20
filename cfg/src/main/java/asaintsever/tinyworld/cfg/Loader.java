@@ -59,6 +59,7 @@ public class Loader {
         // Try reading config from external file first (in current user's home directory)
         try {
             if (logger.isDebugEnabled()) {
+                // logger.debug("Java classpath: " + System.getProperty("java.class.path"));
                 logger.debug("Try reading config from: " + TINYWORLD_CONFIG_FILE_PATH);
             }
 

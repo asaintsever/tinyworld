@@ -18,6 +18,13 @@ help: ## Show Help
 	grep -E '^[a-zA-Z_-]+:.*?## .*$$' *makefile | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
 init: ## Init build (to run once)
+	set -e
+	chmod +x release/*.sh
+	chmod +x release/appimage/appdir-gen.sh
+	chmod +x release/appimage/bin/appimagetool-*
+	chmod +x release/portable/portableapp-gen.sh
+	chmod +x release/oci-image/image-gen.sh
+	chmod +x release/dmg/dmg-gen.sh
 	mvn validate
 
 clean: ## Clean
@@ -48,11 +55,6 @@ run-ui-gl-sw: ## Run TinyWorld UI with OpenGL software rendering
 	LIBGL_ALWAYS_SOFTWARE=1 mvn package -Dmaven.test.skip=true -P UI 
 
 pre-release:
-	set -e
-	chmod +x release/*.sh
-	chmod +x release/appimage/appdir-gen.sh
-	chmod +x release/appimage/bin/appimagetool-*
-	chmod +x release/portable/portableapp-gen.sh
 	release/get-3rd-party.sh
 
 gen-portableapp: package pre-release ## Generate TinyWorld Portable App (Linux - x86_64 aarch64, Windows - x86_64)
@@ -76,11 +78,12 @@ gen-oci-image: package pre-release ## Generate TinyWorld OCI Image
 	release/release-helper.sh release/oci-image
 	release/oci-image/image-gen.sh ${IMAGE_FQIN} ${RELEASE_VERSION}
 
-gen-dmg: clean ## Generate TinyWorld DMG (macOS - Universal)
+gen-dmg: package ## Generate TinyWorld DMG (macOS - For current architecture)
 	set -e
-	echo "Build DMG package ..."
-	mvn package -Dmaven.test.skip=true -P MacOSApp
-	mv ui/target/*.dmg release/artifacts
+	arch=$$(uname -m)
+	echo "Build DMG package (arch=$$arch)..."
+	release/release-helper.sh release/dmg
+	release/dmg/dmg-gen.sh $$arch ${RELEASE_VERSION}
 
 next-version: ## Set next version
 	set -e

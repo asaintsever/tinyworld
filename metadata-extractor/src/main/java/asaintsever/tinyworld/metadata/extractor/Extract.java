@@ -149,7 +149,12 @@ public class Extract {
 
     private static Set<URI> listFilesUsingFileWalk(String dir, int depth) throws IOException {
         try (Stream<Path> stream = Files.walk(Paths.get(dir), depth, FileVisitOption.FOLLOW_LINKS)) {
-            return stream.filter(file -> !Files.isDirectory(file)).map(Path::toUri).collect(Collectors.toSet());
+            return stream.filter(file -> !Files.isDirectory(file)) // Exclude directories
+                    .filter(file -> {
+                        String fileName = file.getFileName().toString();
+                        return !fileName.equals(".DS_Store") && !fileName.equalsIgnoreCase("desktop.ini");
+                    }) // Exclude .DS_Store (macOS) and desktop.ini (Windows) files
+                    .map(Path::toUri).collect(Collectors.toSet());
         }
     }
 

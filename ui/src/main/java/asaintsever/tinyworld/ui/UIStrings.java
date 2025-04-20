@@ -29,6 +29,7 @@ public interface UIStrings {
 
     final String DEP_WORLDWIND = "wwj";
     final String DEP_FLATLAF = "flatlaf";
+    final String DEP_JNA = "jna";
 
     final String MENU_LABEL = "Action Icons";
     final String MENU_INDEX_DISPLAYNAME = "Index";
