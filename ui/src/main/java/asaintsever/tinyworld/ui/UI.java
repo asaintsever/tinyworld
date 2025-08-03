@@ -131,7 +131,6 @@ public class UI {
 
     /**
      * Use a Swing Worker to create Indexor in background thread to not block UI
-     *
      */
     protected static class IndexorLoaderWorker extends SwingWorker<Indexor, Object> {
         private final MainFrame frame;

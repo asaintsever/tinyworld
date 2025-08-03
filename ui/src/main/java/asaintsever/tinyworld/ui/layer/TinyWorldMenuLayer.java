@@ -67,21 +67,18 @@ public class TinyWorldMenuLayer extends RenderableLayer implements SelectListene
 
     /**
      * -- GETTER -- Returns the current relative view controls position.
-     *
      */
     @Getter
     protected String position = AVKey.NORTHWEST;
 
     /**
      * -- GETTER -- Returns the current layout.
-     *
      */
     @Getter
     protected String layout = AVKey.HORIZONTAL;
 
     /**
      * -- GETTER -- Get the controls display scale.
-     *
      */
     @Getter
     protected double scale = 1;

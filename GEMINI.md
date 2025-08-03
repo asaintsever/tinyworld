@@ -30,7 +30,7 @@ Features to implement:
 
 ## Coding Style
 
-- Coding and formatting config is described in file `./build-tools/src/main/resources/eclipse/my-eclipse-formatter-config.xml`.
+- Coding and formatting config is described in file `./build-tools/src/main/resources/eclipse/my-eclipse-formatter-config.xml` and applied by the [Formatter Maven Plugin](https://code.revelc.net/formatter-maven-plugin/) (based on the Eclipse code formatter).
 - Always check new code or changes are well formatted using `gmake format` command.
 
 ## Project Architecture
