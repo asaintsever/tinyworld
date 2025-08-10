@@ -277,8 +277,12 @@ public class TinyWorldMenuLayer extends RenderableLayer implements SelectListene
 
             switch (menuOpType) {
             case TWLayerOperations.MENU_INDEX:
-                JOptionPane.showMessageDialog(this.frame, "Not implemented yet",
-                        UIStrings.APP_NAME + " - " + UIStrings.MENU_INDEX_DISPLAYNAME, JOptionPane.INFORMATION_MESSAGE);
+                if (this.frame.getIngestPanel() != null) {
+                    boolean panelStatus = this.frame.getIngestPanel().isVisible();
+                    this.frame.getIngestPanel().setVisible(!panelStatus);
+                } else {
+                    logger.warn("IngestPanel has not been set!");
+                }
                 break;
             case TWLayerOperations.MENU_FILTER:
                 JOptionPane.showMessageDialog(this.frame, "Not implemented yet",
