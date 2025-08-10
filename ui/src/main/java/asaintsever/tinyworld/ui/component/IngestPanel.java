@@ -176,7 +176,7 @@ public class IngestPanel extends JPanel implements IndexorListener {
                 }
             } catch (Exception e) {
                 logger.error("Error during ingestion", e);
-                logArea.append("\n--- Error ---");
+                logArea.append("\n--- Error ---\n");
                 logArea.append(e.getMessage());
             } finally {
                 startButton.setEnabled(true);
