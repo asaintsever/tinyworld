@@ -169,7 +169,7 @@ public class IngestPanel extends JPanel implements IndexorListener {
                 logArea.append("Skipped: " + result.getSkipped() + "\n");
                 logArea.append("Errors: " + result.getProcessed_nok() + "\n");
                 if (result.getProcessed_nok() > 0) {
-                    logArea.append("\n--- Errors ---");
+                    logArea.append("\n--- Errors ---\n");
                     for (String error : result.getErrorMsg()) {
                         logArea.append(error + "\n");
                     }
