@@ -60,13 +60,18 @@ public class MainFrame extends JFrame {
     protected Indexor indexor;
     protected GlobePanel globePanel;
     @Getter
+    protected Configuration cfg;
+    @Getter
     protected SettingsPanel settingsPanel;
+    @Getter
+    protected IngestPanel ingestPanel;
     protected List<SwingWorkerListener> workers = new ArrayList<SwingWorkerListener>();
     protected List<IndexorListener> indexorListeners = new ArrayList<IndexorListener>();
     protected Logger logger = LoggerFactory.getLogger(MainFrame.class);
 
     public MainFrame(Configuration cfg, Dimension size) {
-        this.initialize(cfg, size);
+        this.cfg = cfg;
+        this.initialize(size);
     }
 
     public void setIndexor(Indexor indexor) {
@@ -104,9 +109,9 @@ public class MainFrame extends JFrame {
         super.dispose();
     }
 
-    protected void initialize(Configuration cfg, Dimension size) {
+    protected void initialize(Dimension size) {
         // Create the WorldWindow.
-        this.globePanel = new GlobePanel(cfg, size);
+        this.globePanel = new GlobePanel(this.cfg, size);
         this.globePanel.setPreferredSize(size);
 
         // Register a rendering exception listener that's notified when exceptions occur during rendering.
@@ -140,8 +145,13 @@ public class MainFrame extends JFrame {
         this.settingsPanel.setVisible(false); // Not visible by default (click on 'Settings' button of TW menu to enable
                                               // panel)
 
+        this.ingestPanel = new IngestPanel(this);
+        this.ingestPanel.setVisible(false);
+        this.addListeners(this.ingestPanel);
+
         this.getContentPane().add(globePanel, BorderLayout.CENTER);
         this.getContentPane().add(this.settingsPanel, BorderLayout.WEST);
+        this.getContentPane().add(this.ingestPanel, BorderLayout.EAST);
 
         this.pack();
 

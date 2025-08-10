@@ -5,6 +5,9 @@ set -e
 ARCH=$1
 RELEASE_VERSION=$2
 
+MAIN_JAR="ui-$RELEASE_VERSION.jar"
+MAIN_CLASS="asaintsever.tinyworld.ui.UI"
+
 # Strip any "-SNAPSHOT" suffix from the version as jpackage does not support it
 if [[ $RELEASE_VERSION == *"-SNAPSHOT" ]]; then
   RELEASE_VERSION=${RELEASE_VERSION%-SNAPSHOT}
@@ -16,14 +19,13 @@ if [[ $RELEASE_VERSION == 0.* ]]; then
   RELEASE_VERSION="1.0.0"
 fi
 
-# Define paths and options
-MAIN_JAR="ui-0.0.2-SNAPSHOT.jar"  # Specify the main JAR file explicitly
-LICENSE_FILE="release/dmg/tmp/LICENSE"
-MAIN_CLASS="asaintsever.tinyworld.ui.UI"
 JVM_OPTIONS="--add-exports=java.base/java.lang=ALL-UNNAMED --add-exports=java.desktop/sun.awt=ALL-UNNAMED --add-exports=java.desktop/sun.java2d=ALL-UNNAMED -Dapple.laf.useScreenMenuBar=true -Xdock:name=TinyWorld -Xmx4096m -Xms4096m"
 ICON_FILE="release/dmg/tinyworld.icns"
+LICENSE_FILE="release/dmg/tmp/LICENSE"
 
 # Use jpackage to generate a macOS app bundle
+echo "Generating macOS app bundle (arch: $ARCH) ..."
+
 jpackage \
   --type dmg \
   --dest release/artifacts \

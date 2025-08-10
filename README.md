@@ -15,7 +15,7 @@
 - Geolocalize photos on virtual globe with metadata in annotations
 - Search & filter capabilities to easily navigate your photos (by dates, countries, ...)
 - Offline mode (use local cache for globe data)
-- Available as portable app, AppImage package and OCI image *(i.e. container)*
+- Available as portable app, AppImage package, DMG package and OCI image *(i.e. container)*
 
 ## Supported Photo Formats
 
@@ -27,6 +27,7 @@
 
 - Windows *(x64)* or Linux *(x64 or aarch64)* for Portable App
 - Linux *(x64 or aarch64)* for AppImage
+- macOS *(aarch64)* for DMG package
 - Docker or [Podman](https://podman.io/) for OCI image
 
 ## Configuration
@@ -92,7 +93,7 @@ See [instructions](ui/TEST.md).
 
 - GNU Make 4+
 
-    > *On MacOS, you can install/update GNU Make using [brew](https://brew.sh/): `brew install make`*
+    > *On macOS, you can install/update GNU Make using [brew](https://brew.sh/): `brew install make`*
 
 - [jq](https://jqlang.github.io/jq/) *(used to parse responses from GitHub API)*
 - Maven 3+
@@ -119,14 +120,17 @@ make init
 Then you can generate all supported packages:
 
 ```sh
-# Build TinyWorld portable app
+# Build portable app
 make gen-portableapp
 
-# Build TinyWorld AppImage
+# Build AppImage
 make gen-appimage
 
-# Build TinyWorld OCI image
+# Build OCI image
 make gen-oci-image
+
+# Build macOS DMG package
+make gen-dmg
 ```
 
 ## Releases

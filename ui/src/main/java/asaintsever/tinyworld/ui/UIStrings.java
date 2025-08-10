@@ -58,4 +58,8 @@ public interface UIStrings {
     final String INDEXOR_STATUS_CONNECTING_TOOLTIP = "to %s";
     final String INDEXOR_STATUS_CONNECTED_LABEL = "Connected ";
     final String INDEXOR_STATUS_CONNECTED_TOOLTIP = "on %s";
+
+    final String BROWSE_BUTTON_LABEL = "Browse...";
+    final String ALLOW_UPDATE_CHECKBOX_LABEL = "Allow update";
+    final String START_INGEST_BUTTON_LABEL = "Start Ingest";
 }

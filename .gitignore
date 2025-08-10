@@ -2,6 +2,10 @@
 *.log
 
 .idea/
+.settings/
 target/
+.project
+.classpath
+.factorypath
 
 *.versionsBackup

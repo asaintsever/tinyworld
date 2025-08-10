@@ -179,15 +179,13 @@ public class TinyWorldPhotoTreeLayer extends RenderableLayer implements SelectLi
          * BasicTreeNode child = new BasicTreeNode("Child 1", ICON_PATH);
          * child.setDescription("This is a child node"); child.addChild(new BasicTreeNode("Subchild 1,1"));
          * child.addChild(new BasicTreeNode("Subchild 1,2")); child.addChild(new
-         * BasicTreeNode("Subchild 1,3", ICON_PATH)); root.addChild(child);
-         *
-         * child = new BasicTreeNode("Child 2", ICON_PATH); child.addChild(new
-         * BasicTreeNode("Subchild 2,1")); child.addChild(new BasicTreeNode("Subchild 2,2"));
-         * child.addChild(new BasicTreeNode("Subchild 2,3")); root.addChild(child);
-         *
-         * child = new BasicTreeNode("Child 3"); child.addChild(new BasicTreeNode("Subchild 3,1"));
-         * child.addChild(new BasicTreeNode("Subchild 3,2")); child.addChild(new
-         * BasicTreeNode("Subchild 3,3")); root.addChild(child);
+         * BasicTreeNode("Subchild 1,3", ICON_PATH)); root.addChild(child); child = new
+         * BasicTreeNode("Child 2", ICON_PATH); child.addChild(new BasicTreeNode("Subchild 2,1"));
+         * child.addChild(new BasicTreeNode("Subchild 2,2")); child.addChild(new
+         * BasicTreeNode("Subchild 2,3")); root.addChild(child); child = new BasicTreeNode("Child 3");
+         * child.addChild(new BasicTreeNode("Subchild 3,1")); child.addChild(new
+         * BasicTreeNode("Subchild 3,2")); child.addChild(new BasicTreeNode("Subchild 3,3"));
+         * root.addChild(child);
          */
 
         this.photoTree.setModel(model);

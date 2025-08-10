@@ -239,11 +239,11 @@
                 <argument>-Djogl.debug.TraceGL</argument>
                 -->
                 <!-- JOGL enable debug & trace logs -->
-                <!-- Disable High DPI by enforcing UI scale factor: see doc/WORKAROUNDS.md -->
+                <!-- Disable High DPI by enforcing UI scale factor: see docs/WORKAROUNDS.md -->
                 <!--
                 <argument>-Dsun.java2d.uiScale=1.0</argument>
                 -->
-                <!-- Disable High DPI by enforcing UI scale factor: see doc/WORKAROUNDS.md -->
+                <!-- Disable High DPI by enforcing UI scale factor: see docs/WORKAROUNDS.md -->
                 <!-- macOS only settings -->
                 <argument>-Dapple.laf.useScreenMenuBar=true</argument>
                 <argument>-Xdock:name=${project.parent.name}</argument>

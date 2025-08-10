@@ -57,10 +57,9 @@ public class SplashScreen extends JWindow {
             /*
              * This code overrides the paintComponent method of the JLabel to first draw the outline (in black)
              * and then draw the main text (using original color). The outline is drawn by painting the text
-             * multiple times at different offsets around the original position.
-             *
-             * The setOpaque(false) call is necessary to prevent the label from painting its background, which
-             * would otherwise cover up the outline.
+             * multiple times at different offsets around the original position. The setOpaque(false) call is
+             * necessary to prevent the label from painting its background, which would otherwise cover up the
+             * outline.
              */
             @Override
             public void paintComponent(Graphics g) {
