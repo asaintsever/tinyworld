@@ -126,6 +126,8 @@ public class PhotoMetadata {
             // photos on the globe
             // Handling other fields not relevant unless we want to add extended metadata ingestion capabilities
             // to TinyWorld (not the intent now)
+            this.setTakenYear(defaultMetadata.takenYear);
+            this.setTakenMonth(defaultMetadata.takenMonth);
             this.setCountry(defaultMetadata.country);
             this.setCountryCode(defaultMetadata.countryCode);
             this.setGpsLatLong(defaultMetadata.gpsLatLong);
@@ -155,6 +157,22 @@ public class PhotoMetadata {
      * Setters with validation (to not overwrite defaults)
      */
 
+    public PhotoMetadata setTakenYear(Short takenYear) {
+        if (takenYear != null) {
+            this.takenYear = takenYear;
+        }
+
+        return this;
+    }
+
+    public PhotoMetadata setTakenMonth(Short takenMonth) {
+        if (takenMonth != null && takenMonth >= 1 && takenMonth <= 12) {
+            this.takenMonth = takenMonth;
+        }
+
+        return this;
+    }
+
     public PhotoMetadata setCountry(String country) {
         if (country != null && !country.isBlank()) {
             this.country = country;
@@ -176,19 +194,6 @@ public class PhotoMetadata {
             this.gpsLatLong = latlong;
         }
 
-        return this;
-    }
-
-    /**
-     * Private setters (internal call only)
-     */
-    private PhotoMetadata setTakenYear(Short takenYear) {
-        this.takenYear = takenYear;
-        return this;
-    }
-
-    private PhotoMetadata setTakenMonth(Short takenMonth) {
-        this.takenMonth = takenMonth;
         return this;
     }
 }

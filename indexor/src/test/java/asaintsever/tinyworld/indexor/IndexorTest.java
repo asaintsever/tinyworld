@@ -196,7 +196,7 @@ public class IndexorTest {
 
         // Now, run template
         List<TermsAggregation> aggr = indexor.photos().getAggregations("year_country_month");
-        System.out.println(aggr);
+        System.out.println("Aggr=" + aggr);
 
         assertTrue(aggr.size() > 0);
     }

@@ -42,14 +42,14 @@ No new external dependencies are required.
      - Call `this.indexor.photos().getAggregations(templateId)` to fetch the aggregation results.
      - Create a recursive method that takes a list of `TermsAggregation` and a `BasicTreeNode` as input. This method will iterate over the aggregations and create the tree structure.
      - The hierarchy of the tree will depend on the search template used (e.g., Country -> Year -> Month).
-     - The leaf nodes can represent the final aggregation level (e.g., month), and could show the number of photos in that group.
+     - The tree will be built down to the individual photo level. For each of the lowest-level aggregations (e.g. month), a search will be performed to retrieve the photos within that group, which will be added as leaf nodes to the tree.
 
 2. **Step 2: Refine user interaction**
    - **Files to modify**: `ui/src/main/java/asaintsever/tinyworld/ui/layer/TinyWorldPhotoTreeLayer.java`
    - **Changes needed**:
      - Review and enhance the `selected(SelectEvent event)` method to handle the dynamically created tree.
      - Ensure that expanding and collapsing nodes works as expected.
-     - For leaf nodes, consider what action should be performed on click or double-click. For example, it could trigger a search to display the photos of that group on the globe.
+     - A click on a leaf node will center the globe on the photo's GPS coordinates and a double-click, in addition to centering the globe, opens a pop-up window displaying the selected photo's metadata.
 
 ### Testing Strategy
 - **Unit Tests**: Add unit tests for the tree construction logic in `TinyWorldPhotoTreeLayer`. Mock the `Indexor` to provide sample aggregation results and verify that the tree is built correctly.
