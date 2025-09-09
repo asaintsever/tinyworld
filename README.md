@@ -9,6 +9,10 @@
 
 ![](https://github.com/asaintsever/tinyworld/releases/download/demo/tinyworld.gif)
 
+> [!IMPORTANT]
+>
+> This project is still WIP.
+
 ## Features
 
 - Catalog your photos: metadata extraction & thumbnails generation
