@@ -72,7 +72,8 @@ public class IndexorCmd {
             logger.info("Indexor Cmd started and ready to ingest photos from " + ingestionPath);
 
             PhotoMetadata defaultMetadata = new PhotoMetadata();
-            defaultMetadata.setCountry("_Unknown_").setCountryCode("XXX").setGpsLatLong("25.0,-71.0");
+            defaultMetadata.setTakenYear((short) 1970).setTakenMonth((short) 1).setCountry("_Unknown_")
+                    .setCountryCode("XXX").setGpsLatLong("25.0,-71.0");
 
             if (clearIndex) {
                 // Clear index (may already exists): ie delete then create with default mapping for photo metadata

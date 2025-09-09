@@ -72,6 +72,10 @@ By default, 4Gb of memory is set via Xmx/Xms Java options. You can override this
 JAVA_OPTS="-Xmx2048m -Xms1024m" ./tinyworld-<x86_64|aarch64>-<release version>.AppImage
 ```
 
+### Using DMG package on macOS
+
+Download the DMG package and double-clic on the file. Drag and drop the application icon to the Applications folder to install the application. A TinyWorld app should now be available in the Launchpad.
+
 ### Using OCI Image
 
 ```sh
