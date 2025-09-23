@@ -97,13 +97,13 @@ public class IndexorCmd {
                 }
             });
 
-            logger.info("Number of ingested photos: " + res.getProcessed_ok());
-            logger.info("Number of skipped files: " + res.getSkipped());
-            logger.info("Number of errors: " + res.getProcessed_nok());
+            logger.info("Number of ingested photos: " + res.processed_ok());
+            logger.info("Number of skipped files: " + res.skipped());
+            logger.info("Number of errors: " + res.processed_nok());
 
-            if (res.getProcessed_nok() > 0) {
+            if (res.processed_nok() > 0) {
                 System.out.println("\n----- ERRORS ----");
-                for (String msg : res.getErrorMsg())
+                for (String msg : res.errorMsg())
                     System.out.println("Error msg: " + msg);
             }
 

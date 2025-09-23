@@ -1,7 +1,7 @@
 # Feature Implementation Plan: Photo Treeview
 
 ## 📋 Todo Checklist
-- [ ] Implement dynamic photo tree construction in `TinyWorldPhotoTreeLayer`.
+- [x] ~~Implement dynamic photo tree construction in `TinyWorldPhotoTreeLayer`.~~ ✅ Implemented
 - [ ] Handle user interaction for expanding/collapsing nodes.
 - [ ] Final Review and Testing.
 
@@ -42,14 +42,18 @@ No new external dependencies are required.
      - Call `this.indexor.photos().getAggregations(templateId)` to fetch the aggregation results.
      - Create a recursive method that takes a list of `TermsAggregation` and a `BasicTreeNode` as input. This method will iterate over the aggregations and create the tree structure.
      - The hierarchy of the tree will depend on the search template used (e.g., Country -> Year -> Month).
-     - The tree will be built down to the individual photo level. For each of the lowest-level aggregations (e.g. month), a search will be performed to retrieve the photos within that group, which will be added as leaf nodes to the tree.
+     - The tree will be built down to the last element for the selected template (e.g., Month for Country -> Year -> Month template), with an indicator displaying how many photos are presents at each level (e.g., France (154) -> 2025 (37) -> Jan (12)). By default, all tree entries are collapsed but plan is to memorize the last known state to re-open the tree view in same state the user left it.
+     - Upon expanding a lowest-level aggregations (e.g. month), a search will be performed to retrieve the photos within that group, which will be added as leaf nodes to the tree. Search must only happen at expand time to load photo metadata when needed.
+     - By default, sort tree nodes in ascending order for countries and descending order for years. Leaf nodes (i.e. photos) are to be sorted following their file names.
 
 2. **Step 2: Refine user interaction**
    - **Files to modify**: `ui/src/main/java/asaintsever/tinyworld/ui/layer/TinyWorldPhotoTreeLayer.java`
    - **Changes needed**:
      - Review and enhance the `selected(SelectEvent event)` method to handle the dynamically created tree.
      - Ensure that expanding and collapsing nodes works as expected.
-     - A click on a leaf node will center the globe on the photo's GPS coordinates and a double-click, in addition to centering the globe, opens a pop-up window displaying the selected photo's metadata.
+     - A click on a leaf node will center the globe on the photo's GPS coordinates. The photo is represented on the globe using a pin or a small window overlay displaying its thumbnail and name. This representation leverages NASA WorldWind constructs.
+     - A double-click opens a modal pop-up window displaying the selected photo's metadata.
+     - Clicking on an expanded parent node or selecting several leaf nodes should display associated photo representations on the globe.
 
 ### Testing Strategy
 - **Unit Tests**: Add unit tests for the tree construction logic in `TinyWorldPhotoTreeLayer`. Mock the `Indexor` to provide sample aggregation results and verify that the tree is built correctly.

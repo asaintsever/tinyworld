@@ -70,17 +70,16 @@ public class ExtractMetadataFromPhotoTest {
                     // integer based tag identifiers. Therefore, XMP data is extracted and exposed via {@link
                     // XmpDirectory#getXMPMeta()}
                     // which returns an instance of Adobe's {@link XMPMeta} which exposes the full XMP data set."
-                    if (directory instanceof XmpDirectory) {
-                        XmpDirectory xmpDir = (XmpDirectory) directory;
+                    if (directory instanceof XmpDirectory xmpDir) {
                         System.out.println("Dump XMP metadata:\n" + xmpDir.getXMPMeta().dumpObject());
                     }
                 }
             }
         });
 
-        assertEquals(28, res.getProcessed_ok());
-        assertEquals(3, res.getSkipped());
-        assertEquals(0, res.getProcessed_nok());
+        assertEquals(28, res.processed_ok());
+        assertEquals(3, res.skipped());
+        assertEquals(0, res.processed_nok());
         System.out.println("\n====\nResult=" + res.toString());
     }
 
@@ -103,9 +102,9 @@ public class ExtractMetadataFromPhotoTest {
             }
         });
 
-        assertEquals(isImageMagickInPath ? 15 : 13, res.getProcessed_ok());
-        assertEquals(2, res.getSkipped());
-        assertEquals(isImageMagickInPath ? 0 : 2, res.getProcessed_nok());
+        assertEquals(isImageMagickInPath ? 15 : 13, res.processed_ok());
+        assertEquals(2, res.skipped());
+        assertEquals(isImageMagickInPath ? 0 : 2, res.processed_nok());
         System.out.println("\n====\nResult=" + res.toString());
     }
 
@@ -133,9 +132,9 @@ public class ExtractMetadataFromPhotoTest {
             }
         });
 
-        assertEquals(6, res.getProcessed_ok());
-        assertEquals(0, res.getSkipped());
-        assertEquals(0, res.getProcessed_nok());
+        assertEquals(6, res.processed_ok());
+        assertEquals(0, res.skipped());
+        assertEquals(0, res.processed_nok());
         System.out.println("\n====\nResult=" + res.toString());
     }
 
@@ -159,9 +158,9 @@ public class ExtractMetadataFromPhotoTest {
             }
         });
 
-        assertEquals(isImageMagickInPath ? 28 : 26, res.getProcessed_ok());
-        assertEquals(3, res.getSkipped());
-        assertEquals(isImageMagickInPath ? 0 : 2, res.getProcessed_nok());
+        assertEquals(isImageMagickInPath ? 28 : 26, res.processed_ok());
+        assertEquals(3, res.skipped());
+        assertEquals(isImageMagickInPath ? 0 : 2, res.processed_nok());
         System.out.println("\n====\nResult=" + res.toString());
     }
 

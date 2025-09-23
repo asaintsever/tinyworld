@@ -40,7 +40,8 @@ test: clean ## Run tests
 ifeq ($(TEST_MODULE),)
 	mvn test
 else
-	mvn test -pl $(TEST_MODULE) -am
+	mvn install -Dmaven.test.skip=true
+	mvn test -pl $(TEST_MODULE)
 endif
 
 package: clean ## Package

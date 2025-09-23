@@ -116,7 +116,7 @@ public class IndexorTest {
 
         // Pause before asking # of photos in index
         Thread.sleep(2000);
-        assertEquals(indexor.photos().count(), 1);
+        assertEquals(1, indexor.photos().count());
 
         mtd = indexor.photos().get(id);
         System.out.println("mtd=" + mtd.toString());
@@ -142,7 +142,7 @@ public class IndexorTest {
 
         // Pause before asking # of photos in index
         Thread.sleep(2000);
-        assertEquals(indexor.photos().count(), 10);
+        assertEquals(10, indexor.photos().count());
 
         // Search all photos
         IndexPage<PhotoMetadata> mtdList = indexor.photos().search("{\"simple_query_string\": {\"query\": \"*\"}}", 0,
@@ -192,13 +192,13 @@ public class IndexorTest {
 
         // Pause before asking # of photos in index
         Thread.sleep(2000);
-        assertEquals(indexor.photos().count(), 100);
+        assertEquals(100, indexor.photos().count());
 
         // Now, run template
         List<TermsAggregation> aggr = indexor.photos().getAggregations("year_country_month");
         System.out.println("Aggr=" + aggr);
 
-        assertTrue(aggr.size() > 0);
+        assertFalse(aggr.isEmpty());
     }
 
 }

@@ -53,25 +53,10 @@ import com.drew.metadata.MetadataException;
 import com.drew.metadata.exif.ExifReader;
 import com.drew.metadata.exif.ExifThumbnailDirectory;
 
-import lombok.Getter;
-import lombok.ToString;
-
 public class Extract {
 
-    @Getter
-    @ToString
-    public static class Result {
-        private final int processed_ok;
-        private final int processed_nok;
-        private final int skipped;
-        private final List<String> errorMsg;
-
-        public Result(int ok, int nok, int skip, List<String> errors) {
-            this.processed_ok = ok;
-            this.processed_nok = nok;
-            this.skipped = skip;
-            this.errorMsg = errors;
-        }
+    // Leveraging Java 16+ 'record' feature to define a simple immutable data class
+    public record Result(int processed_ok, int processed_nok, int skipped, List<String> errorMsg) {
     }
 
     protected static Logger logger = LoggerFactory.getLogger(Extract.class);
@@ -87,10 +72,10 @@ public class Extract {
             Process improc = Runtime.getRuntime()
                     .exec((isWindows ? imageMagickCommand + ".exe" : imageMagickCommand) + " -version");
             Optional<String> impathname = improc.info().command();
-            logger.info("Found ImageMagick at: " + impathname.get());
+            logger.info("Found ImageMagick at: {}", impathname.get());
         } catch (IOException e) {
-            logger.warn("ImageMagick program not found: " + e.getMessage());
-            logger.warn("Path is: " + System.getenv("PATH"));
+            logger.warn("ImageMagick program not found: {}", e.getMessage());
+            logger.warn("Path is: {}", System.getenv("PATH"));
             return false;
         }
 

@@ -51,7 +51,7 @@ public class TinyWorldMenuLayer extends RenderableLayer implements SelectListene
 
     protected static Logger logger = LoggerFactory.getLogger(TinyWorldMenuLayer.class);
 
-    protected final static String LAYER_NAME = "TinyWorld Menu";
+    protected final static String LAYER_NAME = "TinyWorld - Menu";
 
     protected final static String IMAGE_INDEX = "images/tw-index-48x48.png";
     protected final static String IMAGE_FILTER = "images/tw-filter-48x48.png";
@@ -197,7 +197,7 @@ public class TinyWorldMenuLayer extends RenderableLayer implements SelectListene
     /**
      * Specifies the button to highlight. Any currently highlighted button is un-highlighted.
      *
-     * @param control the button to highlight.
+     * @param button the button to highlight.
      */
     public void highlight(Object button) {
         // Manage highlighting of controls.

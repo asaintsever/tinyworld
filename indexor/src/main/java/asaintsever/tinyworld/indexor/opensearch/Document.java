@@ -154,7 +154,7 @@ public class Document<T> implements Closeable {
         SearchResponse searchResponse = this.restHlClient.search(searchRequest, RequestOptions.DEFAULT);
         SearchHits hits = searchResponse.getHits();
 
-        if (hits.getTotalHits().value == 0 || hits.getHits().length == 0) {
+        if (hits.getTotalHits() == null || hits.getTotalHits().value == 0 || hits.getHits().length == 0) {
             return IndexPage.EMPTY;
         }
 

@@ -21,17 +21,33 @@ package asaintsever.tinyworld.ui.layer;
 
 import java.awt.Color;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
+import javax.swing.SwingUtilities;
+
+import asaintsever.tinyworld.metadata.extractor.PhotoMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import asaintsever.tinyworld.indexor.Indexor;
+import asaintsever.tinyworld.indexor.IPhoto;
+import asaintsever.tinyworld.indexor.search.results.IndexPage;
+import asaintsever.tinyworld.indexor.search.results.TermsAggregation;
 import asaintsever.tinyworld.ui.MainFrame;
+import asaintsever.tinyworld.ui.component.PhotoMetadataDialog;
 import asaintsever.tinyworld.ui.event.IndexorListener;
 import gov.nasa.worldwind.avlist.AVKey;
 import gov.nasa.worldwind.event.SelectEvent;
 import gov.nasa.worldwind.event.SelectListener;
+import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.layers.RenderableLayer;
+import gov.nasa.worldwind.render.PointPlacemark;
 import gov.nasa.worldwind.render.Size;
 import gov.nasa.worldwind.util.Logging;
 import gov.nasa.worldwind.util.tree.BasicFrameAttributes;
@@ -40,6 +56,9 @@ import gov.nasa.worldwind.util.tree.BasicTreeAttributes;
 import gov.nasa.worldwind.util.tree.BasicTreeLayout;
 import gov.nasa.worldwind.util.tree.BasicTreeModel;
 import gov.nasa.worldwind.util.tree.BasicTreeNode;
+import gov.nasa.worldwind.util.tree.Tree;
+import gov.nasa.worldwind.util.tree.TreeNode;
+import gov.nasa.worldwind.view.orbit.OrbitView;
 
 /**
  *
@@ -49,12 +68,17 @@ public class TinyWorldPhotoTreeLayer extends RenderableLayer implements SelectLi
 
     protected static Logger logger = LoggerFactory.getLogger(TinyWorldPhotoTreeLayer.class);
 
-    protected final static String LAYER_NAME = "TinyWorld Photo Tree";
+    protected final static String LAYER_NAME = "TinyWorld - Photo Tree";
     protected final static String ICON_PATH = "icon/tinyworldicon.jpg";
 
     protected MainFrame frame;
     protected BasicTree photoTree;
     protected Indexor indexor;
+
+    protected String treeTemplateId;
+    protected List<String> treeTemplateFields;
+
+    protected List<PointPlacemark> currentPlacemarks = new ArrayList<>();
 
     public TinyWorldPhotoTreeLayer(final MainFrame frame) {
         if (frame == null || frame.getWwd() == null) {
@@ -75,39 +99,88 @@ public class TinyWorldPhotoTreeLayer extends RenderableLayer implements SelectLi
                 || (event.getMouseEvent() != null && event.getMouseEvent().isConsumed()))
             return;
 
+        // Discard rollover and hover events
+        if (Set.of(SelectEvent.ROLLOVER, SelectEvent.HOVER).contains(event.getEventAction()))
+            return;
+
         if (event.getTopObject() == null || event.getTopPickedObject().getParentLayer() != this
                 || !(event.getTopObject() instanceof BasicTreeNode))
             return;
 
-        // logger.debug(event.toString());
-        // logger.debug(event.getTopPickedObject() != null && event.getTopPickedObject().getParentLayer() !=
-        // null ? event.getTopPickedObject().getParentLayer().getName() : "No Parent Layer");
+        logger.debug(event.toString());
+//        logger.debug(event.getTopPickedObject() != null && event.getTopPickedObject().getParentLayer() != null
+//                ? event.getTopPickedObject().getParentLayer().getName()
+//                : "No Parent Layer");
 
         BasicTreeNode node = (BasicTreeNode) event.getTopObject();
 
         switch (event.getEventAction()) {
         case SelectEvent.LEFT_DOUBLE_CLICK:
             // Add handling of double click for quicker/easier navigation between parent/child nodes
-            if (!node.isLeaf()) {
+            if (node.isLeaf()) {
+                PhotoMetadata metadata = (PhotoMetadata) node.getValue("photo_metadata");
+
+                if (metadata != null) {
+                    // Open a modal dialog with the photo metadata
+                    SwingUtilities.invokeLater(() -> {
+                        PhotoMetadataDialog dialog = new PhotoMetadataDialog(this.frame, metadata);
+                        dialog.setVisible(true);
+                    });
+                }
+            } else {
                 // Not a leaf: either expand or collapse node on double click
-                if (!this.photoTree.isNodeExpanded(node))
+                if (!this.photoTree.isNodeExpanded(node)) {
                     this.photoTree.expandPath(node.getPath());
-                else
+                    // if node is at last aggregation level, load photos
+                    if (node.getPath().size() - 1 == this.treeTemplateFields.size()) {
+                        try {
+                            loadPhotoNodes(node);
+                        } catch (IOException e) {
+                            logger.error("Error loading photo nodes", e);
+                        }
+                    }
+                } else {
                     this.photoTree.collapsePath(node.getPath());
+                    // if node is at last aggregation level, remove children
+                    if (node.getPath().size() - 1 == this.treeTemplateFields.size()) {
+                        node.removeAllChildren();
+                        // Add back dummy node
+                        node.addChild(new BasicTreeNode("..."));
+                    }
+                }
             }
             break;
-        case SelectEvent.LEFT_CLICK:
+        case SelectEvent.LEFT_PRESS: // listen for left press instead of SelectEvent.LEFT_CLICK to avoid conflict with
+                                     // SelectEvent.DRAG
+            List<PhotoMetadata> photosToDisplay = new ArrayList<>();
+
             // Only consider leaf nodes. Allow for easier selection without having to precisely target the tick
             // box on the node's left side
             if (node.isLeaf()) {
                 boolean selectStatus = node.isSelected();
 
-                // Update node selection status but also force its parent's one as there may be some discrepancies
+                // Update node selection status but also force its parents' one as there may be some discrepancies
                 // in some cases
                 node.setSelected(!selectStatus);
-                if (node.getParent() != null)
-                    node.getParent().setSelected(!selectStatus);
+
+                BasicTreeNode tmp_node = node;
+                while (tmp_node.getParent() != null && tmp_node.getParent() != this.photoTree.getModel().getRoot()) {
+                    tmp_node = (BasicTreeNode) tmp_node.getParent();
+                    tmp_node.setSelected(!selectStatus);
+                }
+
+                // A leaf node is a photo, center the globe on it
+                PhotoMetadata metadata = (PhotoMetadata) node.getValue("photo_metadata");
+
+                if (metadata != null) {
+                    photosToDisplay.add(metadata);
+                }
+            } else {
+                collectPhotos(node, photosToDisplay);
             }
+
+            displayPhotos(photosToDisplay);
+            this.frame.getWwd().redraw();
             break;
         }
     }
@@ -167,26 +240,18 @@ public class TinyWorldPhotoTreeLayer extends RenderableLayer implements SelectLi
                 if (!this.indexor.metadataIndex().exists())
                     this.indexor.metadataIndex().create();
 
-                // TODO default query on Indexor and dynamic photo tree construction (default query criteria to
-                // be added in config)
+                this.treeTemplateId = this.frame.getCfg().ui.photoTree.filter.template;
+                this.treeTemplateFields = Arrays.asList(this.treeTemplateId.split("_"));
+
+                List<TermsAggregation> aggregations = this.indexor.photos().getAggregations(this.treeTemplateId);
+                if (aggregations != null) {
+                    this.buildTree(aggregations, root, 0);
+                }
 
             } catch (IOException e) {
                 logger.error(e.getMessage(), e);
             }
         }
-
-        /*
-         * BasicTreeNode child = new BasicTreeNode("Child 1", ICON_PATH);
-         * child.setDescription("This is a child node"); child.addChild(new BasicTreeNode("Subchild 1,1"));
-         * child.addChild(new BasicTreeNode("Subchild 1,2")); child.addChild(new
-         * BasicTreeNode("Subchild 1,3", ICON_PATH)); root.addChild(child); child = new
-         * BasicTreeNode("Child 2", ICON_PATH); child.addChild(new BasicTreeNode("Subchild 2,1"));
-         * child.addChild(new BasicTreeNode("Subchild 2,2")); child.addChild(new
-         * BasicTreeNode("Subchild 2,3")); root.addChild(child); child = new BasicTreeNode("Child 3");
-         * child.addChild(new BasicTreeNode("Subchild 3,1")); child.addChild(new
-         * BasicTreeNode("Subchild 3,2")); child.addChild(new BasicTreeNode("Subchild 3,3"));
-         * root.addChild(child);
-         */
 
         this.photoTree.setModel(model);
 
@@ -197,4 +262,153 @@ public class TinyWorldPhotoTreeLayer extends RenderableLayer implements SelectLi
         this.addRenderable(this.photoTree.getLayout());
     }
 
+    private void buildTree(List<TermsAggregation> aggregations, BasicTreeNode parentNode, int fieldIndex) {
+        if (fieldIndex >= this.treeTemplateFields.size()) {
+            return;
+        }
+
+        String field = this.treeTemplateFields.get(fieldIndex);
+        TermsAggregation termsAgg = aggregations.stream().filter(agg -> field.equals(agg.getName())).findFirst()
+                .orElse(null);
+
+        if (termsAgg != null) {
+            List<String> keys = termsAgg.getBuckets().stream().map(TermsAggregation.Bucket::getKey)
+                    .collect(Collectors.toList());
+            sortKeys(keys, field);
+
+            for (String key : keys) {
+                TermsAggregation.Bucket bucket = termsAgg.getBuckets().stream().filter(b -> key.equals(b.getKey()))
+                        .findFirst().orElse(null);
+                if (bucket == null)
+                    continue;
+
+                long docCount = bucket.getDoc_count();
+                BasicTreeNode node = new BasicTreeNode(String.format("%s (%d)", key, docCount));
+                parentNode.addChild(node);
+
+                List<TermsAggregation> subAggs = bucket.getSubAggregations();
+                if (fieldIndex < this.treeTemplateFields.size() - 1 && subAggs != null && !subAggs.isEmpty()) {
+                    buildTree(subAggs, node, fieldIndex + 1);
+                } else {
+                    // Add a dummy node to allow expansion and loading of photos
+                    node.addChild(new BasicTreeNode("..."));
+                }
+            }
+        }
+    }
+
+    private String getQueryField(String templateField) {
+        switch (templateField) {
+        case "country":
+            return "country.keyword";
+        case "year":
+            return "takenYear";
+        case "month":
+            return "takenMonth";
+        default:
+            return templateField;
+        }
+    }
+
+    private void loadPhotoNodes(BasicTreeNode parentNode) throws IOException {
+        // Remove dummy node
+        parentNode.removeAllChildren();
+
+        List<String> path = new ArrayList<>();
+        TreeNode current = parentNode;
+        // Build path from root to current node
+        while (current != null && current != this.photoTree.getModel().getRoot()) {
+            path.add(0, current.getText().split(" ")[0]);
+            current = current.getParent();
+        }
+
+        StringBuilder query = new StringBuilder("{\"bool\": {\"must\": [");
+        for (int i = 0; i < path.size(); i++) {
+            String field = getQueryField(this.treeTemplateFields.get(i));
+            String value = path.get(i);
+            if (field.equals("takenYear") || field.equals("takenMonth")) {
+                query.append("{\"term\": {\"" + field + "\": " + value + "}},");
+            } else {
+                query.append("{\"term\": {\"" + field + "\": \"" + value + "\"}},");
+            }
+        }
+        query.deleteCharAt(query.length() - 1); // remove last comma
+        query.append("]}}");
+
+        IPhoto photoIndexer = this.indexor.photos();
+        IndexPage<PhotoMetadata> searchResponse = photoIndexer.search(query.toString(), 0, 1000);
+
+        if (searchResponse != null && searchResponse.get() != null) {
+            List<PhotoMetadata> hits = new ArrayList<>(searchResponse.get());
+            hits.sort(Comparator.comparing(PhotoMetadata::getFileName));
+
+            for (PhotoMetadata metadata : hits) {
+                if (metadata != null) {
+                    BasicTreeNode photoNode = new BasicTreeNode(metadata.getFileName(), ICON_PATH);
+                    photoNode.setValue("photo_metadata", metadata);
+                    parentNode.addChild(photoNode);
+                }
+            }
+        }
+    }
+
+    private void sortKeys(List<String> keys, String field) {
+        if ("country".equals(field)) {
+            Collections.sort(keys);
+        } else if ("year".equals(field)) {
+            keys.sort(Collections.reverseOrder());
+        } else if ("month".equals(field)) {
+            keys.sort(Comparator.comparingInt(Integer::parseInt));
+        }
+    }
+
+    private void displayPhotos(List<PhotoMetadata> photos) {
+        clearPlacemarks();
+
+        for (PhotoMetadata metadata : photos) {
+            if (metadata.getGpsLatLong() != null) {
+                String[] latlon = metadata.getGpsLatLong().split(",");
+                Position pos = Position.fromDegrees(Double.parseDouble(latlon[0]), Double.parseDouble(latlon[1]), 1000);
+
+                PointPlacemark placemark = new PointPlacemark(pos);
+                placemark.setLabelText(metadata.getFileName());
+                this.addRenderable(placemark);
+                this.currentPlacemarks.add(placemark);
+            }
+        }
+
+        if (!photos.isEmpty()) {
+            PhotoMetadata firstPhotoMetadata = photos.get(0);
+            if (firstPhotoMetadata.getGpsLatLong() != null) {
+                String[] latlon = firstPhotoMetadata.getGpsLatLong().split(",");
+                Position pos = Position.fromDegrees(Double.parseDouble(latlon[0]), Double.parseDouble(latlon[1]), 1000);
+                OrbitView view = (OrbitView) this.frame.getWwd().getView();
+                view.goTo(pos, 2000e3);
+            }
+        }
+    }
+
+    private void clearPlacemarks() {
+        for (PointPlacemark placemark : this.currentPlacemarks) {
+            this.removeRenderable(placemark);
+        }
+        this.currentPlacemarks.clear();
+    }
+
+    private void collectPhotos(BasicTreeNode node, List<PhotoMetadata> photos) {
+        if (node.isLeaf()) {
+            // ignore dummy node
+            if ("...".equals(node.getText())) {
+                return;
+            }
+            PhotoMetadata metadata = (PhotoMetadata) node.getValue("photo_metadata");
+            if (metadata != null) {
+                photos.add(metadata);
+            }
+        } else {
+            for (TreeNode child : node.getChildren()) {
+                collectPhotos((BasicTreeNode) child, photos);
+            }
+        }
+    }
 }
