@@ -20,110 +20,106 @@
 package asaintsever.tinyworld.ui.layer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.when;
 
-import java.awt.Component;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.Mockito;
 
 import asaintsever.tinyworld.cfg.Configuration;
+import asaintsever.tinyworld.indexor.IIndex;
 import asaintsever.tinyworld.indexor.IPhoto;
 import asaintsever.tinyworld.indexor.Indexor;
 import asaintsever.tinyworld.indexor.search.results.TermsAggregation;
 import asaintsever.tinyworld.ui.MainFrame;
+import asaintsever.tinyworld.ui.component.GlobeGLCanvas;
+import asaintsever.tinyworld.ui.component.GlobePanel;
+import gov.nasa.worldwind.View;
 import gov.nasa.worldwind.WorldWindow;
 import gov.nasa.worldwind.globes.Globe;
 import gov.nasa.worldwind.util.tree.BasicTreeNode;
 import gov.nasa.worldwind.util.tree.TreeModel;
+import gov.nasa.worldwind.util.tree.TreeNode;
 
-@ExtendWith(MockitoExtension.class)
 public class TinyWorldPhotoTreeLayerTest {
 
-    @Mock
     private MainFrame mainFrame;
-
-    @Mock
     private WorldWindow worldWindow;
-
-    @Mock
+    private View view;
+    private GlobePanel globePanel;
     private Globe globe;
-
-    @Mock
-    private Component glCanvas;
-
-    @Mock
+    private GlobeGLCanvas glCanvas;
     private Configuration configuration;
-
-    @Mock
-    private Configuration.UI uiConfig;
-
-    @Mock
-    private Configuration.UI.PhotoTree photoTreeConfig;
-
-    @Mock
-    private Configuration.UI.PhotoTree.Filter filterConfig;
-
-    @Mock
     private Indexor indexor;
-
-    @Mock
+    private IIndex indexMock;
     private IPhoto photos;
-
-    @InjectMocks
     private TinyWorldPhotoTreeLayer photoTreeLayer;
 
     @BeforeEach
     void setUp() {
-        when(mainFrame.getWwd()).thenReturn(worldWindow);
-        when(worldWindow.getSceneController()).thenReturn(null); // Avoids NPE in RenderableLayer constructor
-        when(worldWindow.getGlobe()).thenReturn(globe);
-        when(globe.getGLCanvas()).thenReturn(glCanvas);
-        when(mainFrame.getCfg()).thenReturn(configuration);
-        when(configuration.ui).thenReturn(uiConfig);
-        when(uiConfig.photoTree).thenReturn(photoTreeConfig);
-        when(photoTreeConfig.filter).thenReturn(filterConfig);
+        mainFrame = Mockito.mock(MainFrame.class);
+        worldWindow = Mockito.mock(WorldWindow.class);
+        view = Mockito.mock(View.class);
+        globePanel = Mockito.mock(GlobePanel.class);
+        globe = Mockito.mock(Globe.class);
+        glCanvas = Mockito.mock(GlobeGLCanvas.class);
+        indexor = Mockito.mock(Indexor.class);
+        indexMock = Mockito.mock(IIndex.class);
+        photos = Mockito.mock(IPhoto.class);
+
+        configuration = new Configuration();
+        Configuration.UI ui = configuration.new UI();
+        Configuration.UI.PhotoTree photoTree = ui.new PhotoTree();
+        configuration.ui = ui;
+        configuration.ui.photoTree = photoTree;
+        configuration.ui.photoTree.filter = photoTree.new Filter();
+
+        Mockito.when(mainFrame.getWwd()).thenReturn(worldWindow);
+        Mockito.when(mainFrame.getGlobe()).thenReturn(globePanel);
+        Mockito.when(globePanel.getGLCanvas()).thenReturn(glCanvas);
+        Mockito.when(worldWindow.getView()).thenReturn(view);
+        Mockito.when(mainFrame.getCfg()).thenReturn(configuration);
+        Mockito.when(indexor.metadataIndex()).thenReturn(indexMock);
+
+        photoTreeLayer = new TinyWorldPhotoTreeLayer(mainFrame);
     }
 
     @Test
     void testTreeConstruction() throws IOException {
         // --- Mock configuration ---
-        when(filterConfig.template).thenReturn("year_month");
+        configuration.ui.photoTree.filter.template = "year_month";
 
         // --- Mock Indexor response ---
-        when(indexor.isConnected()).thenReturn(true);
-        when(indexor.metadataIndex()).thenReturn(null); // Not used in this path
-        when(indexor.photos()).thenReturn(photos);
+        Mockito.when(indexor.isConnected()).thenReturn(true);
+        Mockito.when(indexMock.exists()).thenReturn(true);
+        Mockito.when(indexor.photos()).thenReturn(photos);
 
         // --- Mock Aggregation response ---
         // Month aggregation
-        TermsAggregation.Bucket monthBucket1 = new TermsAggregation.Bucket();
-        monthBucket1.setKey("1");
-        TermsAggregation.Bucket monthBucket2 = new TermsAggregation.Bucket();
-        monthBucket2.setKey("2");
         TermsAggregation monthAgg = new TermsAggregation();
+        TermsAggregation.Bucket monthBucket1 = monthAgg.new Bucket();
+        monthBucket1.setKey("1");
+        TermsAggregation.Bucket monthBucket2 = monthAgg.new Bucket();
+        monthBucket2.setKey("2");
         monthAgg.setName("month");
         monthAgg.setBuckets(Arrays.asList(monthBucket1, monthBucket2));
 
         // Year aggregation
-        TermsAggregation.Bucket yearBucket2022 = new TermsAggregation.Bucket();
+        TermsAggregation yearAgg = new TermsAggregation();
+        TermsAggregation.Bucket yearBucket2022 = yearAgg.new Bucket();
         yearBucket2022.setKey("2022");
         yearBucket2022.setSubAggregations(Collections.singletonList(monthAgg));
-        TermsAggregation.Bucket yearBucket2023 = new TermsAggregation.Bucket();
+        TermsAggregation.Bucket yearBucket2023 = yearAgg.new Bucket();
         yearBucket2023.setKey("2023");
-        TermsAggregation yearAgg = new TermsAggregation();
         yearAgg.setName("year");
         yearAgg.setBuckets(Arrays.asList(yearBucket2022, yearBucket2023));
 
-        when(photos.getAggregations("year_month")).thenReturn(List.of(yearAgg));
+        Mockito.when(photos.getAggregations("year_month")).thenReturn(List.of(yearAgg));
 
         // --- Trigger tree construction ---
         photoTreeLayer.created(indexor);
@@ -132,14 +128,21 @@ public class TinyWorldPhotoTreeLayerTest {
         TreeModel treeModel = photoTreeLayer.photoTree.getModel();
         BasicTreeNode root = (BasicTreeNode) treeModel.getRoot();
 
-        assertEquals(2, root.getChildCount());
-        BasicTreeNode yearNode2023 = (BasicTreeNode) root.getChildAt(0);
+        List<TreeNode> yearNodes = new ArrayList<>();
+        root.getChildren().forEach(yearNodes::add);
+        assertEquals(2, yearNodes.size());
+
+        BasicTreeNode yearNode2023 = (BasicTreeNode) yearNodes.get(0);
         assertEquals("2023 (0)", yearNode2023.getText());
-        BasicTreeNode yearNode2022 = (BasicTreeNode) root.getChildAt(1);
+        BasicTreeNode yearNode2022 = (BasicTreeNode) yearNodes.get(1);
         assertEquals("2022 (0)", yearNode2022.getText());
 
-        assertEquals(1, yearNode2022.getChildCount());
-        BasicTreeNode monthNode = (BasicTreeNode) yearNode2022.getChildAt(0);
-        assertEquals("month", monthNode.getText());
+        List<TreeNode> monthNodes = new ArrayList<>();
+        yearNode2022.getChildren().forEach(monthNodes::add);
+        assertEquals(2, monthNodes.size());
+        BasicTreeNode monthNode1 = (BasicTreeNode) monthNodes.get(0);
+        assertEquals("1 (0)", monthNode1.getText());
+        BasicTreeNode monthNode2 = (BasicTreeNode) monthNodes.get(1);
+        assertEquals("2 (0)", monthNode2.getText());
     }
 }

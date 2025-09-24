@@ -21,13 +21,16 @@ package asaintsever.tinyworld.ui.layer;
 
 import java.awt.Color;
 import java.io.IOException;
+import java.text.DateFormatSymbols;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import javax.swing.SwingUtilities;
 
@@ -107,7 +110,7 @@ public class TinyWorldPhotoTreeLayer extends RenderableLayer implements SelectLi
                 || !(event.getTopObject() instanceof BasicTreeNode))
             return;
 
-        logger.debug(event.toString());
+//        logger.debug(event.toString());
 //        logger.debug(event.getTopPickedObject() != null && event.getTopPickedObject().getParentLayer() != null
 //                ? event.getTopPickedObject().getParentLayer().getName()
 //                : "No Parent Layer");
@@ -141,12 +144,6 @@ public class TinyWorldPhotoTreeLayer extends RenderableLayer implements SelectLi
                     }
                 } else {
                     this.photoTree.collapsePath(node.getPath());
-                    // if node is at last aggregation level, remove children
-                    if (node.getPath().size() - 1 == this.treeTemplateFields.size()) {
-                        node.removeAllChildren();
-                        // Add back dummy node
-                        node.addChild(new BasicTreeNode("..."));
-                    }
                 }
             }
             break;
@@ -283,7 +280,18 @@ public class TinyWorldPhotoTreeLayer extends RenderableLayer implements SelectLi
                     continue;
 
                 long docCount = bucket.getDoc_count();
-                BasicTreeNode node = new BasicTreeNode(String.format("%s (%d)", key, docCount));
+
+                String displayKey = key;
+                if ("month".equals(field)) {
+                    try {
+                        displayKey = getMonthName(Integer.parseInt(key));
+                    } catch (NumberFormatException e) {
+                        // Keep original key if not a number
+                    }
+                }
+
+                BasicTreeNode node = new BasicTreeNode(String.format("%s (%d)", displayKey, docCount));
+                node.setValue("agg_key", key); // Store original key
                 parentNode.addChild(node);
 
                 List<TermsAggregation> subAggs = bucket.getSubAggregations();
@@ -295,6 +303,14 @@ public class TinyWorldPhotoTreeLayer extends RenderableLayer implements SelectLi
                 }
             }
         }
+    }
+
+    private String getMonthName(int month) {
+        // Calendar month is 0-based, so we need to subtract 1
+        if (month >= 1 && month <= 12) {
+            return new DateFormatSymbols().getShortMonths()[month - 1];
+        }
+        return String.valueOf(month);
     }
 
     private String getQueryField(String templateField) {
@@ -311,14 +327,11 @@ public class TinyWorldPhotoTreeLayer extends RenderableLayer implements SelectLi
     }
 
     private void loadPhotoNodes(BasicTreeNode parentNode) throws IOException {
-        // Remove dummy node
-        parentNode.removeAllChildren();
-
         List<String> path = new ArrayList<>();
         TreeNode current = parentNode;
         // Build path from root to current node
         while (current != null && current != this.photoTree.getModel().getRoot()) {
-            path.add(0, current.getText().split(" ")[0]);
+            path.add(0, (String) ((BasicTreeNode) current).getValue("agg_key"));
             current = current.getParent();
         }
 
@@ -339,14 +352,39 @@ public class TinyWorldPhotoTreeLayer extends RenderableLayer implements SelectLi
         IndexPage<PhotoMetadata> searchResponse = photoIndexer.search(query.toString(), 0, 1000);
 
         if (searchResponse != null && searchResponse.get() != null) {
-            List<PhotoMetadata> hits = new ArrayList<>(searchResponse.get());
-            hits.sort(Comparator.comparing(PhotoMetadata::getFileName));
+            List<PhotoMetadata> photosFromIndex = new ArrayList<>(searchResponse.get());
 
-            for (PhotoMetadata metadata : hits) {
-                if (metadata != null) {
-                    BasicTreeNode photoNode = new BasicTreeNode(metadata.getFileName(), ICON_PATH);
-                    photoNode.setValue("photo_metadata", metadata);
-                    parentNode.addChild(photoNode);
+            // Get existing photo paths from tree
+            Set<String> existingPhotoPaths = StreamSupport.stream(parentNode.getChildren().spliterator(), false)
+                    .filter(c -> ((BasicTreeNode) c).getValue("photo_metadata") != null)
+                    .map(c -> ((PhotoMetadata) ((BasicTreeNode) c).getValue("photo_metadata")).getPath().toString())
+                    .collect(Collectors.toSet());
+
+            // Get paths from index
+            Set<String> indexPhotoPaths = photosFromIndex.stream().map(metadata -> metadata.getPath().toString())
+                    .collect(Collectors.toSet());
+
+            Iterator<TreeNode> childrenIterator = parentNode.getChildren().iterator();
+            boolean isInitialLoad = false;
+            if (childrenIterator.hasNext()) {
+                TreeNode firstChild = childrenIterator.next();
+                if ("...".equals(firstChild.getText()) && !childrenIterator.hasNext()) {
+                    isInitialLoad = true;
+                }
+            }
+
+            if (isInitialLoad || !existingPhotoPaths.equals(indexPhotoPaths)) {
+                // Remove dummy node or all existing photos
+                parentNode.removeAllChildren();
+
+                photosFromIndex.sort(Comparator.comparing(PhotoMetadata::getFileName));
+
+                for (PhotoMetadata metadata : photosFromIndex) {
+                    if (metadata != null) {
+                        BasicTreeNode photoNode = new BasicTreeNode(metadata.getFileName(), ICON_PATH);
+                        photoNode.setValue("photo_metadata", metadata);
+                        parentNode.addChild(photoNode);
+                    }
                 }
             }
         }
