@@ -20,6 +20,8 @@
 package asaintsever.tinyworld.ui.layer;
 
 import java.awt.Color;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.text.DateFormatSymbols;
 import java.util.ArrayList;
@@ -59,7 +61,6 @@ import gov.nasa.worldwind.util.tree.BasicTreeAttributes;
 import gov.nasa.worldwind.util.tree.BasicTreeLayout;
 import gov.nasa.worldwind.util.tree.BasicTreeModel;
 import gov.nasa.worldwind.util.tree.BasicTreeNode;
-import gov.nasa.worldwind.util.tree.Tree;
 import gov.nasa.worldwind.util.tree.TreeNode;
 import gov.nasa.worldwind.view.orbit.OrbitView;
 
@@ -67,7 +68,8 @@ import gov.nasa.worldwind.view.orbit.OrbitView;
  *
  *
  */
-public class TinyWorldPhotoTreeLayer extends RenderableLayer implements SelectListener, IndexorListener {
+public class TinyWorldPhotoTreeLayer extends RenderableLayer
+        implements SelectListener, IndexorListener, PropertyChangeListener {
 
     protected static Logger logger = LoggerFactory.getLogger(TinyWorldPhotoTreeLayer.class);
 
@@ -134,14 +136,6 @@ public class TinyWorldPhotoTreeLayer extends RenderableLayer implements SelectLi
                 // Not a leaf: either expand or collapse node on double click
                 if (!this.photoTree.isNodeExpanded(node)) {
                     this.photoTree.expandPath(node.getPath());
-                    // if node is at last aggregation level, load photos
-                    if (node.getPath().size() - 1 == this.treeTemplateFields.size()) {
-                        try {
-                            loadPhotoNodes(node);
-                        } catch (IOException e) {
-                            logger.error("Error loading photo nodes", e);
-                        }
-                    }
                 } else {
                     this.photoTree.collapsePath(node.getPath());
                 }
@@ -183,6 +177,25 @@ public class TinyWorldPhotoTreeLayer extends RenderableLayer implements SelectLi
     }
 
     @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        if (evt == null) {
+            return;
+        }
+
+        if (AVKey.TREE.equals(evt.getPropertyName())) {
+            Object newValue = evt.getNewValue();
+            if (newValue instanceof BasicTree tree) {
+                if (tree.getModel() != null && tree.getModel().getRoot() != null) {
+                    // Iterate over all nodes to find expanded ones
+                    for (TreeNode childNode : tree.getModel().getRoot().getChildren()) {
+                        this.checkNodeAndLoad(tree, (BasicTreeNode) childNode);
+                    }
+                }
+            }
+        }
+    }
+
+    @Override
     public void created(Indexor indexor) {
         this.indexor = indexor;
         this.initialize();
@@ -196,10 +209,10 @@ public class TinyWorldPhotoTreeLayer extends RenderableLayer implements SelectLi
     protected void initialize() {
         if (this.photoTree != null && this.photoTree.getLayout() != null) {
             this.removeRenderable(this.photoTree.getLayout());
-            this.photoTree = null;
         }
 
         this.photoTree = new BasicTree();
+        this.photoTree.addPropertyChangeListener(this);
 
         BasicTreeLayout layout = new BasicTreeLayout(this.photoTree, 40, 140);
         layout.getFrame().setFrameTitle("Photos");
@@ -326,6 +339,23 @@ public class TinyWorldPhotoTreeLayer extends RenderableLayer implements SelectLi
         }
     }
 
+    private void checkNodeAndLoad(BasicTree tree, BasicTreeNode node) {
+        if (tree.isNodeExpanded(node)) {
+            // if node is at last aggregation level, load photos
+            if (node.getPath().size() - 1 == this.treeTemplateFields.size()) {
+                try {
+                    loadPhotoNodes(node);
+                } catch (IOException e) {
+                    logger.error("Error loading photo nodes", e);
+                }
+            }
+
+            for (TreeNode childNode : node.getChildren()) {
+                this.checkNodeAndLoad(tree, (BasicTreeNode) childNode);
+            }
+        }
+    }
+
     private void loadPhotoNodes(BasicTreeNode parentNode) throws IOException {
         List<String> path = new ArrayList<>();
         TreeNode current = parentNode;
@@ -349,7 +379,9 @@ public class TinyWorldPhotoTreeLayer extends RenderableLayer implements SelectLi
         query.append("]}}");
 
         IPhoto photoIndexer = this.indexor.photos();
-        IndexPage<PhotoMetadata> searchResponse = photoIndexer.search(query.toString(), 0, 1000);
+        IndexPage<PhotoMetadata> searchResponse = photoIndexer.search(query.toString(), 0, 1000); // TODO handle
+                                                                                                  // pagination if >
+                                                                                                  // 1000 photos
 
         if (searchResponse != null && searchResponse.get() != null) {
             List<PhotoMetadata> photosFromIndex = new ArrayList<>(searchResponse.get());

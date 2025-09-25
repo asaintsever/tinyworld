@@ -22,6 +22,7 @@ package asaintsever.tinyworld.ui.layer;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
+import java.text.DateFormatSymbols;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -141,8 +142,8 @@ public class TinyWorldPhotoTreeLayerTest {
         yearNode2022.getChildren().forEach(monthNodes::add);
         assertEquals(2, monthNodes.size());
         BasicTreeNode monthNode1 = (BasicTreeNode) monthNodes.get(0);
-        assertEquals("1 (0)", monthNode1.getText());
+        assertEquals(new DateFormatSymbols().getShortMonths()[0] + " (0)", monthNode1.getText());
         BasicTreeNode monthNode2 = (BasicTreeNode) monthNodes.get(1);
-        assertEquals("2 (0)", monthNode2.getText());
+        assertEquals(new DateFormatSymbols().getShortMonths()[1] + " (0)", monthNode2.getText());
     }
 }

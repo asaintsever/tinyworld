@@ -161,23 +161,6 @@
               </resources>
             </configuration>
           </execution>
-          <!-- copy TinyWorld config
-          <execution>
-            <id>copy-ui-config</id>
-            <phase>validate</phase>
-            <goals>
-              <goal>copy-resources</goal>
-            </goals>
-            <configuration>
-              <outputDirectory>${project.build.directory}/config</outputDirectory>
-              <resources>
-                <resource>
-                  <directory>${basedir}/src/main/resources/config</directory>
-                </resource>
-              </resources>
-            </configuration>
-          </execution>
-          -->
         </executions>
       </plugin>
 
