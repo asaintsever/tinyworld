@@ -45,7 +45,7 @@ No new external dependencies are required.
      - The tree will be built down to the last element for the selected template (e.g., Month for Country -> Year -> Month template), with an indicator displaying how many photos are presents at each level (e.g., France (154) -> 2025 (37) -> Jan (12)). By default, all tree entries are collapsed but plan is to memorize the last known state to re-open the tree view in same state the user left it.
      - Upon expanding a lowest-level aggregations (e.g. month), a search will be performed to retrieve the photos within that group, which will be added as leaf nodes to the tree. Search must only happen at expand time to load photo metadata when needed.
      - By default, sort tree nodes in ascending order for countries and months, and descending order for years. Leaf nodes (i.e. photos) are to be sorted following their file names.
-   - **Implementation Notes**: This step was already implemented in the existing codebase.
+   - **Implementation Notes**: The initial tree construction logic was present. It has been refactored to use modern Java features (like switch expressions) for better readability and maintainability.
    - **Status**: ✅ Completed
 
 2. **Step 2: Refine user interaction**
@@ -56,7 +56,7 @@ No new external dependencies are required.
      - A click on a leaf node will center the globe on the photo's GPS coordinates. The photo is represented on the globe using a pin or a small window overlay displaying its thumbnail and name. This representation leverages NASA WorldWind constructs.
      - A double-click opens a modal pop-up window displaying the selected photo's metadata.
      - Clicking on an expanded parent node or selecting several leaf nodes should display associated photo representations on the globe.
-   - **Implementation Notes**: The `collectPhotos` method was modified to no longer automatically load photos when a parent node is clicked. This makes the interaction more predictable, as photos are only loaded when a node is explicitly expanded by the user.
+   - **Implementation Notes**: User interaction handling has been made more robust. A `PropertyChangeListener` was implemented to reliably detect all node expansion events, triggering a recursive traversal of the tree to load photo data for any expanded node. This ensures consistent behavior whether the user double-clicks a node or uses the expand control. The component's lifecycle was also improved to prevent potential memory leaks on re-initialization.
    - **Status**: ✅ Completed
 
 ### Testing Strategy
