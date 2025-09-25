@@ -47,6 +47,7 @@ import asaintsever.tinyworld.indexor.search.results.TermsAggregation;
 import asaintsever.tinyworld.ui.MainFrame;
 import asaintsever.tinyworld.ui.component.PhotoMetadataDialog;
 import asaintsever.tinyworld.ui.event.IndexorListener;
+import lombok.NonNull;
 import gov.nasa.worldwind.avlist.AVKey;
 import gov.nasa.worldwind.event.SelectEvent;
 import gov.nasa.worldwind.event.SelectListener;
@@ -207,8 +208,11 @@ public class TinyWorldPhotoTreeLayer extends RenderableLayer
     }
 
     protected void initialize() {
-        if (this.photoTree != null && this.photoTree.getLayout() != null) {
-            this.removeRenderable(this.photoTree.getLayout());
+        if (this.photoTree != null) {
+            this.photoTree.removePropertyChangeListener(this);
+            if (this.photoTree.getLayout() != null) {
+                this.removeRenderable(this.photoTree.getLayout());
+            }
         }
 
         this.photoTree = new BasicTree();
@@ -318,27 +322,6 @@ public class TinyWorldPhotoTreeLayer extends RenderableLayer
         }
     }
 
-    private String getMonthName(int month) {
-        // Calendar month is 0-based, so we need to subtract 1
-        if (month >= 1 && month <= 12) {
-            return new DateFormatSymbols().getShortMonths()[month - 1];
-        }
-        return String.valueOf(month);
-    }
-
-    private String getQueryField(String templateField) {
-        switch (templateField) {
-        case "country":
-            return "country.keyword";
-        case "year":
-            return "takenYear";
-        case "month":
-            return "takenMonth";
-        default:
-            return templateField;
-        }
-    }
-
     private void checkNodeAndLoad(BasicTree tree, BasicTreeNode node) {
         if (tree.isNodeExpanded(node)) {
             // if node is at last aggregation level, load photos
@@ -356,7 +339,7 @@ public class TinyWorldPhotoTreeLayer extends RenderableLayer
         }
     }
 
-    private void loadPhotoNodes(BasicTreeNode parentNode) throws IOException {
+    private void loadPhotoNodes(@NonNull BasicTreeNode parentNode) throws IOException {
         List<String> path = new ArrayList<>();
         TreeNode current = parentNode;
         // Build path from root to current node
@@ -422,18 +405,11 @@ public class TinyWorldPhotoTreeLayer extends RenderableLayer
         }
     }
 
-    private void sortKeys(List<String> keys, String field) {
-        if ("country".equals(field)) {
-            Collections.sort(keys);
-        } else if ("year".equals(field)) {
-            keys.sort(Collections.reverseOrder());
-        } else if ("month".equals(field)) {
-            keys.sort(Comparator.comparingInt(Integer::parseInt));
-        }
-    }
-
     private void displayPhotos(List<PhotoMetadata> photos) {
-        clearPlacemarks();
+        for (PointPlacemark placemark : this.currentPlacemarks) {
+            this.removeRenderable(placemark);
+        }
+        this.currentPlacemarks.clear();
 
         for (PhotoMetadata metadata : photos) {
             if (metadata.getGpsLatLong() != null) {
@@ -458,13 +434,6 @@ public class TinyWorldPhotoTreeLayer extends RenderableLayer
         }
     }
 
-    private void clearPlacemarks() {
-        for (PointPlacemark placemark : this.currentPlacemarks) {
-            this.removeRenderable(placemark);
-        }
-        this.currentPlacemarks.clear();
-    }
-
     private void collectPhotos(BasicTreeNode node, List<PhotoMetadata> photos) {
         if (node.isLeaf()) {
             // ignore dummy node
@@ -479,6 +448,34 @@ public class TinyWorldPhotoTreeLayer extends RenderableLayer
             for (TreeNode child : node.getChildren()) {
                 collectPhotos((BasicTreeNode) child, photos);
             }
+        }
+    }
+
+    private String getMonthName(int month) {
+        // Calendar month is 0-based, so we need to subtract 1
+        if (month >= 1 && month <= 12) {
+            return new DateFormatSymbols().getShortMonths()[month - 1];
+        }
+        return String.valueOf(month);
+    }
+
+    private String getQueryField(String templateField) {
+        return switch (templateField) {
+        case "country" -> "country.keyword";
+        case "year" -> "takenYear";
+        case "month" -> "takenMonth";
+        default -> templateField;
+        };
+    }
+
+    private void sortKeys(List<String> keys, String field) {
+        switch (field) {
+        case "country" -> Collections.sort(keys);
+        case "year" -> keys.sort(Collections.reverseOrder());
+        case "month" -> keys.sort(Comparator.comparingInt(Integer::parseInt));
+        default -> {
+            // Do nothing for other fields
+        }
         }
     }
 }
