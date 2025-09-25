@@ -1,6 +1,6 @@
 {
     "aggs": {
-        "photo_year": {
+        "year": {
             "terms": {
                 "field": "takenYear",
                 "order": {
@@ -9,7 +9,7 @@
                 "size": 99
             },
             "aggs": {
-                "photo_month": {
+                "month": {
                     "terms": {
                         "field": "takenMonth",
                         "order": {

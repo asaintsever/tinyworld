@@ -72,7 +72,8 @@ public class IndexorCmd {
             logger.info("Indexor Cmd started and ready to ingest photos from " + ingestionPath);
 
             PhotoMetadata defaultMetadata = new PhotoMetadata();
-            defaultMetadata.setCountry("_Unknown_").setCountryCode("XXX").setGpsLatLong("25.0,-71.0");
+            defaultMetadata.setTakenYear((short) 1970).setTakenMonth((short) 1).setCountry("_Unknown_")
+                    .setCountryCode("XXX").setGpsLatLong("25.0,-71.0");
 
             if (clearIndex) {
                 // Clear index (may already exists): ie delete then create with default mapping for photo metadata
@@ -96,13 +97,13 @@ public class IndexorCmd {
                 }
             });
 
-            logger.info("Number of ingested photos: " + res.getProcessed_ok());
-            logger.info("Number of skipped files: " + res.getSkipped());
-            logger.info("Number of errors: " + res.getProcessed_nok());
+            logger.info("Number of ingested photos: " + res.processed_ok());
+            logger.info("Number of skipped files: " + res.skipped());
+            logger.info("Number of errors: " + res.processed_nok());
 
-            if (res.getProcessed_nok() > 0) {
+            if (res.processed_nok() > 0) {
                 System.out.println("\n----- ERRORS ----");
-                for (String msg : res.getErrorMsg())
+                for (String msg : res.errorMsg())
                     System.out.println("Error msg: " + msg);
             }
 

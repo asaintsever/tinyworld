@@ -79,10 +79,10 @@ public class PhotoObject {
     }
 
     /**
-     * Constructor to set default metadata values for attributes not found in photo
+     * Constructor to set metadata
      */
-    public PhotoObject(PhotoMetadata defaultMetadata) {
-        this.metadata = new PhotoMetadata().from(defaultMetadata);
+    public PhotoObject(PhotoMetadata metadata) {
+        this.metadata = new PhotoMetadata().from(metadata);
     }
 
     public PhotoMetadata getMetadata() {
@@ -95,7 +95,7 @@ public class PhotoObject {
 
     public PhotoObject extractMetadata(URI uri, FileType fileType, Metadata metadata)
             throws ParseException, IOException {
-        logger.info("Extracting metadata from " + uri);
+        logger.info("Extracting metadata from {}", uri);
 
         this.metadata.setPath(uri.toURL());
 
@@ -103,7 +103,7 @@ public class PhotoObject {
         if (exfSubDir != null) {
             ExifSubIFDDescriptor exfSubDesc = new ExifSubIFDDescriptor(exfSubDir);
 
-            logger.debug("taken Date: " + exfSubDesc.getDescription(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL));
+            logger.debug("taken Date: {}", exfSubDesc.getDescription(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL));
 
             SimpleDateFormat df = new SimpleDateFormat(PhotoMetadata.EXIF_DATE_PATTERN);
             df.setTimeZone(TimeZone.getTimeZone("UTC"));
@@ -197,7 +197,7 @@ public class PhotoObject {
         String filename = "";
 
         if (dumpPath != null) {
-            logger.info("Extracting thumbnail from " + uri);
+            logger.info("Extracting thumbnail from {}", uri);
 
             FileSystemDirectory fsDir = metadata.getFirstDirectoryOfType(FileSystemDirectory.class);
             if (fsDir != null) {
@@ -212,7 +212,7 @@ public class PhotoObject {
             thumbnail = (byte[]) exfThumbDir.getObject(Extract.TAG_THUMBNAIL_DATA);
 
         if (thumbnail == null || thumbnail.length == 0) {
-            logger.warn("No thumbnail found in metadata for " + uri + " -> generating thumbnail from photo");
+            logger.warn("No thumbnail found in metadata for {} -> generating thumbnail from photo", uri);
 
             // Test if HEIF format: Java Image I/O API does not support it
             // Make use of ImageMagick to generate a thumbnail (JPG format)

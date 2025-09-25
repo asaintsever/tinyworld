@@ -32,7 +32,7 @@ public class CustomFloatSerializer extends JsonSerializer<Float> {
     public void serialize(Float value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
         if (value != null) {
             // Only keep 2 digits, must set Locale.US to make sure a dot (.) is used as decimal separator
-            Float roundedValue = Float.valueOf(String.format(Locale.US, "%.2f", value));
+            float roundedValue = Float.parseFloat(String.format(Locale.US, "%.2f", value));
             gen.writeNumber(roundedValue);
         } else {
             gen.writeNull();

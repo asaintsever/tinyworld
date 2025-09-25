@@ -165,12 +165,12 @@ public class IngestPanel extends JPanel implements IndexorListener {
             try {
                 Extract.Result result = get();
                 logArea.append("\n--- Ingestion complete ---\n");
-                logArea.append("Successfully ingested: " + result.getProcessed_ok() + "\n");
-                logArea.append("Skipped: " + result.getSkipped() + "\n");
-                logArea.append("Errors: " + result.getProcessed_nok() + "\n");
-                if (result.getProcessed_nok() > 0) {
+                logArea.append("Successfully ingested: " + result.processed_ok() + "\n");
+                logArea.append("Skipped: " + result.skipped() + "\n");
+                logArea.append("Errors: " + result.processed_nok() + "\n");
+                if (result.processed_nok() > 0) {
                     logArea.append("\n--- Errors ---\n");
-                    for (String error : result.getErrorMsg()) {
+                    for (String error : result.errorMsg()) {
                         logArea.append(error + "\n");
                     }
                 }

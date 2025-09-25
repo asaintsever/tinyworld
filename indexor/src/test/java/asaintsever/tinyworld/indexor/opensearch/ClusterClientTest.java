@@ -152,7 +152,7 @@ public class ClusterClientTest {
 
             // Pause before asking # of doc in index
             Thread.sleep(2000);
-            assertEquals(doc.count(), 1);
+            assertEquals(1, doc.count());
 
             DocObject docObj = doc.get(id, DocObject.class);
             System.out.println("Document=" + docObj.toString());
@@ -190,7 +190,7 @@ public class ClusterClientTest {
 
             Thread.sleep(2000);
             // We still should have 1 doc as we did an update
-            assertEquals(doc.count(), 1);
+            assertEquals(1, doc.count());
 
             // Pause before adding another doc
             Thread.sleep(2000);
@@ -239,7 +239,7 @@ public class ClusterClientTest {
 
             // Pause before asking # of doc in index
             Thread.sleep(2000);
-            assertEquals(doc.count(), 15);
+            assertEquals(15, doc.count());
 
             // Search all documents
             IndexPage<DocObject> docObjList = doc.search("{\"simple_query_string\": {\"query\": \"*\"}}", 0, 10,
@@ -318,13 +318,13 @@ public class ClusterClientTest {
 
             // Pause before asking # of doc in index
             Thread.sleep(2000);
-            assertEquals(doc.count(), 30);
+            assertEquals(30, doc.count());
 
             // Now, run template
             List<TermsAggregation> aggr = doc.getAggregations(TEST_SEARCH_TEMPLATE_ID);
             System.out.println(aggr);
 
-            assertTrue(aggr.size() > 0);
+            assertFalse(aggr.isEmpty());
         }
 
         assertTrue(client.deleteSearchTemplate(TEST_SEARCH_TEMPLATE_ID));

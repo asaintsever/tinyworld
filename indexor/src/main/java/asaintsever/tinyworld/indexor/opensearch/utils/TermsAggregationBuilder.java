@@ -46,17 +46,22 @@ public class TermsAggregationBuilder {
 
                         ParsedTerms aggr = (ParsedTerms) aggregation;
                         buckAggr.setName(aggr.getName());
-                        buckAggr.setSum_other_doc_count(aggr.getSumOfOtherDocCounts());
+                        long buckAggrDocs = 0;
 
                         List<? extends Terms.Bucket> buckets = aggr.getBuckets();
                         if (buckets != null && !buckets.isEmpty()) {
                             for (Terms.Bucket bucket : buckets) {
                                 Bucket buck = buckAggr.new Bucket();
                                 buck.setKey(bucket.getKeyAsString());
+                                buck.setDoc_count(bucket.getDocCount());
                                 buck.setSubAggregations(from(bucket.getAggregations()));
                                 buckAggr.getBuckets().add(buck);
+
+                                buckAggrDocs += bucket.getDocCount();
                             }
                         }
+
+                        buckAggr.setDoc_count(buckAggrDocs);
 
                         buckAggrList.add(buckAggr);
                     }

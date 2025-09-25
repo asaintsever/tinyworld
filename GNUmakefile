@@ -37,7 +37,12 @@ format: ## Format code
 	mvn net.revelc.code.formatter:formatter-maven-plugin:format
 
 test: clean ## Run tests
+ifeq ($(TEST_MODULE),)
 	mvn test
+else
+	mvn install -Dmaven.test.skip=true
+	mvn test -pl $(TEST_MODULE)
+endif
 
 package: clean ## Package
 	mvn package -Dmaven.test.skip=true

@@ -17,30 +17,27 @@
  *
  *    https://github.com/asaintsever/tinyworld
  */
-package asaintsever.tinyworld.indexor.search.results;
+package asaintsever.tinyworld.ui.component;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.awt.BorderLayout;
+import java.awt.Frame;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
 
-@ToString
-@Setter
-@Getter
-public class TermsAggregation {
+import asaintsever.tinyworld.metadata.extractor.PhotoMetadata;
 
-    private long doc_count;
-    private String name;
-    private List<Bucket> buckets = new ArrayList<Bucket>();
+public class PhotoMetadataDialog extends JDialog {
 
-    @ToString
-    @Setter
-    @Getter
-    public class Bucket {
-        private String key;
-        private long doc_count;
-        private List<TermsAggregation> subAggregations = new ArrayList<TermsAggregation>();
+    public PhotoMetadataDialog(Frame owner, PhotoMetadata metadata) {
+        super(owner, "Photo Metadata", true);
+        initComponents(metadata);
+        pack();
+        setLocationRelativeTo(owner);
+    }
+
+    private void initComponents(PhotoMetadata metadata) {
+        setLayout(new BorderLayout());
+        add(new JLabel("Filename: " + metadata.getFileName()), BorderLayout.CENTER);
     }
 }

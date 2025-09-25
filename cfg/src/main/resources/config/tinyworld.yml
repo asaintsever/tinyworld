@@ -22,6 +22,8 @@ indexor:
     index: ${TW_IDX_CLUSTER_INDEX:-photos}              # cluster index name
   photo:
     defaultMetadata:  # Default attribute(s) to set if not found in photo metadata (for easier filtering and display)
+      takenYear: 1970
+      takenMonth: 1
       country: "_Unknown_"
       countryCode: "XXX"
       gpsLatLong: "25.0,-71.0"  # Bermuda Triangle
