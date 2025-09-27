@@ -54,9 +54,6 @@ Untar/Unzip downloaded portable package (several flavors available: with Linux J
 
 By default, 4Gb of memory is set via Xmx/Xms Java options: edit the script to change any Java options.
 
-> [!IMPORTANT]
-> The `tools` subfolder **must be added** to your PATH environment variable.
-
 ### Using AppImage on Linux
 
 ```sh
