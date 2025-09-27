@@ -112,7 +112,7 @@ See [instructions](ui/TEST.md).
     > *On Chrome OS, install required FUSE library using `sudo apt install fuse`*
 
 > [!NOTE]
-> *For AppImage package, you'll only be able to generate the package for the platform you're running on (e.g. aarch64 AppImage if you use an arm/aarch64 platform).*
+> *For AppImage and DMG (macOS) packages, you'll only be able to generate the package for the platform you're running on (e.g. aarch64 AppImage if you use an arm/aarch64 platform).*
 
 ### Building from Source
 
