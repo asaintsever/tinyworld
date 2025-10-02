@@ -6,8 +6,6 @@
     </Console>
   </Appenders>
   <Loggers>
-    <Logger name="org.opensearch.index.seqno.ReplicationTracker" level="info"/>
-    <Logger name="org.opensearch.monitor.fs.FsHealthService" level="info"/>
     <Root level="debug">
       <AppenderRef ref="Console"/>
     </Root>
