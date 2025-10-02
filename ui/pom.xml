@@ -205,6 +205,10 @@
       <activation>
         <activeByDefault>false</activeByDefault>
       </activation>
+      <properties>
+        <!-- Default: no dock name -->
+        <dock.name.arg></dock.name.arg>
+      </properties>
       <build>
         <plugins>
           <plugin>
@@ -245,7 +249,8 @@
                 <!-- Disable High DPI by enforcing UI scale factor: see docs/WORKAROUNDS.md -->
                 <!-- macOS only settings -->
                 <argument>-Dapple.laf.useScreenMenuBar=true</argument>
-                <argument>-Xdock:name=${project.parent.name}</argument>
+                <!-- macOS dock name argument, only supported on macOS -->
+                <argument>${dock.name.arg}</argument>
                 <!-- macOS only settings -->
                 <argument>-Xmx2048m</argument>
                 <!-- TinyWorld'UI jar must come before WorldWind as we override some messages in MessageStrings.properties file -->
@@ -257,6 +262,18 @@
           </plugin>
         </plugins>
       </build>
+    </profile>
+    <!-- macOS-specific: inject dock name argument -->
+    <profile>
+      <id>macos-dockname</id>
+      <activation>
+        <os>
+          <family>mac</family>
+        </os>
+      </activation>
+      <properties>
+        <dock.name.arg>-Xdock:name=${project.parent.name}</dock.name.arg>
+      </properties>
     </profile>
   </profiles>
 
