@@ -154,6 +154,10 @@ public class Indexor implements Closeable {
         return this.clusterClient.isConnected();
     }
 
+    public boolean isReady(boolean wait) {
+        return this.clusterClient.isReady(wait);
+    }
+
     public void reset() throws IOException {
         this.photos.close();
         this.clusterClient.close();

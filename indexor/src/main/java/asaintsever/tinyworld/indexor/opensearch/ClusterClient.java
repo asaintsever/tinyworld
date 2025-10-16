@@ -40,6 +40,8 @@ import org.opensearch.client.opensearch._global.GetScriptResponse;
 import org.opensearch.client.opensearch._global.PutScriptRequest;
 import org.opensearch.client.opensearch._global.PutScriptResponse;
 import org.opensearch.client.opensearch._types.StoredScript;
+import org.opensearch.client.opensearch.cluster.HealthRequest;
+import org.opensearch.client.opensearch.cluster.HealthResponse;
 import org.opensearch.client.opensearch.indices.CreateRequest;
 import org.opensearch.client.opensearch.indices.CreateResponse;
 import org.opensearch.client.opensearch.indices.DeleteRequest;
@@ -51,6 +53,7 @@ import org.slf4j.LoggerFactory;
 
 import jakarta.json.Json;
 import jakarta.json.JsonReader;
+import jakarta.json.JsonString;
 import jakarta.json.JsonValue;
 
 import com.fasterxml.jackson.core.JsonFactory;
@@ -91,13 +94,52 @@ public class ClusterClient implements Closeable {
         this.osClient = new OpenSearchClient(transport);
     }
 
-    public Boolean isConnected() {
+    public boolean isConnected() {
         if (this.restClient != null && this.restClient.isRunning() && this.osClient != null) {
             try {
                 BooleanResponse pingResponse = this.osClient.ping();
                 return pingResponse.value();
             } catch (IOException e) {
-                logger.warn("Fail to ping cluster: " + e.getMessage());
+                logger.warn("Fail to ping cluster: {}", e.getMessage());
+            }
+        }
+
+        return false;
+    }
+
+    public boolean isReady(boolean wait) {
+        if (this.isConnected()) {
+            try {
+                // Check that cluster is ready to process requests
+                // See https://opensearch.org/docs/latest/opensearch/rest-api/cluster-health/
+                HealthRequest.Builder healthRequestBuilder = new HealthRequest.Builder();
+                if (wait) {
+                    JsonValue statusJson, timeoutJson;
+                    try (JsonReader jsonreader = Json.createReader(new StringReader("yellow"))) {
+                        statusJson = jsonreader.readValue();
+                    }
+                    try (JsonReader jsonreader = Json.createReader(new StringReader("50s"))) {
+                        timeoutJson = jsonreader.readValue();
+                    }
+
+                    healthRequestBuilder.waitForStatus(statusJson).timeout(timeoutJson);
+                }
+
+                HealthResponse healthResponse = this.osClient.cluster().health(healthRequestBuilder.build());
+                JsonValue statusValue = healthResponse.status();
+                if (statusValue != null && statusValue.getValueType() == JsonValue.ValueType.STRING) {
+                    String status = ((JsonString) statusValue).getString();
+
+                    if (Cluster.READY_STATUSES.contains(status)) {
+                        return true;
+                    } else {
+                        logger.warn("Cluster is not ready: {}", status);
+                    }
+                } else {
+                    logger.error("Fail to parse cluster healthcheck response");
+                }
+            } catch (IOException e) {
+                logger.warn("Fail to get cluster health: {}", e.getMessage());
             }
         }
 
@@ -116,8 +158,7 @@ public class ClusterClient implements Closeable {
         JsonValue mappingJson = null;
 
         if (mapping != null && !mapping.isEmpty()) {
-            StringReader mappingStr = new StringReader(mapping);
-            try (JsonReader jsonreader = Json.createReader(mappingStr)) {
+            try (JsonReader jsonreader = Json.createReader(new StringReader(mapping))) {
                 mappingJson = jsonreader.readValue();
             }
         }
@@ -127,7 +168,7 @@ public class ClusterClient implements Closeable {
         return createIndexResponse.acknowledged();
     }
 
-    public Boolean isIndexExists(String index) throws IOException {
+    public boolean isIndexExists(String index) throws IOException {
         ExistsRequest existsIndexRequest = new ExistsRequest.Builder().addIndex(index).build();
         BooleanResponse boolResponse = this.osClient.indices().exists(existsIndexRequest);
         return boolResponse.value();
@@ -155,7 +196,7 @@ public class ClusterClient implements Closeable {
         try {
             searchTemplate = new String(Utils.getInternalResource(templatePath));
         } catch (IOException | URISyntaxException e) {
-            logger.error("Fail to load search template (" + templatePath + ")", e);
+            logger.error("Fail to load search template ({})", templatePath, e);
             throw new IOException(e);
         }
 

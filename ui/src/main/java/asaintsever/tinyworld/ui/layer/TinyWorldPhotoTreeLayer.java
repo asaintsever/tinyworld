@@ -249,7 +249,7 @@ public class TinyWorldPhotoTreeLayer extends RenderableLayer
         BasicTreeNode root = new BasicTreeNode("Root");
         model.setRoot(root);
 
-        if (this.indexor.isConnected()) {
+        if (this.indexor.isReady(true)) {
             try {
                 if (!this.indexor.metadataIndex().exists())
                     this.indexor.metadataIndex().create();
