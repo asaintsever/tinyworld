@@ -104,6 +104,17 @@ public class ClusterClient implements Closeable {
         return false;
     }
 
+    /**
+     * Checks if the OpenSearch cluster is ready to process requests.
+     * <p>
+     * "Ready" means the cluster health status is either "yellow" or "green", indicating
+     * that the cluster is operational and able to handle requests (not "red").
+     * </p>
+     *
+     * @param wait if true, waits (up to a timeout) for the cluster to reach at least "yellow" status before returning;
+     *             if false, checks the current status without waiting.
+     * @return true if the cluster is ready (status is "yellow" or "green"), false otherwise.
+     */
     public boolean isReady(boolean wait) {
         if (this.isConnected()) {
             try {
