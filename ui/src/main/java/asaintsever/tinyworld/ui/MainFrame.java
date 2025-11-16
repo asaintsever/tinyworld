@@ -82,7 +82,7 @@ public class MainFrame extends JFrame {
             if (listener != null)
                 try {
                     listener.created(indexor);
-                } catch (Exception e) {
+                } catch (RuntimeException e) {
                     this.logger.error("Error while notifying creation of Indexor to a listener", e);
                 }
     }
