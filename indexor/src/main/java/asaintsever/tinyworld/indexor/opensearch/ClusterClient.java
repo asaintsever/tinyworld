@@ -25,10 +25,10 @@ import java.io.StringReader;
 import java.net.URISyntaxException;
 
 import lombok.Getter;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
-import org.opensearch.client.ResponseException;
-import org.opensearch.client.RestClient;
-import org.opensearch.client.RestClientBuilder;
+import org.apache.http.util.EntityUtils;
+import org.opensearch.client.*;
 import org.opensearch.client.base.BooleanResponse;
 import org.opensearch.client.base.RestClientTransport;
 import org.opensearch.client.base.Transport;
@@ -40,8 +40,6 @@ import org.opensearch.client.opensearch._global.GetScriptResponse;
 import org.opensearch.client.opensearch._global.PutScriptRequest;
 import org.opensearch.client.opensearch._global.PutScriptResponse;
 import org.opensearch.client.opensearch._types.StoredScript;
-import org.opensearch.client.opensearch.cluster.HealthRequest;
-import org.opensearch.client.opensearch.cluster.HealthResponse;
 import org.opensearch.client.opensearch.indices.CreateRequest;
 import org.opensearch.client.opensearch.indices.CreateResponse;
 import org.opensearch.client.opensearch.indices.DeleteRequest;
@@ -53,7 +51,6 @@ import org.slf4j.LoggerFactory;
 
 import jakarta.json.Json;
 import jakarta.json.JsonReader;
-import jakarta.json.JsonString;
 import jakarta.json.JsonValue;
 
 import com.fasterxml.jackson.core.JsonFactory;
@@ -112,31 +109,25 @@ public class ClusterClient implements Closeable {
             try {
                 // Check that cluster is ready to process requests
                 // See https://opensearch.org/docs/latest/opensearch/rest-api/cluster-health/
-                HealthRequest.Builder healthRequestBuilder = new HealthRequest.Builder();
+                String endpoint = "/_cluster/health";
                 if (wait) {
-                    JsonValue statusJson, timeoutJson;
-                    try (JsonReader jsonreader = Json.createReader(new StringReader("yellow"))) {
-                        statusJson = jsonreader.readValue();
-                    }
-                    try (JsonReader jsonreader = Json.createReader(new StringReader("50s"))) {
-                        timeoutJson = jsonreader.readValue();
-                    }
-
-                    healthRequestBuilder.waitForStatus(statusJson).timeout(timeoutJson);
+                    endpoint += "?wait_for_status=yellow&timeout=50s";
                 }
 
-                HealthResponse healthResponse = this.osClient.cluster().health(healthRequestBuilder.build());
-                JsonValue statusValue = healthResponse.status();
-                if (statusValue != null && statusValue.getValueType() == JsonValue.ValueType.STRING) {
-                    String status = ((JsonString) statusValue).getString();
+                Response resp = this.restClient.performRequest(new Request("GET", endpoint));
+                HttpEntity entity = resp.getEntity();
+                String responseContent = EntityUtils.toString(entity);
+                logger.debug("Cluster health response: {}", responseContent);
+
+                try (JsonReader reader = Json.createReader(new StringReader(responseContent))) {
+                    var obj = reader.readObject();
+                    String status = obj.getString("status"); // e.g. "yellow", "green", "red"
 
                     if (Cluster.READY_STATUSES.contains(status)) {
                         return true;
                     } else {
                         logger.warn("Cluster is not ready: {}", status);
                     }
-                } else {
-                    logger.error("Fail to parse cluster healthcheck response");
                 }
             } catch (IOException e) {
                 logger.warn("Fail to get cluster health: {}", e.getMessage());

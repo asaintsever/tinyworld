@@ -261,7 +261,6 @@ public class TinyWorldPhotoTreeLayer extends RenderableLayer
                 if (aggregations != null) {
                     this.buildTree(aggregations, root, 0);
                 }
-
             } catch (IOException e) {
                 logger.error(e.getMessage(), e);
             }
