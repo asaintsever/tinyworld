@@ -36,7 +36,7 @@ import org.opensearch.script.mustache.MustachePlugin;
 import org.opensearch.transport.Netty4Plugin;
 
 public class Cluster implements Closeable {
-    protected static final Set<String> READY_STATUSES = Set.of("yellow", "green");
+    public static final Set<String> READY_STATUSES = Set.of("yellow", "green");
 
     public class ClusterNode extends Node {
         public ClusterNode(Settings preparedSettings, Collection<Class<? extends Plugin>> classpathPlugins) {
