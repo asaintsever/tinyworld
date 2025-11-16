@@ -96,6 +96,7 @@ public class TinyWorldPhotoTreeLayerTest {
         configuration.ui.photoTree.filter.template = "year_month";
 
         // --- Mock Indexor response ---
+        Mockito.when(indexor.isReady(true)).thenReturn(true);
         Mockito.when(indexor.isConnected()).thenReturn(true);
         Mockito.when(indexMock.exists()).thenReturn(true);
         Mockito.when(indexor.photos()).thenReturn(photos);
