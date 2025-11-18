@@ -3,7 +3,7 @@
   <groupId>asaintsever.tinyworld</groupId>
   <artifactId>tinyworld</artifactId>
   <name>TinyWorld</name>
-  <version>0.0.2-SNAPSHOT</version>
+  <version>0.0.2-fix-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <properties>
