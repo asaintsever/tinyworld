@@ -32,7 +32,6 @@ init: ## Init build (to run once)
 	mvn validate
 
 clean: ## Clean
-	mvn clean
 	rm -rf release/artifacts || true
 	mkdir -p release/artifacts
 
@@ -40,16 +39,16 @@ format: ## Format code
 	mvn install -pl build-tools
 	mvn net.revelc.code.formatter:formatter-maven-plugin:format
 
-test: clean ## Run tests
+test: ## Run tests
 ifeq ($(TEST_MODULE),)
-	mvn test
+	mvn clean test
 else
 	mvn install -Dmaven.test.skip=true
-	mvn test -pl $(TEST_MODULE)
+	mvn clean test -pl $(TEST_MODULE)
 endif
 
-package: clean ## Package
-	mvn package -Dmaven.test.skip=true
+package: ## Package
+	mvn clean package -Dmaven.test.skip=true
 
 run-indexor: ## Run Indexor test program
 	read -p "Full path to root directory to index: " pathToIndex
