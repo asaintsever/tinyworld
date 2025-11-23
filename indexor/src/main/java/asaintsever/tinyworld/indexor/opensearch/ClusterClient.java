@@ -25,10 +25,10 @@ import java.io.StringReader;
 import java.net.URISyntaxException;
 
 import lombok.Getter;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
-import org.opensearch.client.ResponseException;
-import org.opensearch.client.RestClient;
-import org.opensearch.client.RestClientBuilder;
+import org.apache.http.util.EntityUtils;
+import org.opensearch.client.*;
 import org.opensearch.client.base.BooleanResponse;
 import org.opensearch.client.base.RestClientTransport;
 import org.opensearch.client.base.Transport;
@@ -91,13 +91,57 @@ public class ClusterClient implements Closeable {
         this.osClient = new OpenSearchClient(transport);
     }
 
-    public Boolean isConnected() {
+    public boolean isConnected() {
         if (this.restClient != null && this.restClient.isRunning() && this.osClient != null) {
             try {
                 BooleanResponse pingResponse = this.osClient.ping();
                 return pingResponse.value();
             } catch (IOException e) {
-                logger.warn("Fail to ping cluster: " + e.getMessage());
+                logger.warn("Fail to ping cluster: {}", e.getMessage());
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Checks if the OpenSearch cluster is ready to process requests.
+     * <p>
+     * "Ready" means the cluster health status is either "yellow" or "green", indicating that the
+     * cluster is operational and able to handle requests (not "red").
+     * </p>
+     *
+     * @param wait if true, waits (up to a timeout) for the cluster to reach at least "yellow" status
+     *             before returning; if false, checks the current status without waiting.
+     * @return true if the cluster is ready (status is "yellow" or "green"), false otherwise.
+     */
+    public boolean isReady(boolean wait) {
+        if (this.isConnected()) {
+            try {
+                // Check that cluster is ready to process requests
+                // See https://opensearch.org/docs/latest/opensearch/rest-api/cluster-health/
+                String endpoint = "/_cluster/health";
+                if (wait) {
+                    endpoint += "?wait_for_status=yellow&timeout=50s";
+                }
+
+                Response resp = this.restClient.performRequest(new Request("GET", endpoint));
+                HttpEntity entity = resp.getEntity();
+                String responseContent = EntityUtils.toString(entity);
+                logger.debug("Cluster health response: {}", responseContent);
+
+                try (JsonReader reader = Json.createReader(new StringReader(responseContent))) {
+                    var obj = reader.readObject();
+                    String status = obj.getString("status"); // e.g. "yellow", "green", "red"
+
+                    if (Cluster.READY_STATUSES.contains(status)) {
+                        return true;
+                    } else {
+                        logger.warn("Cluster is not ready: {}", status);
+                    }
+                }
+            } catch (IOException e) {
+                logger.warn("Fail to get cluster health: {}", e.getMessage());
             }
         }
 
@@ -116,8 +160,7 @@ public class ClusterClient implements Closeable {
         JsonValue mappingJson = null;
 
         if (mapping != null && !mapping.isEmpty()) {
-            StringReader mappingStr = new StringReader(mapping);
-            try (JsonReader jsonreader = Json.createReader(mappingStr)) {
+            try (JsonReader jsonreader = Json.createReader(new StringReader(mapping))) {
                 mappingJson = jsonreader.readValue();
             }
         }
@@ -127,7 +170,7 @@ public class ClusterClient implements Closeable {
         return createIndexResponse.acknowledged();
     }
 
-    public Boolean isIndexExists(String index) throws IOException {
+    public boolean isIndexExists(String index) throws IOException {
         ExistsRequest existsIndexRequest = new ExistsRequest.Builder().addIndex(index).build();
         BooleanResponse boolResponse = this.osClient.indices().exists(existsIndexRequest);
         return boolResponse.value();
@@ -155,7 +198,7 @@ public class ClusterClient implements Closeable {
         try {
             searchTemplate = new String(Utils.getInternalResource(templatePath));
         } catch (IOException | URISyntaxException e) {
-            logger.error("Fail to load search template (" + templatePath + ")", e);
+            logger.error("Fail to load search template ({})", templatePath, e);
             throw new IOException(e);
         }
 

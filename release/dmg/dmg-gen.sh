@@ -4,13 +4,14 @@ set -e
 
 ARCH=$1
 RELEASE_VERSION=$2
+ORIGINAL_VERSION=$RELEASE_VERSION
 
 MAIN_JAR="ui-$RELEASE_VERSION.jar"
 MAIN_CLASS="asaintsever.tinyworld.ui.UI"
 
-# Strip any "-SNAPSHOT" suffix from the version as jpackage does not support it
-if [[ $RELEASE_VERSION == *"-SNAPSHOT" ]]; then
-  RELEASE_VERSION=${RELEASE_VERSION%-SNAPSHOT}
+# Strip any suffix starting with "-" from the version as jpackage does not support it
+if [[ $RELEASE_VERSION == *-* ]]; then
+  RELEASE_VERSION=${RELEASE_VERSION%%-*}
 fi
 
 # Check if version starts with "0."
@@ -39,3 +40,9 @@ jpackage \
   --license-file "$LICENSE_FILE" \
   --copyright "Copyright 2021-2025 A. Saint-Sever" \
   --java-options "$JVM_OPTIONS"
+
+# Rename the DMG file to use the original version
+if [[ "$ORIGINAL_VERSION" != "$RELEASE_VERSION" ]]; then
+  echo "Renaming macOS app bundle to use provided version $ORIGINAL_VERSION ..."
+  mv "release/artifacts/TinyWorld-$RELEASE_VERSION.dmg" "release/artifacts/TinyWorld-$ORIGINAL_VERSION.dmg"
+fi

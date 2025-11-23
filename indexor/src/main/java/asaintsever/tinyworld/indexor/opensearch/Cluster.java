@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Set;
 
 import org.opensearch.common.settings.Settings;
 import org.opensearch.common.settings.Settings.Builder;
@@ -35,6 +36,7 @@ import org.opensearch.script.mustache.MustachePlugin;
 import org.opensearch.transport.Netty4Plugin;
 
 public class Cluster implements Closeable {
+    public static final Set<String> READY_STATUSES = Set.of("yellow", "green");
 
     public class ClusterNode extends Node {
         public ClusterNode(Settings preparedSettings, Collection<Class<? extends Plugin>> classpathPlugins) {

@@ -154,6 +154,17 @@ public class Indexor implements Closeable {
         return this.clusterClient.isConnected();
     }
 
+    /**
+     * Checks if the underlying cluster client is ready to accept operations.
+     *
+     * @param wait if {@code true}, this method will block and wait until the cluster client is ready;
+     *             if {@code false}, it will return immediately with the current readiness state.
+     * @return {@code true} if the cluster client is ready for operations, {@code false} otherwise.
+     */
+    public boolean isReady(boolean wait) {
+        return this.clusterClient.isReady(wait);
+    }
+
     public void reset() throws IOException {
         this.photos.close();
         this.clusterClient.close();

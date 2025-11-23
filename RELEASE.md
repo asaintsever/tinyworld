@@ -3,7 +3,7 @@
 1) Build, test, package and publish
 
     ```sh
-    make release-github
+    make clean release
     ```
 
 2) Set new version for next release

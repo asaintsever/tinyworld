@@ -9,9 +9,13 @@ REPO:=tinyworld
 APPIMAGE_NAME:=TinyWorld
 IMAGE_FQIN:=asaintsever/tinyworld
 
+# Gen targets configuration: "target_name:display_name:os_constraint"
+# os_constraint: "all" (all OS), "darwin" (macOS only), "non-darwin" (non-macOS only)
+GEN_TARGETS:=gen-oci-image:"OCI image":all gen-appimage:AppImage:non-darwin gen-portableapp:"Portable App":all gen-dmg:DMG:darwin
+
 .SILENT: ;  	# No need for @
 .ONESHELL: ; 	# Single shell for a target (required to properly use local variables)
-.PHONY: help init clean format test package run-ui run-ui-gl-sw run-indexor pre-release gen-portableapp gen-oci-image gen-appimage gen-dmg next-version release-github
+.PHONY: help init clean format test package run-ui run-ui-gl-sw run-indexor pre-release gen-portableapp gen-oci-image gen-appimage gen-dmg next-version release
 .DEFAULT_GOAL := help
 
 help: ## Show Help
@@ -36,7 +40,7 @@ format: ## Format code
 	mvn install -pl build-tools
 	mvn net.revelc.code.formatter:formatter-maven-plugin:format
 
-test: clean ## Run tests
+test: ## Run tests
 ifeq ($(TEST_MODULE),)
 	mvn test
 else
@@ -44,7 +48,7 @@ else
 	mvn test -pl $(TEST_MODULE)
 endif
 
-package: clean ## Package
+package: ## Package
 	mvn package -Dmaven.test.skip=true
 
 run-indexor: ## Run Indexor test program
@@ -96,7 +100,35 @@ next-version: ## Set next version
 	mvn versions:set -DnewVersion=$$twNewVer
 	echo -n $$twNewVer > VERSION
 
-release-github: test gen-oci-image gen-appimage gen-portableapp ## Release on GitHub
+release: test ## Release
+	set -e
+	echo "=== Release Preparation ==="
+	echo
+	for target_info in ${GEN_TARGETS}; do \
+		IFS=':' read -r target_name display_name os_constraint <<< "$$target_info"; \
+		current_os=$$(uname -s); \
+		skip=false; \
+		if [ "$$os_constraint" = "darwin" ] && [ "$$current_os" != "Darwin" ]; then \
+			skip=true; \
+		elif [ "$$os_constraint" = "non-darwin" ] && [ "$$current_os" = "Darwin" ]; then \
+			skip=true; \
+		fi; \
+		if [ "$$skip" = false ]; then \
+			read -p "Generate $$display_name (y/n)? " answer; \
+			case $$answer in \
+			y|Y ) \
+				$(MAKE) $$target_name; \
+			;; \
+			* ) \
+				echo "Skipping $$display_name generation"; \
+			;; \
+			esac; \
+			echo; \
+		fi; \
+	done
+	echo
+	echo "=== DockerHub Release ==="
+	echo
 	read -p "Publish image (y/n)? " answer
 	case $$answer in \
 	y|Y ) \
@@ -111,8 +143,31 @@ release-github: test gen-oci-image gen-appimage gen-portableapp ## Release on Gi
 		echo "Image not published"; \
 	;; \
 	esac
+	echo
+	echo "=== GitHub Release ==="
+	echo
 	echo "Releasing artifacts ..."
 	read -p "- Github user name to use for release: " username
+	echo "- Creating and pushing git tag v${RELEASE_VERSION}"
+	if git rev-parse "v${RELEASE_VERSION}" >/dev/null 2>&1; then \
+		echo "Tag v${RELEASE_VERSION} already exists locally"; \
+	else \
+		git tag -a "v${RELEASE_VERSION}" -m "Release v${RELEASE_VERSION}"; \
+		if [ "$$?" -ne 0 ]; then \
+			echo "Unable to create git tag"; \
+			exit 1; \
+		fi; \
+	fi
+	git push origin "v${RELEASE_VERSION}" 2>/dev/null
+	push_result=$$?
+	if [ $$push_result -ne 0 ]; then \
+		if git ls-remote --tags origin | grep -q "v${RELEASE_VERSION}"; then \
+			echo "Tag v${RELEASE_VERSION} already exists on remote"; \
+		else \
+			echo "Unable to push git tag"; \
+			exit 1; \
+		fi; \
+	fi
 	echo "- Creating release"
 	id=$$(curl -u $$username -s -X POST "https://api.github.com/repos/${OWNER}/${REPO}/releases" -d '{"tag_name": "v'${RELEASE_VERSION}'", "name": "v'${RELEASE_VERSION}'", "draft": true, "body": ""}' | jq '.id')
 	if [ "$$?" -ne 0 ]; then \

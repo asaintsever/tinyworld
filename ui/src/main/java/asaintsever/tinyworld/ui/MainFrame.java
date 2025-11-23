@@ -80,7 +80,11 @@ public class MainFrame extends JFrame {
         // Notify all listeners with Indexor
         for (IndexorListener listener : this.indexorListeners)
             if (listener != null)
-                listener.created(indexor);
+                try {
+                    listener.created(indexor);
+                } catch (RuntimeException e) {
+                    this.logger.error("Error while notifying creation of Indexor to a listener", e);
+                }
     }
 
     public WorldWindow getWwd() {
