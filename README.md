@@ -76,14 +76,29 @@ Download the DMG package and double-clic on the file. Drag and drop the applicat
 ### Using OCI Image
 
 ```sh
-<docker|podman> run --rm -e DISPLAY -v "$HOME/.Xauthority:/root/.Xauthority:rw" -v "$HOME/.tinyworld:/root/.tinyworld" -v "$HOME/var/cache:/root/var/cache" --network host asaintsever/tinyworld:<release version>
+<docker|podman> run --rm \
+       -e DISPLAY \
+       -v /tmp/.X11-unix:/tmp/.X11-unix:rw \
+       -v "$HOME/.Xauthority:/root/.Xauthority:rw" \
+       -v "$HOME/.tinyworld:/root/.tinyworld" \
+       -v "$HOME/var/cache:/root/var/cache" \
+       --network host \
+       asaintsever/tinyworld:<release version>
 ```
 
 By default, 4Gb of memory is set via Xmx/Xms Java options. You can override this and add other options using the JAVA_OPTS env var:
 
 ```sh
 # E.g. 2Gb max, 1Gb min
-<docker|podman> run --rm -e DISPLAY -e JAVA_OPTS="-Xmx2048m -Xms1024m" -v "$HOME/.Xauthority:/root/.Xauthority:rw" -v "$HOME/.tinyworld:/root/.tinyworld" -v "$HOME/var/cache:/root/var/cache" --network host asaintsever/tinyworld:<release version>
+<docker|podman> run --rm \
+        -e DISPLAY \
+        -e JAVA_OPTS="-Xmx2048m -Xms1024m" \
+        -v /tmp/.X11-unix:/tmp/.X11-unix:rw \
+        -v "$HOME/.Xauthority:/root/.Xauthority:rw" \
+        -v "$HOME/.tinyworld:/root/.tinyworld" \
+        -v "$HOME/var/cache:/root/var/cache" \
+        --network host \
+        asaintsever/tinyworld:<release version>
 ```
 
 ### From Source

@@ -11,7 +11,7 @@ IMAGE_FQIN:=asaintsever/tinyworld
 
 # Gen targets configuration: "target_name:display_name:os_constraint"
 # os_constraint: "all" (all OS), "darwin" (macOS only), "non-darwin" (non-macOS only)
-GEN_TARGETS:=gen-oci-image:OCI image:all gen-appimage:AppImage:non-darwin gen-portableapp:Portable App:all gen-dmg:DMG:darwin
+GEN_TARGETS:=gen-oci-image:"OCI image":all gen-appimage:AppImage:non-darwin gen-portableapp:"Portable App":all gen-dmg:DMG:darwin
 
 .SILENT: ;  	# No need for @
 .ONESHELL: ; 	# Single shell for a target (required to properly use local variables)
