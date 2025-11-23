@@ -148,6 +148,26 @@ release: test ## Release
 	echo
 	echo "Releasing artifacts ..."
 	read -p "- Github user name to use for release: " username
+	echo "- Creating and pushing git tag v${RELEASE_VERSION}"
+	if git rev-parse "v${RELEASE_VERSION}" >/dev/null 2>&1; then \
+		echo "Tag v${RELEASE_VERSION} already exists locally"; \
+	else \
+		git tag -a "v${RELEASE_VERSION}" -m "Release v${RELEASE_VERSION}"; \
+		if [ "$$?" -ne 0 ]; then \
+			echo "Unable to create git tag"; \
+			exit 1; \
+		fi; \
+	fi
+	git push origin "v${RELEASE_VERSION}" 2>/dev/null
+	push_result=$$?
+	if [ $$push_result -ne 0 ]; then \
+		if git ls-remote --tags origin | grep -q "v${RELEASE_VERSION}"; then \
+			echo "Tag v${RELEASE_VERSION} already exists on remote"; \
+		else \
+			echo "Unable to push git tag"; \
+			exit 1; \
+		fi; \
+	fi
 	echo "- Creating release"
 	id=$$(curl -u $$username -s -X POST "https://api.github.com/repos/${OWNER}/${REPO}/releases" -d '{"tag_name": "v'${RELEASE_VERSION}'", "name": "v'${RELEASE_VERSION}'", "draft": true, "body": ""}' | jq '.id')
 	if [ "$$?" -ne 0 ]; then \
