@@ -132,7 +132,7 @@ release: test ## Release
 	read -p "Publish image (y/n)? " answer
 	case $$answer in \
 	y|Y ) \
-		$(CONTAINER_RUNTIME) login; \
+		$(CONTAINER_RUNTIME) login docker.io; \
 		$(CONTAINER_RUNTIME) push ${IMAGE_FQIN}:${RELEASE_VERSION}; \
 		if [ "$$?" -ne 0 ]; then \
 			echo "Unable to publish image"; \
