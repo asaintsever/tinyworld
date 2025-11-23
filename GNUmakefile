@@ -32,6 +32,7 @@ init: ## Init build (to run once)
 	mvn validate
 
 clean: ## Clean
+	mvn clean
 	rm -rf release/artifacts || true
 	mkdir -p release/artifacts
 
@@ -41,14 +42,14 @@ format: ## Format code
 
 test: ## Run tests
 ifeq ($(TEST_MODULE),)
-	mvn clean test
+	mvn test
 else
 	mvn install -Dmaven.test.skip=true
-	mvn clean test -pl $(TEST_MODULE)
+	mvn test -pl $(TEST_MODULE)
 endif
 
 package: ## Package
-	mvn clean package -Dmaven.test.skip=true
+	mvn package -Dmaven.test.skip=true
 
 run-indexor: ## Run Indexor test program
 	read -p "Full path to root directory to index: " pathToIndex
